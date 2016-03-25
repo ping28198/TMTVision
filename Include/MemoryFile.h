@@ -48,7 +48,9 @@ public:
 
 	bool CloseFile();
 
-
+	static bool WriteMemoryToFile_W(const void *pMem, size_t elementSize, wchar_t *strFilePath);
+	static bool WriteMemoryToFile_AW(const void *pMem, size_t elementSize, wchar_t *strFilePath);
+	static int ReadMemoryFromFile(void *pMem, size_t elementSize, size_t  elementCount, wchar_t *strFilePath);
 protected:
 private:
 	FILE* pFile;

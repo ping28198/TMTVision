@@ -61,7 +61,7 @@ bool CMemoryFile::OpenFile_AW(wchar_t *pFileName)
 bool CMemoryFile::WriteMemoryToFile(const void *pMem, size_t mLength)
 {
 	if (mode != 2 && mode != 3) return false;
-	int backcode=fwrite(pMem, mLength, 1, pFile);
+	int backcode = fwrite(pMem, mLength, 1, pFile);
 	return backcode;
 }
 
@@ -69,6 +69,18 @@ bool CMemoryFile::ReadMemoryFromFile(void *pMem, size_t mLength)
 {
 	if (mode != 1 && mode != 3) return false;
 	int backcode = fread_s(pMem, mLength, mLength, 1, pFile);
+	return backcode;
+}
+
+int CMemoryFile::ReadMemoryFromFile(void *pMem, size_t elementSize, size_t elementCount, wchar_t *strFilePath)
+{
+	wchar_t  mstrFilePath[256];
+	CCommonFunc::SafeStringPrintf(mstrFilePath, _countof(mstrFilePath), L"%s", strFilePath);
+	FILE *mFile;
+	_wfopen_s(&mFile, mstrFilePath, L"rb");
+	if (!mFile) return false;
+	int backcode = fread_s(pMem, elementSize, elementCount, 1, mFile);
+	fclose(mFile);
 	return backcode;
 }
 
@@ -80,6 +92,32 @@ bool CMemoryFile::CloseFile()
 		fclose(pFile);
 	}
 	return true;
+}
+
+bool CMemoryFile::WriteMemoryToFile_W(const void *pMem, size_t elementSize, wchar_t *strFilePath)
+{
+	wchar_t  mstrFilePath[256];
+	CCommonFunc::SafeStringPrintf(mstrFilePath, _countof(mstrFilePath), L"%s", strFilePath);
+	FILE *mFile;
+	_wfopen_s(&mFile, mstrFilePath, L"wb");
+	if (!mFile) return false;
+	int backcode = fwrite(pMem, elementSize, 1, mFile);
+	fflush(mFile);
+	fclose(mFile);
+	return backcode;
+}
+
+bool CMemoryFile::WriteMemoryToFile_AW(const void *pMem, size_t elementSize, wchar_t *strFilePath)
+{
+	wchar_t  mstrFilePath[256];
+	CCommonFunc::SafeStringPrintf(mstrFilePath, _countof(mstrFilePath), L"%s", strFilePath);
+	FILE *mFile;
+	_wfopen_s(&mFile, mstrFilePath, L"ab");
+	if (!mFile) return false;
+	int backcode = fwrite(pMem, elementSize, 1, mFile);
+	fflush(mFile);
+	fclose(mFile);
+	return backcode;
 }
 
 CMemoryFile::~CMemoryFile()
