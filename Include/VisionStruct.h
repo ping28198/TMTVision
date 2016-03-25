@@ -4,7 +4,7 @@
 
 struct Tmtv_CameraInfo //相机信息
 {
-	int Indexnum;//相机序号
+	int Indexnum=0;//相机序号
 	char CameraName[TMTV_MAXSTRLEN];//相机名称等信息
 	char CameraPath[TMTV_MAXSTRLEN];//相机根目录路径
 	char MaskImgPath[TMTV_MAXSTRLEN];//掩码图像位置
@@ -17,6 +17,8 @@ struct Tmtv_DefectInfo	//缺陷信息
 {
 	int DefectNum=0;//缺陷数量
 	int DefectPos[TMTV_MAXDEFECTNUM][8];//left,top,width,height,type,level,..
+	int ImgWidth=1920;
+	int ImgHeight=1080;//指定图片大小，便于图片尺寸调整之后绘制缺陷信息
 };
 
 struct Tmtv_ImageInfo	//图像信息，相机服务端发往主程序端
