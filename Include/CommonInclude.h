@@ -13,7 +13,7 @@
 #include "CvImage.h"
 #include "Thread.h"
 #include "Detector.h"
-
+#include "MemoryFile.h"
 //opencvÍ·ÎÄ¼þ
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
