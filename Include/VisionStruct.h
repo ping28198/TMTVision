@@ -23,7 +23,6 @@ struct Tmtv_DefectInfo	//缺陷信息
 
 struct Tmtv_ImageInfo	//图像信息，相机服务端发往主程序端
 {
-	int CheckCode = TMTV_CHECKCODE;//验证码，防止通信干扰
 	Tmtv_CameraInfo mCameraInfo;
 	Tmtv_DefectInfo mDefectInfo;
 	char ImagePath[TMTV_MAXSTRLEN];//文件路径
@@ -36,7 +35,13 @@ struct Tmtv_ImageInfo	//图像信息，相机服务端发往主程序端
 struct Tmtv_AskInfo//指令信息，主程序端发往相机服务端
 {
 	int CheckCode = TMTV_CHECKCODE;//验证码，防止通信干扰
-	int Asktype;//请求类型，100：启动CameraIndex相机，101：关闭CameraIndex相机，102：请求发送CameraIndex相机最新数据，103：
-	int CameraIndex;//相机索引号
-	int VerifyCode;//校验码，以上所有数据之和
+	int Asktype;//请求类型，100：启动CameraInfo指定的相机，101：关闭CameraInfo指定的相机，102：请求发送CameraInfo指定的相机最新数据，103：添加CameraInfo指定的相机
+	Tmtv_CameraInfo CameraInfo;
+};
+struct Tmtv_MsgInfo//指令信息，相机服务端发往主程序端
+{
+	int CheckCode = TMTV_CHECKCODE;//验证码，防止通信干扰
+	int MsgType;//200:新检测到的mImgInfo图片,201:启动CameraInfo指定的相机成功，202：关闭CameraInfo指定的相机成功，203：添加CameraInfo指定的相机成功
+	Tmtv_CameraInfo CameraInfo;
+	Tmtv_ImageInfo mImgInfo;
 };
