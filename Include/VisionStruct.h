@@ -36,12 +36,14 @@ struct Tmtv_AskInfo//指令信息，主程序端发往相机服务端
 {
 	int CheckCode = TMTV_CHECKCODE;//验证码，防止通信干扰
 	int Asktype;//请求类型，100：启动CameraInfo指定的相机，101：关闭CameraInfo指定的相机，102：请求发送CameraInfo指定的相机最新数据，103：添加CameraInfo指定的相机
+	//104：修改CameraInfo相机号指定的相机信息
 	Tmtv_CameraInfo CameraInfo;
 };
 struct Tmtv_MsgInfo//指令信息，相机服务端发往主程序端
 {
 	int CheckCode = TMTV_CHECKCODE;//验证码，防止通信干扰
 	int MsgType;//200:新检测到的mImgInfo图片,201:启动CameraInfo指定的相机成功，202：关闭CameraInfo指定的相机成功，203：添加CameraInfo指定的相机成功
+	//204：修改CameraInfo相机号指定的相机信息成功
 	Tmtv_CameraInfo CameraInfo;
 	Tmtv_ImageInfo mImgInfo;
 };
