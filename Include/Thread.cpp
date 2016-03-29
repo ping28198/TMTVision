@@ -1,7 +1,7 @@
 //#include "stdafx.h"
 #include "Thread.h"
 #include <process.h>
-#include "ThreadTimelimited.h"
+//#include "ThreadTimelimited.h"
 
 int Mod(int i,int j)
 {

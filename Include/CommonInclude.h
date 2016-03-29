@@ -14,6 +14,7 @@
 #include "Thread.h"
 #include "Detector.h"
 #include "MemoryFile.h"
+#include "TmtSocket.h"
 //opencvÍ·ÎÄ¼þ
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
