@@ -92,7 +92,7 @@ struct Tmtv_AskInfo//指令信息，主程序端发往相机服务端
 	enum { 
 		   TMTV_ADDCAM = 100,        //添加CameraInfo指定的未加载相机
 		   TMTV_DELCAM = 101,        //删除CameraInfo指定的未加载相机
-		   TMTV_STERTCAM = 102,      //启动CameraInfo指定的已加载相机
+		   TMTV_STARTCAM = 102,      //启动CameraInfo指定的已加载相机
 		   TMTV_STOPCAM = 103,       //暂定CameraInfo指定的已加载相机
 		   TMTV_GETCAM = 104,        //查询CameraInfo指定的已加载相机的指定参数
 		   TMTV_SETCAM = 105,        //设置CameraInfo指定的已加载相机的指定参数
@@ -108,7 +108,7 @@ struct Tmtv_MsgInfo//指令信息，相机服务端发往主程序端
 	enum {
 		   TMTV_ADDCAM_OK = 200,        //添加CameraInfo指定的未加载相机成功
 		   TMTV_DELCAM_OK = 201,        //删除CameraInfo指定的未加载相机成功
-		   TMTV_STERTCAM_OK = 202,      //启动CameraInfo指定的已加载相机成功
+		   TMTV_STARTCAM_OK = 202,      //启动CameraInfo指定的已加载相机成功
 		   TMTV_STOPCAM_OK = 203,       //暂定CameraInfo指定的已加载相机成功
 		   TMTV_GETCAM_OK = 204,        //查询CameraInfo指定的已加载相机的指定参数成功
 		   TMTV_SETCAM_OK = 205,        //设置CameraInfo指定的已加载相机的指定参数成功
