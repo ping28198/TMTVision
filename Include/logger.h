@@ -36,10 +36,10 @@ static const int MAX_STR_LEN = 1024;
 //日志级别枚举
 typedef enum tagEnumLogLevel
 {
-	LogLevelAll = 0,    //所有信息都写日志
-	LogLevelMid,        //写错误、警告信息
-	LogLevelNormal,     //只写错误信息
-	LogLevelStop        //不写日志
+	LogLevelAll = 0,        //所有信息都写日志
+	LogLevelMid = 1,        //写错误、警告信息
+	LogLevelNormal = 2,     //只写错误信息
+	LogLevelStop = 3,       //不写日志
 }EnumLogLevel;
 
 /*
