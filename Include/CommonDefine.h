@@ -1,42 +1,27 @@
+///<proj_info>
+//==============================================================================
+// 项目名 ：智能监控
+// 文件名 ：CommonDefine.h
+// 作  者 ：任威平
+// 用  途 ：提供宏
+// 版  权 ：霍比特人 
+//==============================================================================
+///</proj_info>
+
+///<ver_info>
+// 版本记录	
+//==============================================================================
+//版本号  开发人员      时间      描述
+//1.0     任威平      2016.3.26  创建
+//1.1     王磊        2016.3.29  整合旧版本,调整了CommonDefine
+//==============================================================================
+///</ver_info>
 #ifndef COMMON_DEFINE_H
 #define COMMON_DEFINE_H
-//日志级别的提示信息
-static const char * KEYINFOPREFIX   = " KeyInfo: ";
-static const char * ERRORPREFIX = " Error: ";
-static const char * WARNINGPREFIX   = " Warning: ";
-static const char * INFOPREFIX      = " Info: ";
-static const int MAX_STR_LEN = 1024;
-//日志级别枚举
-typedef enum tagEnumLogLevel
-{
-	LogLevelAll = 0,    //所有信息都写日志
-	LogLevelMid,        //写错误、警告信息
-	LogLevelNormal,     //只写错误信息
-	LogLevelStop        //不写日志
-}EnumLogLevel;
-
 
 #define TMTV_MAXSTRLEN	256//字符串最大长度
 #define TMTV_MAXDEFECTNUM 16//单个图像中最大缺陷数量
 #define TMTV_CHECKCODE 20160321//网络通信间的验证信息
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif
 
