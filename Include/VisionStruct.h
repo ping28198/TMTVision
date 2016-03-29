@@ -15,13 +15,30 @@
 //1.0     任威平      2016.3.20  整合旧版本
 //1.1     王磊        2016.3.29  增加相机分辨率
 //                               增加消息枚举
+//1.2     王磊        2016.3.29  增加相机状态空间管理,对应于相机管理消息
 //==============================================================================
 ///</ver_info>
 
 #pragma once
 #include "CommonDefine.h" 
 
-
+///<data_info>
+//==============================================================================
+//功能描述:相机信息类
+//         相机状态空间:
+//                  
+//    ―――――― TMTV_NOCAM
+//   |           ↓           ↑
+//   |      TMTV_ADDCAM / TMTV_DELCAM  ←――
+//   |           ↓           ↑            |
+//   |           TMTV_STOPEDCAM             |
+//   |           ↓           ↑            |
+//    ―→ TMTV_STERTCAM / TMTV_STOPCAM     |
+//               ↓           ↑            |
+//               TMTV_RUNNINGCAM ―――――—
+//
+//==============================================================================
+///</data_info>
 struct Tmtv_CameraInfo //相机信息
 {
 	int Indexnum=0;//相机序号
@@ -32,6 +49,12 @@ struct Tmtv_CameraInfo //相机信息
 	int CameraWidth = 1920;//1.1 //相机图片宽度
 	int CameraHeight = 1080;//1.1 //相机图片高度
 	int WarnningLevel;//警告等级
+	enum {
+		    TMTV_NOCAM = 300,            //未加载的相机
+	    	TMTV_STOPEDCAM = 301,        //已加载的暂停相机
+		    TMTV_RUNNINGCAM = 302,       //已加载的运行相机
+	};
+	int Status;//相机状态
 	char Reservechar[TMTV_MAXSTRLEN];//保留
 };
 
