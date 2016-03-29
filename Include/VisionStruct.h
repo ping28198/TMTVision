@@ -21,10 +21,14 @@
 //==============================================================================
 ///</ver_info>
 
+///<header_info>
+//==============================================================================
 #pragma once
 #include "CommonDefine.h" 
+//==============================================================================
+///</header_info>
 
-///<data_info>
+///<algorithm_info>
 //==============================================================================
 //功能描述:相机信息类
 //         相机状态空间:
@@ -40,10 +44,13 @@
 //               TMTV_RUNNINGCAM ―――――—
 //
 //==============================================================================
-///</data_info>
+///</algorithm_info>
+
+///<datastruct_info>
+//==============================================================================
 struct Tmtv_CameraInfo //相机信息
 {
-	int Indexnum=0;//相机序号
+	int Indexnum = 0;//相机序号
 	char CameraName[TMTV_MAXSTRLEN];//相机名称等信息
 	char CameraPath[TMTV_MAXSTRLEN];//相机根目录路径
 	char MaskImgPath[TMTV_MAXSTRLEN];//掩码图像位置
@@ -51,73 +58,89 @@ struct Tmtv_CameraInfo //相机信息
 	int CameraWidth = 1920;//1.1 //相机图片宽度
 	int CameraHeight = 1080;//1.1 //相机图片高度	
 	enum {//2.0 
-		    TMTV_NOWARN = 0,     //不启动算法
-	    	TMTV_PREWARN = 1,    //启动算法过程中
-		    TMTV_STARTWARN = 2,  //已启动的算法
+		TMTV_NOWARN = 0,     //不启动算法
+		TMTV_PREWARN = 1,    //启动算法过程中
+		TMTV_STARTWARN = 2,  //已启动的算法
 	};
 	int WarnningLevel;//警告等级,设置算法启动状态
 	enum {//1.2
-		    TMTV_NOCAM = 300,      //未加载的相机
-	    	TMTV_STOPEDCAM = 301,  //已加载的暂停相机
-		    TMTV_RUNNINGCAM = 302, //已加载的运行相机
+		TMTV_NOCAM = 300,      //未加载的相机
+		TMTV_STOPEDCAM = 301,  //已加载的暂停相机
+		TMTV_RUNNINGCAM = 302, //已加载的运行相机
 	};
 	int Status;//1.2//相机状态
 	char Reservechar[TMTV_MAXSTRLEN];//保留
 };
+//==============================================================================
+///</datastruct_info>
 
+///<datastruct_info>
+//==============================================================================
 struct Tmtv_DefectInfo	//缺陷信息
 {
-	int DefectNum=0;//缺陷数量
+	int DefectNum = 0;//缺陷数量
 	int DefectPos[TMTV_MAXDEFECTNUM][8];//left,top,width,height,type,level,..
-	int ImgWidth=1920;
-	int ImgHeight=1080;//指定图片大小，便于图片尺寸调整之后绘制缺陷信息
+	int ImgWidth = 1920;
+	int ImgHeight = 1080;//指定图片大小，便于图片尺寸调整之后绘制缺陷信息
 };
+//==============================================================================
+///</datastruct_info>
 
+///<datastruct_info>
+//==============================================================================
 struct Tmtv_ImageInfo	//图像信息，相机服务端发往主程序端
 {
 	Tmtv_CameraInfo mCameraInfo;
 	Tmtv_DefectInfo mDefectInfo;
 	char ImagePath[TMTV_MAXSTRLEN];//文件路径
 	char GrabTime[64];//采集时间 格式：年-月-日-时:分：秒。例：2016-03-22-12:00:00
-	int IsWarnning=0;//是否有警告
-	int IsVIP=0;//设置是否是重点
+	int IsWarnning = 0;//是否有警告
+	int IsVIP = 0;//设置是否是重点
 	char Reservechar[TMTV_MAXSTRLEN];//保留
 };
+//==============================================================================
+///</datastruct_info>
 
+///<datastruct_info>
+//==============================================================================
 struct Tmtv_AskInfo//指令信息，主程序端发往相机服务端
 {
 	int CheckCode = TMTV_CHECKCODE;//验证码，防止通信干扰
-    //请求类型，101：关闭CameraInfo指定的相机，102：请求发送CameraInfo指定的相机最新数据，103：添加CameraInfo指定的相机
-	//104：修改CameraInfo相机号指定的相机信息
-	enum { 
-		   TMTV_ADDCAM = 100,        //添加CameraInfo指定的未加载相机
-		   TMTV_DELCAM = 101,        //删除CameraInfo指定的未加载相机
-		   TMTV_STARTCAM = 102,      //启动CameraInfo指定的已加载相机
-		   TMTV_STOPCAM = 103,       //暂定CameraInfo指定的已加载相机
-		   TMTV_GETCAM = 104,        //查询CameraInfo指定的已加载相机的指定参数
-		   TMTV_SETCAM = 105,        //设置CameraInfo指定的已加载相机的指定参数
+	enum {
+		TMTV_ADDCAM = 100,        //添加CameraInfo指定的未加载相机
+		TMTV_DELCAM = 101,        //删除CameraInfo指定的未加载相机
+		TMTV_STARTCAM = 102,      //启动CameraInfo指定的已加载相机
+		TMTV_STOPCAM = 103,       //暂定CameraInfo指定的已加载相机
+		TMTV_GETCAM = 104,        //查询CameraInfo指定的已加载相机的指定参数
+		TMTV_SETCAM = 105,        //设置CameraInfo指定的已加载相机的指定参数
 	};
 	int Asktype;
 	Tmtv_CameraInfo CameraInfo;
 	DWORD hAskHandle;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
 	DWORD hAnswerHandle;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用
 };
+//==============================================================================
+///</datastruct_info>
+
+///<datastruct_info>
+//==============================================================================
 struct Tmtv_MsgInfo//指令信息，相机服务端发往主程序端
 {
 	int CheckCode = TMTV_CHECKCODE;//验证码，防止通信干扰
 	enum {
-		   TMTV_ADDCAM_OK = 200,        //添加CameraInfo指定的未加载相机成功
-		   TMTV_DELCAM_OK = 201,        //删除CameraInfo指定的未加载相机成功
-		   TMTV_STARTCAM_OK = 202,      //启动CameraInfo指定的已加载相机成功
-		   TMTV_STOPCAM_OK = 203,       //暂定CameraInfo指定的已加载相机成功
-		   TMTV_GETCAM_OK = 204,        //查询CameraInfo指定的已加载相机的指定参数成功
-		   TMTV_SETCAM_OK = 205,        //设置CameraInfo指定的已加载相机的指定参数成功
-		   TMTV_SNAPED= 298,            //新检测到的mImgInfo图片
+		TMTV_ADDCAM_OK = 200,        //添加CameraInfo指定的未加载相机成功
+		TMTV_DELCAM_OK = 201,        //删除CameraInfo指定的未加载相机成功
+		TMTV_STARTCAM_OK = 202,      //启动CameraInfo指定的已加载相机成功
+		TMTV_STOPCAM_OK = 203,       //暂定CameraInfo指定的已加载相机成功
+		TMTV_GETCAM_OK = 204,        //查询CameraInfo指定的已加载相机的指定参数成功
+		TMTV_SETCAM_OK = 205,        //设置CameraInfo指定的已加载相机的指定参数成功
+		TMTV_SNAPED = 298,            //新检测到的mImgInfo图片
 	};
 	int MsgType;
-	//Tmtv_CameraInfo CameraInfo;//冗余的数据
+	//Tmtv_CameraInfo CameraInfo;//1.1//冗余的数据
 	Tmtv_ImageInfo ImgInfo;
 	DWORD hAskHandle;            //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
 	DWORD hAnswerHandle;         //1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用
-
 };
+//==============================================================================
+///</datastruct_info>
