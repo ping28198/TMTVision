@@ -178,7 +178,7 @@ void CCommonFunc::GetFileNoExt(wchar_t* strPathName, wchar_t* strName, int iName
 //描述:创建多极目录
 void CCommonFunc::CreateDir(wchar_t* strDir)
 {
-	if(DirExisit(strDir))
+	if(DirExist(strDir))
 	{
 		return;
 	}	
@@ -224,7 +224,7 @@ void CCommonFunc::CreateDir(wchar_t* strDir)
 
 //------------------------------------------------------------
 //描述:判断目录是否存在,true表示存在
-bool CCommonFunc::DirExisit(wchar_t* strDir)
+bool CCommonFunc::DirExist(wchar_t* strDir)
 {
 	HANDLE hDir = ::CreateFileW(strDir, 
 								GENERIC_READ, 

@@ -124,7 +124,7 @@ public:
 	//描述：判断目录是否存在
 	//参数：wchar_t* strDir 要判断的目录
 	//返回值:true表示存在，false表示不存在
-	static bool DirExisit(wchar_t* strDir);
+	static bool DirExist(wchar_t* strDir);
 	///</func_info>
 
 	///<func_info>

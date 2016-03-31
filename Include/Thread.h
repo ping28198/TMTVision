@@ -193,6 +193,8 @@ public:
 	//虚任务函数,派生类重载此函数,静态ThreadMain函数会调用派生类的Task()
 	virtual void  Task(void)
 	{
+		//::EnterCriticalSection(&m_section);
+		//::LeaveCriticalSection(&m_section);
 		OutputDebugString(L"<Thread::Task()>\n");
 	}
 };
