@@ -277,6 +277,7 @@ private:
 			{
 				pThisObj->m_times--;
 			}
+			Sleep(pThisObj->m_waiteTime);//2.0
 		}
 		pThisObj->p_Task = 0;
 		pThisObj->m_Status = Thread::enDead;
@@ -430,6 +431,7 @@ private:
 			{
 				pThisObj->m_times--;
 			}
+			Sleep(pThisObj->m_waiteTime);//2.0
 		}
 		pThisObj->p_Task = 0;
 		pThisObj->m_Status = Thread::enDead;
