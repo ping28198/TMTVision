@@ -29,7 +29,9 @@
 
 ///<header_info>
 //==============================================================================
-#pragma once
+#ifndef __THREAD_H__
+#define __THREAD_H__
+//#pragma once
 #include "Windows.h"
 #include <process.h>
 #ifndef MIN
@@ -42,6 +44,7 @@
 #define MOD(i,j) i%j==j?0:i%j
 #endif
 int Mod(int i, int j);
+#endif
 //==============================================================================
 ///</header_info>
 
