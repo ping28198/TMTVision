@@ -45,6 +45,7 @@ Thread::Thread(HANDLE  hParent)//2.0
 	m_hParent = hParent;//2.0
 	m_nThreadID = m_nThreadID + 1;//2.0
 	m_waiteTime = 0;
+	m_ThStatus = enExit;
 }
 //析构时设置参数等待线程主函数返回,需要等待1秒
 Thread::~Thread(void)
@@ -55,6 +56,7 @@ Thread::~Thread(void)
 	{
 		::CloseHandle(m_hEvt);
 	}
+	m_ThStatus = enExit;
 	::DeleteCriticalSection(&m_section);
 }
 //线程功能
@@ -93,6 +95,7 @@ void  Thread::Create(int times, long waiteTime)//2.0
 		m_times = times;
 		m_waiteTime = MAX(waiteTime, 0);
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
+		m_ThStatus = enAvialable;
 		OutputDebugString(L"<Thread::Create()>\n");
 	}
 }
@@ -119,6 +122,7 @@ void  Thread::Destroy(void)//中断0:退出
 {
 	m_bExit = true;
 	Sleep(100);
+	m_ThStatus = enExit;
 	OutputDebugString(L"<Thread::Destroy()>\n");
 }
 //调用WindowsAPI强制结束当前线程

@@ -12,28 +12,28 @@
 ///<ver_info>
 // 版本记录	
 //==============================================================================
-//版本号  开发人员      时间      描述
+//版本号  开发人员      时间        描述
 //1.0     任威平      2016-03-29   创建模块
-//
+//1.1     王磊        2016-03-31   添加线程
 //==============================================================================
 ///</ver_info>
 
 
 
-
+///<header_info>
+//==============================================================================
 #pragma once
 #include <winsock2.h>
 #include <iphlpapi.h>
 #pragma comment(lib,"Iphlpapi.lib")
 #pragma comment(lib,"WS2_32.lib")
+#include "Thread.h"
+//==============================================================================
+///</header_info>
 
-enum Tmtv_SocketOption
-{
-	ADDR_REUSE=1,//允许绑定到正在使用的端口
-	RECV_NOWAIT,//接收时非阻塞
-
-};
-
+///<class_info>
+//==============================================================================
+//网络通讯Socket方法类
 class TmtSocket
 {
 public:
@@ -42,29 +42,42 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//设置目标地址
 	//目标IP，目标端口，我的端口，我的IP
-	bool SetSendAddr(char* DstIp,int DstPort,int MyPort=0,char* MyIp=NULL);//如果后两个参数使用默认，则使用系统指定的ip和随机分配port发送
+	bool SetSendAddr(int remoteRecvPort,char* remoteRecvIp,
+		int localSendPort=0,char* localSendIP=NULL);//如果后两个参数使用默认，则使用系统指定的ip和随机分配port发送
 	//////////////////////////////////////////////////////////////////////////
 	//设置接收地址
 	//自己的端口,ip地址,位null时不限制网卡
-	bool SetRecvAddr( int MyPort, char* MyIp = NULL);
+	bool SetRecvAddr( int localRecvPort, char* localRecvIP = NULL);
 	//////////////////////////////////////////////////////////////////////////
-	//参考Tmtv_SocketOption枚举
-	bool SetOption(int flag);//设置可选配置
+	//参考Tmtv_SocketOption枚举   0 0 0 0 0 0 0 0
+	//                            允许重复绑定┘└阻塞标志位
+	enum {RECV_NOWAIT = 1,ADDR_REUSE = 2};
+	bool SetOption(DWORD flag);//设置可选配置
 	//////////////////////////////////////////////////////////////////////////
 	//缓冲区指针，需要发送数据长度
 	int SendMsg(void *pBuffer,size_t MsgLength);
 	//////////////////////////////////////////////////////////////////////////
 	//缓冲区指针，缓冲区长度，接收到的消息长度，对方端口号，对方ip
-	int RecvMsg(void *pBuffer, size_t bufLength, int *SrcPort = NULL, char* SrcIp = NULL);
+	int RecvMsg(void *pBuffer, size_t bufLength, int *pRemoteSendPort = NULL, char* pRemoteSendIp = NULL);
 
 	int ReSet();//看需要进行重置
 	int ReleaseSocket();//手动释放socket
+public:
+	enum { enNoSendOrRecv = 0, enSendOK= 1, enRecvOK = 2, enSendAndRecvOK = 3};
+	DWORD m_SkStatus;
+	bool m_SKInitialOK;
+	int m_OptionFlag;
+	int m_RemoteRecvPort;
+	char m_RemoteRecvIp;
+	int m_LocalSendPort;
+	char m_LocalSendIP;
+	int m_LocalRecvPort;
+	char m_LocalRecvIP;
 private:
-	int err;
-	bool m_IsNormal;
+	//int err;
+	//bool m_IsNormal;
 
 	WSADATA wsadata;
-
 	SOCKET sock_recv;
 	SOCKET sock_send;
 	SOCKADDR_IN Rc_MyAddr;
@@ -72,4 +85,29 @@ private:
 	SOCKADDR_IN Sd_DstAddr;
 	SOCKADDR_IN Sd_MyAddr;
 };
+//==============================================================================
+///</class_info>
 
+
+///<class_info>
+//==============================================================================
+//网络通讯Socket方法类
+class TmtSocketServer :public Thread, public TmtSocket
+{
+public:
+	//类功能
+	char *pBuffer;
+	enum { MINBUFFERSIZE = 256 ,MAXBUFFERSIZE = 10240};
+	int m_BufferSize;
+public:
+	TmtSocketServer(int bufferSize = MAXBUFFERSIZE);
+	~TmtSocketServer();
+	bool Initial(int remotePort, char* remoteIp, int localRecvPort, char* localRecvIP = NULL,int localPort = 0, char* localIP = NULL, DWORD optionFlag = 1);
+	bool Unitial();
+	//Socket功能
+public:
+	void Task(void);
+	virtual void ServerProccess(int msgLen)=0;
+};
+//==============================================================================
+///</class_info>
