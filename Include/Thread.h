@@ -29,7 +29,9 @@
 
 ///<header_info>
 //==============================================================================
-#pragma once
+#ifndef __THREAD_H__
+#define __THREAD_H__
+//#pragma once
 #include "Windows.h"
 #include <process.h>
 #ifndef MIN
@@ -41,15 +43,8 @@
 #ifndef MOD
 #define MOD(i,j) i%j==j?0:i%j
 #endif
-int Mod(int i, int j)
-{
-	int tmp = i%j;
-	if (tmp == j)
-	{
-		tmp = 0;
-	}
-	return tmp;
-}
+int Mod(int i, int j);
+#endif
 //==============================================================================
 ///</header_info>
 
@@ -83,123 +78,39 @@ public:
 	HANDLE  m_hThread;
 	HANDLE  m_hParent;//2.0
 	HANDLE  m_hEvt;
+protected:
 	bool  m_bExit;
 	int m_times;
 	long m_waiteTime;
-	enum STATUS { enAvialable = 0, enRunning, enSuspend, enExit, enCorpse, enDead };
-	STATUS m_Status;
+public:
+	enum THSTATUS { enAvialable = 0, enRunning, enSuspend, enExit, enCorpse, enDead };
+	THSTATUS m_ThStatus;
 	//声明时创建资源
-	Thread(HANDLE  hParent = 0)//2.0
-	{
-		::InitializeCriticalSection(&m_section);
-		m_bExit = false;
-		m_hEvt = 0;
-		m_hThread = 0;
-		m_times = -1;
-		m_hParent = hParent;//2.0
-		m_nThreadID = m_nThreadID + 1;//2.0
-		m_waiteTime = 0;
-	}
+	Thread(HANDLE  hParent = 0);
 	//析构时设置参数等待线程主函数返回,需要等待1秒
-	~Thread(void)
-	{
-		Destroy();
-		Sleep(1000);//等待线程主函数退出并销毁线程
-		if (m_hEvt != 0)
-		{
-			::CloseHandle(m_hEvt);
-		}
-		::DeleteCriticalSection(&m_section);
-	}
+	~Thread(void);
 //线程功能
 private:
 	//线程主函数 :线程创建后开始执行,处理任务Task和消息,主函数退出后线程销毁
-	static void ThreadMain(void* thisObj)
-	{
-		OutputDebugString(L"<Thread::ThreadMain()>\n");
-		Thread* pThisObj = (Thread*)thisObj;
-		while (!pThisObj->m_bExit && pThisObj->m_times != 0)//中断0:退出
-		{
-			//任务处理部分
-			pThisObj->m_Status = Thread::enSuspend;
-			::WaitForSingleObject(pThisObj->m_hEvt, INFINITE);//中断2:挂起
-			pThisObj->m_Status = Thread::enRunning;
-			pThisObj->Task();//3.0
-			if (pThisObj->m_times>0)//中断3计数退出
-			{
-				pThisObj->m_times--;
-			}
-			Sleep(pThisObj->m_waiteTime);//2.0
-		}
-		pThisObj->m_Status = Thread::enDead;
-		OutputDebugString(L"<\\Thread::ThreadMain()>\n");
-	}
+	static void ThreadMain(void* thisObj);
 public:
 	//创建线程
-	void  Create(int times = -1, long waiteTime = 0)//2.0
-	{
-		if (m_hEvt == 0)
-		{
-			m_hEvt = ::CreateEvent(0, true, false, 0);
-		}
-		if (m_hThread == 0)
-		{
-			m_times = times;
-			m_waiteTime = MAX(waiteTime, 0);
-			m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
-			OutputDebugString(L"<Thread::Create()>\n");
-		}
-	}
+	void  Create(int times = -1, long waiteTime = 0);
 	//继续执行挂起的线程
-	void  Resume(void)//中断1,2取消:释放
-	{
-		if (m_hEvt != 0)
-		{
-			::SetEvent(m_hEvt);
-		}
-		OutputDebugString(L"<Thread::Resume()>\n");
-	}
+	void  Resume(void);
 	//挂起线程
-	void  Suspend(void)//中断2:挂起
-	{
-		if (m_hEvt != 0)
-		{
-			::ResetEvent(m_hEvt);
-		}
-		OutputDebugString(L"<Thread::Suspend()>\n");
-	}
+	void  Suspend(void);
 	//设置参数使主函数退出以销毁线程
-	void  Destroy(void)//中断0:退出
-	{
-		m_bExit = true;
-		Sleep(100);
-		OutputDebugString(L"<Thread::Destroy()>\n");
-	}
+	void  Destroy(void);
 	//调用WindowsAPI强制结束当前线程
-	void  ForceEnd(void) 
-	{
-		DWORD exitCode;
-		if (GetExitCodeThread(m_hThread, &exitCode))
-		{
-			TerminateThread(m_hThread, exitCode);
-		}
-		Destroy();
-		OutputDebugString(L"<Thread::ForceEnd()>\n");
-	}
+	void  ForceEnd(void);
 //任务功能
 public:
 	//防止p_Task,p_Para访问冲突
 	CRITICAL_SECTION m_section;
 	//虚任务函数,派生类重载此函数,静态ThreadMain函数会调用派生类的Task()
-	virtual void  Task(void)
-	{
-		//::EnterCriticalSection(&m_section);
-		//::LeaveCriticalSection(&m_section);
-		OutputDebugString(L"<Thread::Task()>\n");
-	}
+	virtual void  Task(void);
 };
-//线程计数ID :线程对象声明后+1,析构不改变
-DWORD Thread::m_nThreadID = 0;//2.0
 //==============================================================================
 ///</class_info>
 
@@ -240,86 +151,25 @@ class TaskThread :public Thread
 public:
 	const int m_classID = 1;//3.0 对象类型记录
     //声明时创建资源
-	TaskThread(HANDLE  hParent = 0)//2.0
-	{
-		p_Task = 0;
-		p_Para = 0;//注销时不能delete,以免父线程中内存泄漏
-	}
+	TaskThread(HANDLE  hParent = 0);
 	//析构时设置参数等待线程主函数返回,需要等待1秒
-	~TaskThread()
-	{
-		ForceEnd();
-	}
+	~TaskThread();
 //线程功能
 private:
 	//线程主函数 :线程创建后开始执行,处理任务Task和消息,主函数退出后线程销毁
-	static void ThreadMain(void* thisObj) 
-	{
-		OutputDebugString(L"<TaskThread::ThreadMain()>\n");
-		TaskThread* pThisObj = (TaskThread*)thisObj;
-		while (!pThisObj->m_bExit && pThisObj->m_times != 0)//中断0:退出
-		{
-			//任务处理部分
-			if (pThisObj->p_Task)//中断1:释放
-			{
-				pThisObj->m_Status = Thread::enSuspend;
-				::WaitForSingleObject(pThisObj->m_hEvt, INFINITE);//中断2:挂起
-				pThisObj->m_Status = Thread::enRunning;
-				pThisObj->p_Task(pThisObj->p_Para);
-			}
-			else
-			{
-				pThisObj->m_Status = Thread::enAvialable;
-				::ResetEvent(pThisObj->m_hEvt);
-				::WaitForSingleObject(pThisObj->m_hEvt, INFINITE);//中断2:挂起
-			}
-			if (pThisObj->m_times>0)//中断3计数退出
-			{
-				pThisObj->m_times--;
-			}
-			Sleep(pThisObj->m_waiteTime);//2.0
-		}
-		pThisObj->p_Task = 0;
-		pThisObj->m_Status = Thread::enDead;
-		OutputDebugString(L"<\\TaskThread::ThreadMain()>\n");
-	}
+	static void ThreadMain(void* thisObj);
 public:
 	//创建线程
-	void  Create(int times = -1, long waiteTime = 0)//2.0
-	{
-		if (m_hEvt == 0)
-		{
-			m_hEvt = ::CreateEvent(0, true, false, 0);
-		}
-		if (m_hThread == 0)
-		{
-			m_times = times;
-			m_waiteTime = MAX(waiteTime, 0);
-			m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
-			OutputDebugString(L"<TaskThread::Create()>\n");
-		}
-	}
+	void  Create(int times = -1, long waiteTime = 0);
 //任务功能
-public:
+protected:
 	ThreadTaskFun p_Task;
 	void*  p_Para;
+public:
 	//注销任务函数//只在循环中间有效
-	void  FreeTask(void)
-	{
-		::EnterCriticalSection(&m_section);
-		p_Task = 0;
-		::LeaveCriticalSection(&m_section);
-		OutputDebugString(L"<TaskThread::FreeTask()>\n");
-	}
+	void  FreeTask(void);
 	//注册任务函数
-	void  RegTask(ThreadTaskFun pFunc, void* pPara)
-	{
-		::EnterCriticalSection(&m_section);
-		p_Task = pFunc;
-		p_Para = pPara;//内存由父线程管理
-		::LeaveCriticalSection(&m_section);
-		OutputDebugString(L"<TaskThread::RegTask()>\n");
-	}
+	void  RegTask(ThreadTaskFun pFunc, void* pPara);
 };
 //==============================================================================
 ///</class_info>
@@ -379,167 +229,27 @@ class TaskThreadEx :public TaskThread
 public:
 	const int m_classID = 2;//3.0 对象类型记
 	//声明时创建线程
-	TaskThreadEx(HANDLE  hParent = 0)
-	{
-		p_TaskListHead = 0;
-		p_TaskListTail = p_TaskListHead;
-		m_TaskNum = 0;
-		//p_Task = 0;
-	}
+	TaskThreadEx(HANDLE  hParent = 0);
 //线程功能
 private:
 	//线程主函数 :线程创建后开始执行,处理任务Task和消息,主函数退出后线程销毁
-	static void ThreadMain(void* thisObj)
-	{
-		OutputDebugString(L"<TaskThreadEx::ThreadMain()>\n");
-		TaskThreadEx* pThisObj = (TaskThreadEx*)thisObj;
-		while (!pThisObj->m_bExit && pThisObj->m_times != 0)//中断0:退出
-		{
-			//任务获取部分
-			//判断任务队列是否为空
-			if (pThisObj->p_TaskListHead == pThisObj->p_TaskListTail - 1 || pThisObj->m_TaskNum <= 0)
-			{
-				pThisObj->p_Task = 0;//队列为空,设为中断1
-				pThisObj->p_Para = 0;
-			}
-			else
-			{
-				pThisObj->RegTask(pThisObj->m_TastList[pThisObj->p_TaskListHead].pFun,
-					pThisObj->m_TastList[pThisObj->p_TaskListHead].pPara);
-			}
-			//任务处理部分
-			pThisObj->m_Status = Thread::enSuspend;
-			::WaitForSingleObject(pThisObj->m_hEvt, INFINITE);//中断2:挂起
-			if (pThisObj->p_Task)//中断1:释放
-			{
-				pThisObj->m_Status = Thread::enRunning;
-				OutputDebugString(L"ThreadMain RunTask\n");
-				pThisObj->p_Task(pThisObj->p_Para);
-				//任务完成后处理
-				pThisObj->p_Task = 0;
-				pThisObj->p_Para = 0;
-				pThisObj->DelHeadTask();//内设保护的删除队头任务的函数
-			}
-			else
-			{
-				pThisObj->m_Status = Thread::enAvialable;
-				//为满足任务获取环节,当前任务为空时,扫描任务队列头,而不挂起
-				//::ResetEvent(pThisObj->m_hEvt);
-				//::WaitForSingleObject(pThisObj->m_hEvt, INFINITE);//中断2:挂起
-			}
-			if (pThisObj->m_times>0)//中断3计数退出
-			{
-				pThisObj->m_times--;
-			}
-			Sleep(pThisObj->m_waiteTime);//2.0
-		}
-		pThisObj->p_Task = 0;
-		pThisObj->m_Status = Thread::enDead;
-		OutputDebugString(L"<\\TaskThreadEx::ThreadMain()>\n");
-	}
+	static void ThreadMain(void* thisObj);
 public:
 	//创建线程
-	void  Create(int times = -1, long waiteTime = 0)//2.0
-	{
-		if (m_hEvt == 0)
-		{
-			m_hEvt = ::CreateEvent(0, true, false, 0);
-		}
-		if (m_hThread == 0)
-		{
-			m_times = times;
-			m_waiteTime = MAX(waiteTime, 0);
-			m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
-			OutputDebugString(L"<TaskThreadEx::Create()>\n");
-		}
-	}
+	void  Create(int times = -1, long waiteTime = 0);
 	//强制删除线程,将当前任务卸载,重启线程,并返回新的线程指针
-	void  Recover(void)
-	{
-		ForceEnd();
-		Sleep(1000);
-		Destroy();
-		if (m_hEvt != 0)
-		{
-			::CloseHandle(m_hEvt);
-			m_hEvt = 0;
-		}
-		::DeleteCriticalSection(&m_section);
-		::InitializeCriticalSection(&m_section);
-		DelHeadTask();
-		Create();
-		Resume();
-		OutputDebugString(L"<TaskThreadEx::Recover()>\n");
-	}
+	void  Recover(void);
 //任务功能
-public:
+protected:
 	enum { TASKNUM = 256 };
 	ThreadTask m_TastList[256];
 	//使用任务队列
 	int p_TaskListHead;
 	int p_TaskListTail;
 	int m_TaskNum;
-	bool AddTailTask(ThreadTask _Task)
-	{
-		OutputDebugString(L"<AddTailTask()>\n");
-		_Task.status = ThreadTask::enFree;
-		//检查队列情况
-		if (p_TaskListHead == Mod((p_TaskListTail + 1), TASKNUM) || m_TaskNum >= TASKNUM)
-		{
-			OutputDebugString(L"TaskListFull\n");
-			return false;
-		}
-		int tmpTail = 0;
-		wchar_t debugStr[64] = { 0 };
-		wsprintf(debugStr, L"TaskList:Head=%d,Tail=%d,Num=%d\n", p_TaskListHead, p_TaskListTail, m_TaskNum);
-		OutputDebugString(debugStr);
-		::EnterCriticalSection(&m_section);
-		//taskCritalSection.Enter();
-		memcpy(m_TastList + p_TaskListTail, &_Task, sizeof(ThreadTask));
-		p_TaskListTail = Mod(p_TaskListTail + 1, TASKNUM);
-		m_TaskNum++;
-		//taskCritalSection.Leave();
-		::LeaveCriticalSection(&m_section);
-		OutputDebugString(L"TaskListAdd\n");
-		wsprintf(debugStr, L"TaskList:Head=%d,Tail=%d,Num=%d\n", p_TaskListHead, p_TaskListTail, m_TaskNum);
-		OutputDebugString(debugStr);
-		OutputDebugString(L"<\\AddTailTask()>\n");
-		Resume();
-		return true;
-	}
-	bool DelHeadTask()
-	{
-		OutputDebugString(L"<DelHeadTask()>\n");
-		//检查队列情况
-		if (p_TaskListHead == p_TaskListTail - 1)
-		{
-			OutputDebugString(L"TaskListEmpty\n");
-			return false;
-		}
-		if (m_TastList[p_TaskListHead].status == ThreadTask::enBusy)
-		{
-			OutputDebugString(L"TaskListHead is Busy\n");
-			return false;
-		}
-		if (m_TastList[p_TaskListHead].status == ThreadTask::enNull)
-		{
-			OutputDebugString(L"TaskListHead is Null\n");//队头任务已经执行完并释放
-		}
-		wchar_t debugStr[64] = { 0 };
-		wsprintf(debugStr, L"TaskList:Head=%d,Tail=%d,Num=%d\n", p_TaskListHead, p_TaskListTail, m_TaskNum);
-		OutputDebugString(debugStr);
-		//taskCritalSection.Enter();
-		::EnterCriticalSection(&m_section);
-		p_TaskListHead = Mod((p_TaskListHead + 1), TASKNUM);
-		m_TaskNum--;
-		//taskCritalSection.Leave();
-		::LeaveCriticalSection(&m_section);
-		OutputDebugString(L"TaskListHead is Delleted\n");
-		wsprintf(debugStr, L"TaskList:Head=%d,Tail=%d,Num=%d\n", p_TaskListHead, p_TaskListTail, m_TaskNum);
-		OutputDebugString(debugStr);
-		OutputDebugString(L"<\\DelHeadTask()>\n");
-		return true;
-	}
+public:
+	bool AddTailTask(ThreadTask _Task);
+	bool DelHeadTask();
 };
 //==============================================================================
 ///</class_info>
