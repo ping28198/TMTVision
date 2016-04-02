@@ -183,17 +183,19 @@ struct Tmtv_MsgInfo//指令信息，相机服务端发往主程序端
 		TMTV_SETCAM_OK = 205,        //设置CameraInfo指定的已加载相机的指定参数成功
 		TMTV_STARTALGO_OK = 206,     //启动算法成功
 		TMTV_STOPALGO_OK = 207,      //暂定算法成功
-		TMTV_SNAPED = 298,           //新检测到的mImgInfo图片
 
-		TMTV_ADDCAM_FAIL = 210,        //添加CameraInfo指定的未加载相机未成功
-		TMTV_DELCAM_FAIL = 211,        //删除CameraInfo指定的未加载相机未成功
-		TMTV_STARTCAM_FAIL = 212,      //启动CameraInfo指定的已加载相机未成功
-		TMTV_STOPCAM_FAIL = 213,       //暂定CameraInfo指定的已加载相机未成功
-		TMTV_GETCAM_FAIL = 214,        //查询CameraInfo指定的已加载相机的指定参数未成功
-		TMTV_SETCAM_FAIL = 215,        //设置CameraInfo指定的已加载相机的指定参数未成功
-		TMTV_STARTALGO_FAIL = 216,     //启动算法未成功
-		TMTV_STOPALGO_FAIL = 217,      //暂定算法未成功
-		TMTV_INVALID = 299             //返回非法的命令
+		TMTV_ADDCAM_FAIL = 210,      //添加CameraInfo指定的未加载相机未成功
+		TMTV_DELCAM_FAIL = 211,      //删除CameraInfo指定的未加载相机未成功
+		TMTV_STARTCAM_FAIL = 212,    //启动CameraInfo指定的已加载相机未成功
+		TMTV_STOPCAM_FAIL = 213,     //暂定CameraInfo指定的已加载相机未成功
+		TMTV_GETCAM_FAIL = 214,      //查询CameraInfo指定的已加载相机的指定参数未成功
+		TMTV_SETCAM_FAIL = 215,      //设置CameraInfo指定的已加载相机的指定参数未成功
+		TMTV_STARTALGO_FAIL = 216,   //启动算法未成功
+		TMTV_STOPALGO_FAIL = 217,    //暂定算法未成功
+
+		TMTV_INVALID = 220,          //返回非法的命令
+		TMTV_SNAPED = 298,           //推送实时mImgInfo图片
+		TMTV_DETECTED = 299,         //推送检测到的的mImgInfo图片+缺陷
 	};
 	int MsgType;
 	//Tmtv_CameraInfo CameraInfo;//1.1//冗余的数据
