@@ -215,7 +215,7 @@ bool XMLOperator::GetValue(wchar_t* strName, wchar_t* strValue)
 }
 //---------------------------------------------------------------------
 //√Ë ˆ£∫
-bool  XMLOperator::ChangeValue(SHORTSTR strNameArray[],int iDepth, wchar_t*  strValue)
+bool  XMLOperator::ChangeValue(SHORTWSTR strNameArray[],int iDepth, wchar_t*  strValue)
 {
 	PNode pDestNode = NULL;
 
@@ -251,7 +251,7 @@ bool  XMLOperator::ChangeValue(SHORTSTR strNameArray[],int iDepth, wchar_t*  str
 }
 //---------------------------------------------------------------------
 //√Ë ˆ£∫
-bool XMLOperator::GetValue(SHORTSTR strNameArray[],int iDepth, SHORTSTR& strValue)
+bool XMLOperator::GetValue(SHORTWSTR strNameArray[],int iDepth, SHORTWSTR& strValue)
 {
 	PNode pDestNode = NULL;
 

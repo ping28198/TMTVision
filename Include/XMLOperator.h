@@ -41,8 +41,8 @@ using namespace MSXML2;
 //描述：节点的数据结构
 typedef struct tagNode
 {
-	TINYSTR   m_strName;//节点名，不超过32个字节
-	SHORTSTR   m_strText; //节点数值, 不超过128个字节
+	TINYWSTR   m_strName;//节点名，不超过32个字节
+	SHORTWSTR   m_strText; //节点数值, 不超过128个字节
 	tagNode*  m_pBrother;
 	tagNode*  m_pParent;
 	tagNode*  m_pChild;
@@ -76,8 +76,8 @@ public:
 	 bool SaveXML(wchar_t* strFileName);
 
 	 bool GetValue(wchar_t* strName, wchar_t* strValue);
-	 bool ChangeValue(SHORTSTR strNameArray[],int iDepth, wchar_t* strValue);
-	 bool GetValue(SHORTSTR strNameArray[], int iDepth, SHORTSTR& strValue);
+	 bool ChangeValue(SHORTWSTR strNameArray[],int iDepth, wchar_t* strValue);
+	 bool GetValue(SHORTWSTR strNameArray[], int iDepth, SHORTWSTR& strValue);
 	 bool LoadXML(wchar_t* strFileName);
 public:
 	XMLOperator(void);
