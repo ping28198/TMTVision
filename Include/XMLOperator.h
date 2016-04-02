@@ -41,8 +41,8 @@ using namespace MSXML2;
 //描述：节点的数据结构
 typedef struct tagNode
 {
-	wchar_t   m_strName[20];//节点名，不超过20个字节
-	wchar_t   m_strText[50]; //节点数值, 不超过50个字节
+	TINYSTR   m_strName;//节点名，不超过32个字节
+	SHORTSTR   m_strText; //节点数值, 不超过128个字节
 	tagNode*  m_pBrother;
 	tagNode*  m_pParent;
 	tagNode*  m_pChild;
