@@ -159,7 +159,7 @@ struct Tmtv_AskInfo//指令信息，主程序端发往相机服务端
 		TMTV_GETCAM = 104,        //查询CameraInfo指定的已加载相机的指定参数
 		TMTV_SETCAM = 105,        //设置CameraInfo指定的已加载相机的指定参数
 		TMTV_STARTALGO = 106,     //启动CameraInfo指定的算法
-		TMTV_STOPCALGO = 107,     //暂定CameraInfo指定的算法
+		TMTV_STOPCALGO = 107      //暂定CameraInfo指定的算法
 	};
 	int Asktype;
 	Tmtv_CameraInfo CameraInfo;
@@ -193,7 +193,7 @@ struct Tmtv_MsgInfo//指令信息，相机服务端发往主程序端
 		TMTV_SETCAM_FAIL = 215,        //设置CameraInfo指定的已加载相机的指定参数未成功
 		TMTV_STARTALGO_FAIL = 216,     //启动算法未成功
 		TMTV_STOPALGO_FAIL = 217,      //暂定算法未成功
-		TMTV_INVALID = 299,               //返回非法的命令
+		TMTV_INVALID = 299             //返回非法的命令
 	};
 	int MsgType;
 	//Tmtv_CameraInfo CameraInfo;//1.1//冗余的数据
