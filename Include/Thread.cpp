@@ -80,7 +80,7 @@ void Thread::ThreadMain(void* thisObj)
 		}
 		Sleep(pThisObj->m_waiteTime);//2.0
 	}
-	pThisObj->m_ThStatus = Thread::enDead;
+	pThisObj->m_ThStatus = Thread::enExit;
 	OutputDebugString(L"<\\Thread::ThreadMain()>\n");
 }
 //创建线程
@@ -95,7 +95,7 @@ void  Thread::Create(int times, long waiteTime)//2.0
 		m_times = times;
 		m_waiteTime = MAX(waiteTime, 0);
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
-		m_ThStatus = enAvialable;
+		if (m_hThread != 0) m_ThStatus = enAvialable;
 		OutputDebugString(L"<Thread::Create()>\n");
 	}
 }
@@ -121,7 +121,7 @@ void  Thread::Suspend(void)//中断2:挂起
 void  Thread::Destroy(void)//中断0:退出
 {
 	m_bExit = true;
-	Sleep(100);
+	Sleep(m_waiteTime+100);
 	m_ThStatus = enExit;
 	OutputDebugString(L"<Thread::Destroy()>\n");
 }
@@ -213,11 +213,11 @@ void TaskThread::ThreadMain(void* thisObj)
 		Sleep(pThisObj->m_waiteTime);//2.0
 	}
 	pThisObj->p_Task = 0;
-	pThisObj->m_ThStatus = Thread::enDead;
+	pThisObj->m_ThStatus = Thread::enExit;
 	OutputDebugString(L"<\\TaskThread::ThreadMain()>\n");
 }
 //创建线程
-void  TaskThread::Create(int times, long waiteTime)//2.0
+void TaskThread::Create(int times, long waiteTime)
 {
 	if (m_hEvt == 0)
 	{
@@ -228,6 +228,7 @@ void  TaskThread::Create(int times, long waiteTime)//2.0
 		m_times = times;
 		m_waiteTime = MAX(waiteTime, 0);
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
+		if (m_hThread != 0) m_ThStatus = enAvialable;
 		OutputDebugString(L"<TaskThread::Create()>\n");
 	}
 }
@@ -340,11 +341,11 @@ void TaskThreadEx::ThreadMain(void* thisObj)
 		Sleep(pThisObj->m_waiteTime);//2.0
 	}
 	pThisObj->p_Task = 0;
-	pThisObj->m_ThStatus = Thread::enDead;
+	pThisObj->m_ThStatus = Thread::enExit;
 	OutputDebugString(L"<\\TaskThreadEx::ThreadMain()>\n");
 }
 //创建线程
-void  TaskThreadEx::Create(int times, long waiteTime)//2.0
+void TaskThreadEx::Create(int times, long waiteTime)
 {
 	if (m_hEvt == 0)
 	{
@@ -355,6 +356,7 @@ void  TaskThreadEx::Create(int times, long waiteTime)//2.0
 		m_times = times;
 		m_waiteTime = MAX(waiteTime, 0);
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
+		if (m_hThread != 0) m_ThStatus = enAvialable;
 		OutputDebugString(L"<TaskThreadEx::Create()>\n");
 	}
 }
