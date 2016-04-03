@@ -1,11 +1,11 @@
 
 ///<proj_info>
 //==============================================================================
-// 项目名 ：图像处理平台
-// 文件名 ：TmtSocket.h
-// 作  者 ：TMT
-// 用  途 ：定义了网络传输类
-// 版  权 ：TMT
+// 项目名 : 图像处理平台
+// 文件名 : TmtSocket.h
+// 作  者 : TMT
+// 用  途 : 定义了网络传输类
+// 版  权 : TMT
 //==============================================================================
 ///</proj_info>
 
@@ -41,9 +41,9 @@ public:
 	~TmtSocket();
 	//////////////////////////////////////////////////////////////////////////
 	//设置目标地址
-	//目标IP，目标端口，我的端口，我的IP
+	//目标IP, 目标端口, 我的端口, 我的IP
 	bool SetSendAddr(int remoteRecvPort,char* remoteRecvIp,
-		int localSendPort=0,char* localSendIP=NULL);//如果后两个参数使用默认，则使用系统指定的ip和随机分配port发送
+		int localSendPort=0,char* localSendIP=NULL);//如果后两个参数使用默认, 则使用系统指定的ip和随机分配port发送
 	//////////////////////////////////////////////////////////////////////////
 	//设置接收地址
 	//自己的端口,ip地址,位null时不限制网卡
@@ -54,10 +54,10 @@ public:
 	enum {RECV_NOWAIT = 1,ADDR_REUSE = 2};
 	bool SetOption(DWORD flag);//设置可选配置
 	//////////////////////////////////////////////////////////////////////////
-	//缓冲区指针，需要发送数据长度
+	//缓冲区指针, 需要发送数据长度
 	int SendMsg(void *pBuffer,size_t MsgLength);
 	//////////////////////////////////////////////////////////////////////////
-	//缓冲区指针，缓冲区长度，接收到的消息长度，对方端口号，对方ip
+	//缓冲区指针, 缓冲区长度, 接收到的消息长度, 对方端口号, 对方ip
 	int RecvMsg(void *pBuffer, size_t bufLength, int *pRemoteSendPort = NULL, char* pRemoteSendIp = NULL);
 
 	int ReSet();//看需要进行重置
@@ -76,7 +76,6 @@ public:
 private:
 	//int err;
 	//bool m_IsNormal;
-
 	WSADATA wsadata;
 	SOCKET sock_recv;
 	SOCKET sock_send;
@@ -107,7 +106,7 @@ public:
 	//Socket功能
 public:
 	void Task(void);
-	virtual void ServerProccess(int msgLen)=0;
+	virtual void ServerProcess(int msgLen)=0;
 };
 //==============================================================================
 ///</class_info>

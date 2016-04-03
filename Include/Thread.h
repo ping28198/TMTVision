@@ -1,31 +1,72 @@
-///<proj_info>
+ï»¿///<proj_info>
 //==============================================================================
-// ÏîÄ¿Ãû £ºÖÇÄÜ¼à¿Ø
-// ÎÄ¼þÃû £ºThread.h
-// ×÷  Õß £ºÍõÀÚ
-// ÓÃ  Í¾ £ºThread       ¼òµ¥Ïß³ÌÀà,¿ÉÅÉÉúÖØÔØÈÎÎñº¯Êý 
-//          TaskThread   µ¥ÈÎÎñÏß³ÌÀà,¿É¶¯Ì¬±ä¸üÈÎÎñº¯Êý  
-//          TaskThreadEx ¶ÓÁÐÈÎÎñÏß³ÌÀà,¿É¶¯Ì¬±ä¸üÈÎÎñº¯Êý¶ÓÁÐ
-//			1:ÉùÃ÷ºó´´½¨Ïß³Ì²¢Ö´ÐÐThreadMain,Ïß³ÌÔÚThreadMainÍË³öÊ±Ïú»Ù,
-//			2:Ïß³ÌµÄºËÐÄÊÇThreadMainÖ÷º¯ÊýÖÐ¸ºÔð¾ö¶¨Ïß³ÌÊÇ·ñÍË³ö»ò¹ÒÆð,
-//			  Ïß³ÌÖ´ÐÐºó¿ÉÒÔÊÖ¶¯¹ÒÆðºÍ¸ü¸ÄÏß³Ì ÈÎÎñ´¦Àíº¯Êý,
-//			  µ±ÈÎÎñº¯Êý±»ÖÃÁãÊ±,Ïß³Ì¹ÒÆð,µÈ´ýÐÂµÄ ÈÎÎñ´¦Àíº¯Êý
-//			3:Ïß³ÌÖ÷º¯ÊýÖØ¸´Ö´ÐÐÈÎÎñ´¦Àíº¯Êý,Ö÷º¯Êýºó°üº¬ÖÐ¶Ï´¦Àí
-// °æ  È¨ £º»ô±ÈÌØÈË
+// é¡¹ç›®å : æ™ºèƒ½ç›‘æŽ§
+// æ–‡ä»¶å : Thread.h
+// ä½œ  è€… : çŽ‹ç£Š
+// ç”¨  é€” : Thread       ç®€å•çº¿ç¨‹ç±»,å¯æ´¾ç”Ÿé‡è½½ä»»åŠ¡å‡½æ•° 
+//          TaskThread   å•ä»»åŠ¡çº¿ç¨‹ç±»,å¯åŠ¨æ€å˜æ›´ä»»åŠ¡å‡½æ•°  
+//          TaskThreadEx é˜Ÿåˆ—ä»»åŠ¡çº¿ç¨‹ç±»,å¯åŠ¨æ€å˜æ›´ä»»åŠ¡å‡½æ•°é˜Ÿåˆ—
+//			1:å£°æ˜ŽåŽåˆ›å»ºçº¿ç¨‹å¹¶æ‰§è¡ŒThreadMain,çº¿ç¨‹åœ¨ThreadMainé€€å‡ºæ—¶é”€æ¯,
+//			2:çº¿ç¨‹çš„æ ¸å¿ƒæ˜¯ThreadMainä¸»å‡½æ•°ä¸­è´Ÿè´£å†³å®šçº¿ç¨‹æ˜¯å¦é€€å‡ºæˆ–æŒ‚èµ·,
+//			  çº¿ç¨‹æ‰§è¡ŒåŽå¯ä»¥æ‰‹åŠ¨æŒ‚èµ·å’Œæ›´æ”¹çº¿ç¨‹ ä»»åŠ¡å¤„ç†å‡½æ•°,
+//			  å½“ä»»åŠ¡å‡½æ•°è¢«ç½®é›¶æ—¶,çº¿ç¨‹æŒ‚èµ·,ç­‰å¾…æ–°çš„ ä»»åŠ¡å¤„ç†å‡½æ•°
+//			3:çº¿ç¨‹ä¸»å‡½æ•°é‡å¤æ‰§è¡Œä»»åŠ¡å¤„ç†å‡½æ•°,ä¸»å‡½æ•°åŽåŒ…å«ä¸­æ–­å¤„ç†
+// ç‰ˆ  æƒ : éœæ¯”ç‰¹äºº
 //==============================================================================
 ///</proj_info>
 
 ///<ver_info>
-// °æ±¾¼ÇÂ¼	
+// ç‰ˆæœ¬è®°å½•	
 //==============================================================================
-//°æ±¾ºÅ  ¿ª·¢ÈËÔ±      Ê±¼ä      ÃèÊö
-//1.0     ÍõÀÚ        2014.5.1   ÕûºÏ¾É°æ±¾
-//2.0     ÍõÀÚ        2016.3.29  Ìí¼Ó¸¸Ïß³Ì¾ä±ú m_hParent
-//                               Ïß³ÌID¸ÄÎª¾²Ì¬ÒÔ±ãÎª¶ÔÏó¼ÆÊý m_nThreadID
-//                               Ìí¼ÓÃ¿´ÎÈÎÎñÖ´ÐÐºóµÈ´ýÊ±¼ä m_waiteTime
-//3.0     ÍõÀÚ        2016.3.29  ÕûÀíÏß³ÌÀà·Ö²ã¹¦ÄÜ
+//ç‰ˆæœ¬å·  å¼€å‘äººå‘˜      æ—¶é—´      æè¿°
+//1.0     çŽ‹ç£Š        2014.5.1   æ•´åˆæ—§ç‰ˆæœ¬
+//2.0     çŽ‹ç£Š        2016.3.29  æ·»åŠ çˆ¶çº¿ç¨‹å¥æŸ„ m_hParent
+//                               çº¿ç¨‹IDæ”¹ä¸ºé™æ€ä»¥ä¾¿ä¸ºå¯¹è±¡è®¡æ•° m_nThreadID
+//                               æ·»åŠ æ¯æ¬¡ä»»åŠ¡æ‰§è¡ŒåŽç­‰å¾…æ—¶é—´ m_waiteTime
+//3.0     çŽ‹ç£Š        2016.3.29  æ•´ç†çº¿ç¨‹ç±»åˆ†å±‚åŠŸèƒ½
+//3.1     çŽ‹ç£Š        2016.4.3   æ›´æ–°çº¿ç¨‹è®¡æ—¶ç­‰å¾…åŠŸèƒ½,m_includeTaskTime=
+//                               falseè®¡æ—¶å™¨ä¸è®¡ä»»åŠ¡æ—¶é—´, true è®¡æ—¶å™¨è®°å½•ä»»åŠ¡æ—¶é—´,
+//                               ä¸è¶³m_waiteTimeå°†ç­‰å¾…ä½™ä¸‹æ—¶é—´
 //==============================================================================
 ///</ver_info>
+
+///<algorithm_info>
+//==============================================================================
+//åŠŸèƒ½æè¿°:çº¿ç¨‹ç±»çŠ¶æ€ç©ºé—´è½¬æ¢:
+//
+//
+//             Thread()â”â–¶ â”â”â”â”â”â”â”â”â”“ â—€â”~Thread()
+//                         â”ƒ    enExit    â”ƒ
+//                         â”—â”â”â”â”â”â”â”â”› â—€â”ForceEnd()
+//                           â”ƒ          â–²
+//                           â–¼          â”ƒ
+//            Create()â”â–¶ m_bExit==1  m_bExit==0 â—€â” Destroy()
+//                           â”ƒ          â–²
+//                           â–¼          â”ƒ
+//                         â”â”â”â”â”â”â”â”â”“
+//                         â”ƒ enAvialable  â”ƒ
+//                         â”—â”â”â”â”â”â”â”â”›
+//                           â”ƒ          â–²
+//                           â–¼          â”ƒ
+//                         p_Task      p_Task
+//            RegTask()â”â–¶ !=NUll      ==NUllL â—€â” FreeTask()
+//                           â”ƒ          â–²
+//                           â–¼          â”ƒ
+//                         â”â”â”â”â”â”â”â”â”“
+//                         â”ƒ  enRunning   â”ƒ
+//                         â”—â”â”â”â”â”â”â”â”›
+//                           â”ƒ          â–²
+//                           â–¼          â”ƒ
+//                         m_hEvt       m_hEvt
+//            Suspend()â”â–¶ Unexist      Exist  â—€â” Resume()
+//        ä¼šå±è”½Destroy()    â”ƒ          â–²
+//        ä½†ä¸å±è”½ForceEnd() â–¼          â”ƒ
+//                         â”â”â”â”â”â”â”â”â”“
+//                         â”ƒ  enSuspend   â”ƒ
+//                         â”—â”â”â”â”â”â”â”â”›
+//
+//==============================================================================
+///</algorithm_info>
 
 ///<header_info>
 //==============================================================================
@@ -47,65 +88,66 @@ int Mod(int i, int j);
 
 ///<class_info>
 //==============================================================================
-//¹¦ÄÜÃèÊö:¼òµ¥Ïß³ÌÀà,¿ÉÅÉÉúÖØÔØÈÎÎñº¯Êý 
-//Ïß³Ì³Ø¹¦ÄÜ:
-//1:ÉùÃ÷ºó´´½¨Ïß³Ì²¢Ö´ÐÐThreadMain,Ïß³ÌÔÚThreadMainÍË³öÊ±Ïú»Ù,
-//2:Ïß³ÌµÄºËÐÄÊÇThreadMainÖ÷º¯ÊýÖÐ¸ºÔð¾ö¶¨Ïß³ÌÊÇ·ñÍË³ö»ò¹ÒÆð,
-//  Ïß³ÌÖ´ÐÐºó¿ÉÒÔÊÖ¶¯¹ÒÆðºÍ¸ü¸ÄÏß³Ì ÈÎÎñ´¦Àíº¯Êý,
-//  ÅÉÉúÀàÖØÔØÈÎÎñº¯ÊýÒÔÊµÏÖ²»Í¬¹¦ÄÜ
-//  µ±ÈÎÎñº¯Êý¼ÆÊýÖµ=0,Ïß³ÌÍË³ö,¼ÆÊý³õÖµÉèÎª-1,²»¼ÆÊý
-//3:Ïß³ÌÖ÷º¯ÊýÖØ¸´Ö´ÐÐÈÎÎñ´¦Àíº¯Êý,Ö÷º¯Êýºó°üº¬ÖÐ¶Ï´¦Àí
-//©³©¥©¥©¥©¥©¥©¥©¥©¥©·
-//©§Ïß³Ì            ©§ <-Ëæ¶ÔÏóÉùÃ÷´´½¨,Îö¹¹Ïú»Ù
-//©Ä©¤©¤©¤©¤©¤©¤©¤©¤©Ì
-//©§Ïß³ÌÖ÷º¯Êý      ©§ <-Ïß³Ì´´½¨Createºó¿ªÊ¼Ö´ÐÐ,´¦ÀíÈÎÎñTaskºÍÏûÏ¢,Ö÷º¯ÊýÍË³öºóÏß³ÌÏú»Ù
-//©Ä©¤©¤©¤©Ð©¤©¤©¤©¤©Ì
-//©§ÈÎÎñº¯Êý        ©§ <-Ïß³ÌÖ´ÐÐÖÐ,Ñ­»·Ö´ÐÐÈÎÎñº¯Êý²¢¼ÆÊýÖ´ÐÐ´ÎÊý
-//©Ä©¤©¤©¤©Ø©¤©¤©¤©¤©Ì 
-//©§ÖÐ¶Ï´¦Àí        ©§ <-È·¶¨Ö÷º¯ÊýÊÇ·ñ¹ØÆðÍË³ö,ForceEndÖÐ¶Ï0Ç¿ÖÆÍË³ö,m_timesÖÐ¶Ï3¼ÆÊýÍË³ö
-//©»©¥©¥©¥©¥©¥©¥©¥©¥©¿       SuspendÖÐ¶Ï2¹ÒÆðµÈ´ý,Ö÷º¯ÊýÑ­»·ÔÝÍ£
+//åŠŸèƒ½æè¿°:ç®€å•çº¿ç¨‹ç±»,å¯æ´¾ç”Ÿé‡è½½ä»»åŠ¡å‡½æ•° 
+//çº¿ç¨‹æ± åŠŸèƒ½:
+//1:å£°æ˜ŽåŽåˆ›å»ºçº¿ç¨‹å¹¶æ‰§è¡ŒThreadMain,çº¿ç¨‹åœ¨ThreadMainé€€å‡ºæ—¶é”€æ¯,
+//2:çº¿ç¨‹çš„æ ¸å¿ƒæ˜¯ThreadMainä¸»å‡½æ•°ä¸­è´Ÿè´£å†³å®šçº¿ç¨‹æ˜¯å¦é€€å‡ºæˆ–æŒ‚èµ·,
+//  çº¿ç¨‹æ‰§è¡ŒåŽå¯ä»¥æ‰‹åŠ¨æŒ‚èµ·å’Œæ›´æ”¹çº¿ç¨‹ ä»»åŠ¡å¤„ç†å‡½æ•°,
+//  æ´¾ç”Ÿç±»é‡è½½ä»»åŠ¡å‡½æ•°ä»¥å®žçŽ°ä¸åŒåŠŸèƒ½
+//  å½“ä»»åŠ¡å‡½æ•°è®¡æ•°å€¼=0,çº¿ç¨‹é€€å‡º,è®¡æ•°åˆå€¼è®¾ä¸º-1,ä¸è®¡æ•°
+//3:çº¿ç¨‹ä¸»å‡½æ•°é‡å¤æ‰§è¡Œä»»åŠ¡å¤„ç†å‡½æ•°,ä¸»å‡½æ•°åŽåŒ…å«ä¸­æ–­å¤„ç†
+//â”â”â”â”â”â”â”â”â”â”“
+//â”ƒçº¿ç¨‹            â”ƒ <-éšå¯¹è±¡å£°æ˜Žåˆ›å»º,æžæž„é”€æ¯
+//â” â”€â”€â”€â”€â”€â”€â”€â”€â”¨
+//â”ƒçº¿ç¨‹ä¸»å‡½æ•°      â”ƒ <-çº¿ç¨‹åˆ›å»ºCreateåŽå¼€å§‹æ‰§è¡Œ,å¤„ç†ä»»åŠ¡Taskå’Œæ¶ˆæ¯,ä¸»å‡½æ•°é€€å‡ºåŽçº¿ç¨‹é”€æ¯
+//â” â”€â”€â”€â”¬â”€â”€â”€â”€â”¨
+//â”ƒä»»åŠ¡å‡½æ•°        â”ƒ <-çº¿ç¨‹æ‰§è¡Œä¸­,å¾ªçŽ¯æ‰§è¡Œä»»åŠ¡å‡½æ•°å¹¶è®¡æ•°æ‰§è¡Œæ¬¡æ•°
+//â” â”€â”€â”€â”´â”€â”€â”€â”€â”¨ 
+//â”ƒä¸­æ–­å¤„ç†        â”ƒ <-ç¡®å®šä¸»å‡½æ•°æ˜¯å¦å…³èµ·é€€å‡º,ForceEndä¸­æ–­0å¼ºåˆ¶é€€å‡º,m_timesä¸­æ–­3è®¡æ•°é€€å‡º
+//â”—â”â”â”â”â”â”â”â”â”›       Suspendä¸­æ–­2æŒ‚èµ·ç­‰å¾…,ä¸»å‡½æ•°å¾ªçŽ¯æš‚åœ
 class Thread//3.0
 {
-//Àà¹¦ÄÜ
+//ç±»åŠŸèƒ½
 public:
-	//Ïß³Ì¼ÆÊýID :Ïß³Ì¶ÔÏóÉùÃ÷ºó+1,Îö¹¹²»¸Ä±ä
+	//çº¿ç¨‹è®¡æ•°ID :çº¿ç¨‹å¯¹è±¡å£°æ˜ŽåŽ+1,æžæž„ä¸æ”¹å˜
 	static DWORD m_nThreadID;//2.0
-	//¶ÔÏóÀàÐÍ¼ÇÂ¼ID
+	//å¯¹è±¡ç±»åž‹è®°å½•ID
 	const int m_classID = 0;//3.0
 	HANDLE  m_hThread;
 	HANDLE  m_hParent;//2.0
 	HANDLE  m_hEvt;
 protected:
-	bool  m_bExit;
+	bool m_bExit;
 	int m_times;
 	long m_waiteTime;
+	bool m_includeTaskTime;//3.1
 public:
-	enum THSTATUS { enAvialable = 0, enRunning, enSuspend, enExit, enCorpse, enDead };
+	enum THSTATUS { enAvialable = 0, enRunning, enSuspend, enExit, enCorpse};
 	THSTATUS m_ThStatus;
-	//ÉùÃ÷Ê±´´½¨×ÊÔ´
+	//å£°æ˜Žæ—¶åˆ›å»ºèµ„æº
 	Thread(HANDLE  hParent = 0);
-	//Îö¹¹Ê±ÉèÖÃ²ÎÊýµÈ´ýÏß³ÌÖ÷º¯Êý·µ»Ø,ÐèÒªµÈ´ý1Ãë
+	//æžæž„æ—¶è®¾ç½®å‚æ•°ç­‰å¾…çº¿ç¨‹ä¸»å‡½æ•°è¿”å›ž,éœ€è¦ç­‰å¾…1ç§’
 	~Thread(void);
-//Ïß³Ì¹¦ÄÜ
+//çº¿ç¨‹åŠŸèƒ½
 private:
-	//Ïß³ÌÖ÷º¯Êý :Ïß³Ì´´½¨ºó¿ªÊ¼Ö´ÐÐ,´¦ÀíÈÎÎñTaskºÍÏûÏ¢,Ö÷º¯ÊýÍË³öºóÏß³ÌÏú»Ù
+	//çº¿ç¨‹ä¸»å‡½æ•° :çº¿ç¨‹åˆ›å»ºåŽå¼€å§‹æ‰§è¡Œ,å¤„ç†ä»»åŠ¡Taskå’Œæ¶ˆæ¯,ä¸»å‡½æ•°é€€å‡ºåŽçº¿ç¨‹é”€æ¯
 	static void ThreadMain(void* thisObj);
 public:
-	//´´½¨Ïß³Ì
-	void  Create(int times = -1, long waiteTime = 0);
-	//¼ÌÐøÖ´ÐÐ¹ÒÆðµÄÏß³Ì
+	//åˆ›å»ºçº¿ç¨‹
+	void  Create(int times = -1, long waiteTime = 0, bool includeTaskTime = false);
+	//ç»§ç»­æ‰§è¡ŒæŒ‚èµ·çš„çº¿ç¨‹
 	void  Resume(void);
-	//¹ÒÆðÏß³Ì
+	//æŒ‚èµ·çº¿ç¨‹
 	void  Suspend(void);
-	//ÉèÖÃ²ÎÊýÊ¹Ö÷º¯ÊýÍË³öÒÔÏú»ÙÏß³Ì
+	//è®¾ç½®å‚æ•°ä½¿ä¸»å‡½æ•°é€€å‡ºä»¥é”€æ¯çº¿ç¨‹
 	void  Destroy(void);
-	//µ÷ÓÃWindowsAPIÇ¿ÖÆ½áÊøµ±Ç°Ïß³Ì
+	//è°ƒç”¨WindowsAPIå¼ºåˆ¶ç»“æŸå½“å‰çº¿ç¨‹
 	void  ForceEnd(void);
-//ÈÎÎñ¹¦ÄÜ
+//ä»»åŠ¡åŠŸèƒ½
 public:
-	//·ÀÖ¹p_Task,p_Para·ÃÎÊ³åÍ»
+	//é˜²æ­¢p_Task,p_Paraè®¿é—®å†²çª
 	CRITICAL_SECTION m_section;
-	//ÐéÈÎÎñº¯Êý,ÅÉÉúÀàÖØÔØ´Ëº¯Êý,¾²Ì¬ThreadMainº¯Êý»áµ÷ÓÃÅÉÉúÀàµÄTask()
+	//è™šä»»åŠ¡å‡½æ•°,æ´¾ç”Ÿç±»é‡è½½æ­¤å‡½æ•°,é™æ€ThreadMainå‡½æ•°ä¼šè°ƒç”¨æ´¾ç”Ÿç±»çš„Task()
 	virtual void  Task(void);
 };
 //==============================================================================
@@ -115,7 +157,7 @@ public:
 
 ///<datastruct_info>
 //==============================================================================
-//ÈÎÎñº¯Êý
+//ä»»åŠ¡å‡½æ•°
 #ifndef TASKTHREADFUN
 #define TASKTHREADFUN
 typedef void(__stdcall* ThreadTaskFun)(void* pPara);
@@ -125,47 +167,47 @@ typedef void(__stdcall* ThreadTaskFun)(void* pPara);
 
 ///<class_info>
 //==============================================================================
-//¹¦ÄÜÃèÊö:µ¥ÈÎÎñÏß³ÌÀà,¿É¶¯Ì¬±ä¸üÈÎÎñº¯Êý
-//Ïß³Ì³Ø¹¦ÄÜ:
-//1:ÉùÃ÷ºó´´½¨Ïß³Ì²¢Ö´ÐÐThreadMain,Ïß³ÌÔÚThreadMainÍË³öÊ±Ïú»Ù,
-//2:Ïß³ÌµÄºËÐÄÊÇThreadMainÖ÷º¯ÊýÖÐ¸ºÔð¾ö¶¨Ïß³ÌÊÇ·ñÍË³ö»ò¹ÒÆð,
-//  Ïß³ÌÖ´ÐÐºó¿ÉÒÔÊÖ¶¯¹ÒÆðºÍ¸ü¸ÄÏß³Ì ÈÎÎñ´¦Àíº¯Êý,
-//  µ±ÈÎÎñº¯Êý±»ÖÃÁãÊ±,Ïß³Ì¹ÒÆð,µÈ´ýÐÂµÄ ÈÎÎñ´¦Àíº¯Êý
-//  µ±ÈÎÎñº¯Êý¼ÆÊýÖµ=0,Ïß³ÌÍË³ö,¼ÆÊý³õÖµÉèÎª-1,²»¼ÆÊý
-//3:Ïß³ÌÖ÷º¯ÊýÖØ¸´Ö´ÐÐÈÎÎñ´¦Àíº¯Êý,Ö÷º¯Êýºó°üº¬ÖÐ¶Ï´¦Àí
-//©³©¥©¥©¥©¥©¥©¥©¥©¥©·
-//©§Ïß³Ì            ©§ <-Ëæ¶ÔÏóÉùÃ÷´´½¨,Îö¹¹Ïú»Ù
-//©Ä©¤©¤©¤©¤©¤©¤©¤©¤©Ì
-//©§Ïß³ÌÖ÷º¯Êý      ©§ <-Ïß³Ì´´½¨Createºó¿ªÊ¼Ö´ÐÐ,´¦ÀíÈÎÎñTaskºÍÏûÏ¢,Ö÷º¯ÊýÍË³öºóÏß³ÌÏú»Ù
-//©Ä©¤©¤©¤©Ð©¤©¤©¤©¤©Ì
-//©§ÈÎÎñ  ©¦²ÎÊý    ©§ <-Ïß³ÌÖ´ÐÐÖÐ,µ¥Ò»ÈÎÎñÍê³Éºó,¿ÉÒÔÓÃRegTask¸Ä±ä,
-//©Ä©¤©¤©¤©Ø©¤©¤©¤©¤©Ì       »òÓÃFreeTaskÊÍ·ÅÈÎÎñ,ÖÐ¶Ï1Ð¶ÔØº¯Êý,Ö÷º¯ÊýÑ­»·µÈ´ýÐÂº¯Êý
-//©§ÖÐ¶Ï´¦Àí        ©§ <-È·¶¨Ö÷º¯ÊýÊÇ·ñ¹ØÆðÍË³ö,ForceEndÖÐ¶Ï0Ç¿ÖÆÍË³ö,m_timesÖÐ¶Ï3¼ÆÊýÍË³ö
-//©»©¥©¥©¥©¥©¥©¥©¥©¥©¿       SuspendÖÐ¶Ï2¹ÒÆðµÈ´ý,Ö÷º¯ÊýÑ­»·ÔÝÍ£
+//åŠŸèƒ½æè¿°:å•ä»»åŠ¡çº¿ç¨‹ç±»,å¯åŠ¨æ€å˜æ›´ä»»åŠ¡å‡½æ•°
+//çº¿ç¨‹æ± åŠŸèƒ½:
+//1:å£°æ˜ŽåŽåˆ›å»ºçº¿ç¨‹å¹¶æ‰§è¡ŒThreadMain,çº¿ç¨‹åœ¨ThreadMainé€€å‡ºæ—¶é”€æ¯,
+//2:çº¿ç¨‹çš„æ ¸å¿ƒæ˜¯ThreadMainä¸»å‡½æ•°ä¸­è´Ÿè´£å†³å®šçº¿ç¨‹æ˜¯å¦é€€å‡ºæˆ–æŒ‚èµ·,
+//  çº¿ç¨‹æ‰§è¡ŒåŽå¯ä»¥æ‰‹åŠ¨æŒ‚èµ·å’Œæ›´æ”¹çº¿ç¨‹ ä»»åŠ¡å¤„ç†å‡½æ•°,
+//  å½“ä»»åŠ¡å‡½æ•°è¢«ç½®é›¶æ—¶,çº¿ç¨‹æŒ‚èµ·,ç­‰å¾…æ–°çš„ ä»»åŠ¡å¤„ç†å‡½æ•°
+//  å½“ä»»åŠ¡å‡½æ•°è®¡æ•°å€¼=0,çº¿ç¨‹é€€å‡º,è®¡æ•°åˆå€¼è®¾ä¸º-1,ä¸è®¡æ•°
+//3:çº¿ç¨‹ä¸»å‡½æ•°é‡å¤æ‰§è¡Œä»»åŠ¡å¤„ç†å‡½æ•°,ä¸»å‡½æ•°åŽåŒ…å«ä¸­æ–­å¤„ç†
+//â”â”â”â”â”â”â”â”â”â”“
+//â”ƒçº¿ç¨‹            â”ƒ <-éšå¯¹è±¡å£°æ˜Žåˆ›å»º,æžæž„é”€æ¯
+//â” â”€â”€â”€â”€â”€â”€â”€â”€â”¨
+//â”ƒçº¿ç¨‹ä¸»å‡½æ•°      â”ƒ <-çº¿ç¨‹åˆ›å»ºCreateåŽå¼€å§‹æ‰§è¡Œ,å¤„ç†ä»»åŠ¡Taskå’Œæ¶ˆæ¯,ä¸»å‡½æ•°é€€å‡ºåŽçº¿ç¨‹é”€æ¯
+//â” â”€â”€â”€â”¬â”€â”€â”€â”€â”¨
+//â”ƒä»»åŠ¡  â”‚å‚æ•°    â”ƒ <-çº¿ç¨‹æ‰§è¡Œä¸­,å•ä¸€ä»»åŠ¡å®ŒæˆåŽ,å¯ä»¥ç”¨RegTaskæ”¹å˜,
+//â” â”€â”€â”€â”´â”€â”€â”€â”€â”¨       æˆ–ç”¨FreeTaské‡Šæ”¾ä»»åŠ¡,ä¸­æ–­1å¸è½½å‡½æ•°,ä¸»å‡½æ•°å¾ªçŽ¯ç­‰å¾…æ–°å‡½æ•°
+//â”ƒä¸­æ–­å¤„ç†        â”ƒ <-ç¡®å®šä¸»å‡½æ•°æ˜¯å¦å…³èµ·é€€å‡º,ForceEndä¸­æ–­0å¼ºåˆ¶é€€å‡º,m_timesä¸­æ–­3è®¡æ•°é€€å‡º
+//â”—â”â”â”â”â”â”â”â”â”›       Suspendä¸­æ–­2æŒ‚èµ·ç­‰å¾…,ä¸»å‡½æ•°å¾ªçŽ¯æš‚åœ
 class TaskThread :public Thread
 {
-//Àà¹¦ÄÜ
+//ç±»åŠŸèƒ½
 public:
-	const int m_classID = 1;//3.0 ¶ÔÏóÀàÐÍ¼ÇÂ¼
-    //ÉùÃ÷Ê±´´½¨×ÊÔ´
+	const int m_classID = 1;//3.0 å¯¹è±¡ç±»åž‹è®°å½•
+    //å£°æ˜Žæ—¶åˆ›å»ºèµ„æº
 	TaskThread(HANDLE  hParent = 0);
-	//Îö¹¹Ê±ÉèÖÃ²ÎÊýµÈ´ýÏß³ÌÖ÷º¯Êý·µ»Ø,ÐèÒªµÈ´ý1Ãë
+	//æžæž„æ—¶è®¾ç½®å‚æ•°ç­‰å¾…çº¿ç¨‹ä¸»å‡½æ•°è¿”å›ž,éœ€è¦ç­‰å¾…1ç§’
 	~TaskThread();
-//Ïß³Ì¹¦ÄÜ
+//çº¿ç¨‹åŠŸèƒ½
 private:
-	//Ïß³ÌÖ÷º¯Êý :Ïß³Ì´´½¨ºó¿ªÊ¼Ö´ÐÐ,´¦ÀíÈÎÎñTaskºÍÏûÏ¢,Ö÷º¯ÊýÍË³öºóÏß³ÌÏú»Ù
+	//çº¿ç¨‹ä¸»å‡½æ•° :çº¿ç¨‹åˆ›å»ºåŽå¼€å§‹æ‰§è¡Œ,å¤„ç†ä»»åŠ¡Taskå’Œæ¶ˆæ¯,ä¸»å‡½æ•°é€€å‡ºåŽçº¿ç¨‹é”€æ¯
 	static void ThreadMain(void* thisObj);
 public:
-	//´´½¨Ïß³Ì
-	void  Create(int times = -1, long waiteTime = 0);
-//ÈÎÎñ¹¦ÄÜ
+	//åˆ›å»ºçº¿ç¨‹
+	void  Create(int times = -1, long waiteTime = 0, bool includeTaskTime = false);
+//ä»»åŠ¡åŠŸèƒ½
 protected:
 	ThreadTaskFun p_Task;
 	void*  p_Para;
 public:
-	//×¢ÏúÈÎÎñº¯Êý//Ö»ÔÚÑ­»·ÖÐ¼äÓÐÐ§
+	//æ³¨é”€ä»»åŠ¡å‡½æ•°//åªåœ¨å¾ªçŽ¯ä¸­é—´æœ‰æ•ˆ
 	void  FreeTask(void);
-	//×¢²áÈÎÎñº¯Êý
+	//æ³¨å†Œä»»åŠ¡å‡½æ•°
 	void  RegTask(ThreadTaskFun pFunc, void* pPara);
 };
 //==============================================================================
@@ -174,16 +216,16 @@ public:
 
 ///<datastruct_info>
 //==============================================================================
-//Ïß³ÌÈÎÎñ
+//çº¿ç¨‹ä»»åŠ¡
 #ifndef THREADTASKSTRUCT
 #define THREADTASKSTRUCT
 typedef struct tagThreadTask
 {
 	//enum {PARASIZE = 256};
-	char  charFun[32];//º¯ÊýÃèÊöÓëµ±Ç°ÃèÊöÏàÍ¬Ê±,Ê¹ÓÃµ±Ç°º¯Êý
+	char  charFun[32];//å‡½æ•°æè¿°ä¸Žå½“å‰æè¿°ç›¸åŒæ—¶,ä½¿ç”¨å½“å‰å‡½æ•°
 					  //char pPara[PARASIZE];
 	void* pPara;
-	ThreadTaskFun pFun;//ÈÎÎñº¯ÊýÖ¸ÕëÎª0Ê±Ê¹ÓÃµ±Ç°º¯Êý
+	ThreadTaskFun pFun;//ä»»åŠ¡å‡½æ•°æŒ‡é’ˆä¸º0æ—¶ä½¿ç”¨å½“å‰å‡½æ•°
 	enum TASKSTATUS { enNull = 0, enFree, enBusy };
 	TASKSTATUS status;
 	int life;
@@ -195,52 +237,52 @@ typedef struct tagThreadTask
 
 ///<class_info>
 //==============================================================================
-//¹¦ÄÜÃèÊö:¶ÓÁÐÈÎÎñÏß³ÌÀà,¿É¶¯Ì¬±ä¸üÈÎÎñº¯Êý¶ÓÁÐ
-// 1:½áºÏÏß³Ì³Ø¹¦ÄÜ,ÔÚ¶ÔÏóË½ÓÐ´æ´¢¿Õ¼äÄÚÉèÓÐÈÎÎñ¶ÓÁÐ
-// 2:ÔÚÖ÷º¯ÊýÖÐÌí¼ÓÈÎÎñ»ñÈ¡»úÖÆ
-// 3:¿ÉÒÔÓÉÈÎÎñº¯ÊýÄÚ²¿»òÖ÷Ïß³Ì·¢ËÍÐÂÈÎÎñµ½Ö¸¶¨Ïß³ÌµÄÈÎÎñ¶ÓÁÐ,
-//    ¿ÉÒÔÓÐÖ÷½ø³ÌºÍÏß³ÌÀàÖÐµÄ¸÷¸öÏß³Ì·¢ËÍÐÂÈÎÎñ
-// 4:ÈÎÎñ¶ÓÁÐÖÐµ¥Ò»ÈÎÎñ°üº¬Ö´ÐÐº¯ÊýÖ¸Õë,ºÍº¯Êý²ÎÊýÖ¸Õë,
-//    ÆäÖÐÎª±ÜÃâº¯Êý²ÎÊý¿Õ¼äµÄÉêÇëºÍÏú»ÙÎÊÌâ,²ÎÊý±£´æÔÚ¹Ì¶¨³¤¶ÈµÄÊý×éÖÐ
-//©³©¥©¥©¥©¥©¥©¥©¥©¥©·
-//©§Ïß³Ì            ©§ <-Ëæ¶ÔÏóÉùÃ÷´´½¨,Îö¹¹Ïú»Ù
-//©Ä©¤©¤©¤©¤©¤©¤©¤©¤©Ì
-//©§Ïß³ÌÖ÷º¯Êý      ©§ <-Ïß³Ì´´½¨Createºó¿ªÊ¼Ö´ÐÐ,´¦ÀíÈÎÎñTaskºÍÏûÏ¢,Ö÷º¯ÊýÍË³öºóÏß³ÌÏú»Ù
-//©Ä©¤©¤©¤©Ð©¤©¤©¤©¤©Ì
-//©§  ¨I  ©¦ ¨I     ©§ <-Ñ­»·¶ÓÁÐ,¹Ì¶¨³¤¶È,Ñ­»·´æ´¢
-//©§¿ÕÈÎÎñ©¦¿ÕÈÎÎñ  ©§ 
-//©§ÈÎÎñ0 ©¦²ÎÊý0   ©§ <-¶ÓÁÐÍ·Ïß³ÌÖ´ÐÐºóÏÂÒÆ,»òDelHeadTaskÉ¾³ý
-//©§ÈÎÎñ1 ©¦²ÎÊý1   ©§ <-¶ÓÁÐµÈ´ýÖÐµÄÈÎÎñ
-//©§  £º  ©¦  £º    ©§
-//©§ÈÎÎñn ©¦²ÎÊýn   ©§ <-¶ÓÁÐÎ²¿ÉÒÔÓÃAddTailTaskÌí¼Ó.
-//©§  £º  ©¦  £º    ©§
-//©§¿ÕÈÎÎñ©¦¿Õ²ÎÊý  ©§
-//©§  ¨I  ©¦ ¨I     ©§ <-Ñ­»·¶ÓÁÐ,¹Ì¶¨³¤¶È,Ñ­»·´æ´¢
-//©Ä©¤©¤©¤©Ø©¤©¤©¤©¤©Ì       
-//©§ÖÐ¶Ï´¦Àí        ©§ <-È·¶¨Ö÷º¯ÊýÊÇ·ñ¹ØÆðÍË³ö,ForceEndÖÐ¶Ï0Ç¿ÖÆÍË³ö,m_timesÖÐ¶Ï3¼ÆÊýÍË³ö
-//©»©¥©¥©¥©¥©¥©¥©¥©¥©¿       SuspendÖÐ¶Ï2¹ÒÆðµÈ´ý,Ö÷º¯ÊýÑ­»·ÔÝÍ£.
-//                           »òTaskListÈÎÎñÎª¿Õ,ÖÐ¶Ï1Ð¶ÔØº¯Êý,Ö÷º¯ÊýÑ­»·µÈ´ýÐÂº¯Êý
+//åŠŸèƒ½æè¿°:é˜Ÿåˆ—ä»»åŠ¡çº¿ç¨‹ç±»,å¯åŠ¨æ€å˜æ›´ä»»åŠ¡å‡½æ•°é˜Ÿåˆ—
+// 1:ç»“åˆçº¿ç¨‹æ± åŠŸèƒ½,åœ¨å¯¹è±¡ç§æœ‰å­˜å‚¨ç©ºé—´å†…è®¾æœ‰ä»»åŠ¡é˜Ÿåˆ—
+// 2:åœ¨ä¸»å‡½æ•°ä¸­æ·»åŠ ä»»åŠ¡èŽ·å–æœºåˆ¶
+// 3:å¯ä»¥ç”±ä»»åŠ¡å‡½æ•°å†…éƒ¨æˆ–ä¸»çº¿ç¨‹å‘é€æ–°ä»»åŠ¡åˆ°æŒ‡å®šçº¿ç¨‹çš„ä»»åŠ¡é˜Ÿåˆ—,
+//    å¯ä»¥æœ‰ä¸»è¿›ç¨‹å’Œçº¿ç¨‹ç±»ä¸­çš„å„ä¸ªçº¿ç¨‹å‘é€æ–°ä»»åŠ¡
+// 4:ä»»åŠ¡é˜Ÿåˆ—ä¸­å•ä¸€ä»»åŠ¡åŒ…å«æ‰§è¡Œå‡½æ•°æŒ‡é’ˆ,å’Œå‡½æ•°å‚æ•°æŒ‡é’ˆ,
+//    å…¶ä¸­ä¸ºé¿å…å‡½æ•°å‚æ•°ç©ºé—´çš„ç”³è¯·å’Œé”€æ¯é—®é¢˜,å‚æ•°ä¿å­˜åœ¨å›ºå®šé•¿åº¦çš„æ•°ç»„ä¸­
+//â”â”â”â”â”â”â”â”â”â”“
+//â”ƒçº¿ç¨‹            â”ƒ <-éšå¯¹è±¡å£°æ˜Žåˆ›å»º,æžæž„é”€æ¯
+//â” â”€â”€â”€â”€â”€â”€â”€â”€â”¨
+//â”ƒçº¿ç¨‹ä¸»å‡½æ•°      â”ƒ <-çº¿ç¨‹åˆ›å»ºCreateåŽå¼€å§‹æ‰§è¡Œ,å¤„ç†ä»»åŠ¡Taskå’Œæ¶ˆæ¯,ä¸»å‡½æ•°é€€å‡ºåŽçº¿ç¨‹é”€æ¯
+//â” â”€â”€â”€â”¬â”€â”€â”€â”€â”¨
+//â”ƒ  â†˜  â”‚ â†˜     â”ƒ <-å¾ªçŽ¯é˜Ÿåˆ—,å›ºå®šé•¿åº¦,å¾ªçŽ¯å­˜å‚¨
+//â”ƒç©ºä»»åŠ¡â”‚ç©ºä»»åŠ¡  â”ƒ 
+//â”ƒä»»åŠ¡0 â”‚å‚æ•°0   â”ƒ <-é˜Ÿåˆ—å¤´çº¿ç¨‹æ‰§è¡ŒåŽä¸‹ç§»,æˆ–DelHeadTaskåˆ é™¤
+//â”ƒä»»åŠ¡1 â”‚å‚æ•°1   â”ƒ <-é˜Ÿåˆ—ç­‰å¾…ä¸­çš„ä»»åŠ¡
+//â”ƒ  :   â”‚  :     â”ƒ
+//â”ƒä»»åŠ¡n â”‚å‚æ•°n   â”ƒ <-é˜Ÿåˆ—å°¾å¯ä»¥ç”¨AddTailTaskæ·»åŠ .
+//â”ƒ  :   â”‚  :     â”ƒ
+//â”ƒç©ºä»»åŠ¡â”‚ç©ºå‚æ•°  â”ƒ
+//â”ƒ  â†™  â”‚ â†™     â”ƒ <-å¾ªçŽ¯é˜Ÿåˆ—,å›ºå®šé•¿åº¦,å¾ªçŽ¯å­˜å‚¨
+//â” â”€â”€â”€â”´â”€â”€â”€â”€â”¨       
+//â”ƒä¸­æ–­å¤„ç†        â”ƒ <-ç¡®å®šä¸»å‡½æ•°æ˜¯å¦å…³èµ·é€€å‡º,ForceEndä¸­æ–­0å¼ºåˆ¶é€€å‡º,m_timesä¸­æ–­3è®¡æ•°é€€å‡º
+//â”—â”â”â”â”â”â”â”â”â”›       Suspendä¸­æ–­2æŒ‚èµ·ç­‰å¾…,ä¸»å‡½æ•°å¾ªçŽ¯æš‚åœ.
+//                           æˆ–TaskListä»»åŠ¡ä¸ºç©º,ä¸­æ–­1å¸è½½å‡½æ•°,ä¸»å‡½æ•°å¾ªçŽ¯ç­‰å¾…æ–°å‡½æ•°
 class TaskThreadEx :public TaskThread
 {
-//Àà¹¦ÄÜ
+//ç±»åŠŸèƒ½
 public:
-	const int m_classID = 2;//3.0 ¶ÔÏóÀàÐÍ¼Ç
-	//ÉùÃ÷Ê±´´½¨Ïß³Ì
+	const int m_classID = 2;//3.0 å¯¹è±¡ç±»åž‹è®°
+	//å£°æ˜Žæ—¶åˆ›å»ºçº¿ç¨‹
 	TaskThreadEx(HANDLE  hParent = 0);
-//Ïß³Ì¹¦ÄÜ
+//çº¿ç¨‹åŠŸèƒ½
 private:
-	//Ïß³ÌÖ÷º¯Êý :Ïß³Ì´´½¨ºó¿ªÊ¼Ö´ÐÐ,´¦ÀíÈÎÎñTaskºÍÏûÏ¢,Ö÷º¯ÊýÍË³öºóÏß³ÌÏú»Ù
+	//çº¿ç¨‹ä¸»å‡½æ•° :çº¿ç¨‹åˆ›å»ºåŽå¼€å§‹æ‰§è¡Œ,å¤„ç†ä»»åŠ¡Taskå’Œæ¶ˆæ¯,ä¸»å‡½æ•°é€€å‡ºåŽçº¿ç¨‹é”€æ¯
 	static void ThreadMain(void* thisObj);
 public:
-	//´´½¨Ïß³Ì
-	void  Create(int times = -1, long waiteTime = 0);
-	//Ç¿ÖÆÉ¾³ýÏß³Ì,½«µ±Ç°ÈÎÎñÐ¶ÔØ,ÖØÆôÏß³Ì,²¢·µ»ØÐÂµÄÏß³ÌÖ¸Õë
+	//åˆ›å»ºçº¿ç¨‹
+	void  Create(int times = -1, long waiteTime = 0, bool includeTaskTime = false);
+	//å¼ºåˆ¶åˆ é™¤çº¿ç¨‹,å°†å½“å‰ä»»åŠ¡å¸è½½,é‡å¯çº¿ç¨‹,å¹¶è¿”å›žæ–°çš„çº¿ç¨‹æŒ‡é’ˆ
 	void  Recover(void);
-//ÈÎÎñ¹¦ÄÜ
+//ä»»åŠ¡åŠŸèƒ½
 protected:
 	enum { TASKNUM = 256 };
 	ThreadTask m_TastList[256];
-	//Ê¹ÓÃÈÎÎñ¶ÓÁÐ
+	//ä½¿ç”¨ä»»åŠ¡é˜Ÿåˆ—
 	int p_TaskListHead;
 	int p_TaskListTail;
 	int m_TaskNum;

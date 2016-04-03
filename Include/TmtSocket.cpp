@@ -225,6 +225,6 @@ void TmtSocketServer::Task(void)
 	if (m_SkStatus == enRecvOK || m_SkStatus == enSendAndRecvOK)
 	{
 		int revLen = RecvMsg((void*)pBuffer, m_BufferSize);
-		ServerProccess(revLen);
+		ServerProcess(revLen);
 	}
 }
