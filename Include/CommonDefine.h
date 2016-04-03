@@ -24,7 +24,7 @@
 #define TMTV_TINYSTRLEN	    32//字符串最大长度
 #define TMTV_SHORTSTRLEN	128//字符串最大长度
 #define TMTV_LONGSTRLEN	    256//字符串最大长度
-#define TMTV_HUGESTRLEN	    512//字符串最大长度
+#define TMTV_HUGESTRLEN	    1024//字符串最大长度
 #define TMTV_IPSTRLEN	    16//字符串最大长度
 #define TMTV_MAXDEFECTNUM   16//单个图像中最大缺陷数量
 #define TMTV_MAXCAMERANUM   256//最大相机数量
