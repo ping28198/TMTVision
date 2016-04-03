@@ -107,7 +107,7 @@ public:
 	//Socket¹¦ÄÜ
 public:
 	void Task(void);
-	virtual void ServerProccess(int msgLen)=0;
+	virtual void ServerProcess(int msgLen)=0;
 };
 //==============================================================================
 ///</class_info>

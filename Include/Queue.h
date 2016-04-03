@@ -1,41 +1,62 @@
-///<proj_info>
+ï»¿///<proj_info>
 //==============================================================================
-// ÏîÄ¿Ãû £ºÖÇÄÜ¼à¿Ø
-// ÎÄ¼şÃû £ºQueue.h
-// ×÷  Õß £ºÍõÀÚ
-// ÓÃ  Í¾ £º¼òµ¥Ñ­»·¶ÓÁĞÄ£°åÀà
-// °æ  È¨ £º»ô±ÈÌØÈË
+// é¡¹ç›®å ï¼šæ™ºèƒ½ç›‘æ§
+// æ–‡ä»¶å ï¼šQueue.h
+// ä½œ  è€… ï¼šç‹ç£Š
+// ç”¨  é€” ï¼šç®€å•å¾ªç¯é˜Ÿåˆ—æ¨¡æ¿ç±»
+// ç‰ˆ  æƒ ï¼šéœæ¯”ç‰¹äºº
 //==============================================================================
 ///</proj_info>
 
 ///<ver_info>
-// °æ±¾¼ÇÂ¼	
+// ç‰ˆæœ¬è®°å½•	
 //==============================================================================
-//°æ±¾ºÅ  ¿ª·¢ÈËÔ±      Ê±¼ä      ÃèÊö
-//1.0     ÍõÀÚ        2013.2.20   ´´½¨
-//2.0     ÍõÀÚ        2016.4.2   ÕûºÏ¾É°æ±¾
+//ç‰ˆæœ¬å·  å¼€å‘äººå‘˜      æ—¶é—´      æè¿°
+//1.0     ç‹ç£Š        2013.2.20   åˆ›å»º
+//2.0     ç‹ç£Š        2016.4.2   æ•´åˆæ—§ç‰ˆæœ¬
 //==============================================================================
 ///</ver_info>
 
+///<algorithm_info>
+//==============================================================================
+//åŠŸèƒ½æè¿°: ç®€å•å¾ªç¯é˜Ÿåˆ—æ¨¡æ¿ç±»
+//         
+//         Store as an array
+//        â”â”â”â”â”â”â”“
+//   â”â”â–¶â”ƒ  Item Ã— â”ƒâ—€â”p_DataList
+//   â”ƒ   â”ƒ  Item Ã— â”ƒ
+//   â”ƒ   â”ƒ  Item Ã— â”ƒ
+//  Index â”ƒ  Item 0  â”ƒâ—€â” p_Headâ”â”DelHead()
+//  as a  â”ƒ  Item 1  â”ƒ       â—€â”â”›
+//  ring  â”ƒ     :    â”ƒ
+//   â”ƒ   â”ƒ     :    â”ƒ
+//   â”ƒ   â”ƒ  Item N  â”ƒâ—€â” p_Tailâ”â”AddTail(): do not accept if IsFull()
+//   â”ƒ   â”ƒ  Item Ã— â”ƒ       â—€â”â”›   /ForcTail(): accept if IsFull()
+//   â”—â” â”ƒ  Item Ã— â”ƒ
+//        â”—â”â”â”â”â”â”›
+//
+//==============================================================================
+///</algorithm_info>
+
 ///<class_info>
 //==============================================================================
-//¹¦ÄÜÃèÊö:¼òµ¥Ñ­»·¶ÓÁĞÄ£°åÀà
-//         ¶ÓÁĞ±£´æÊı¾İ(·ÇÖ¸Õë),Ìí¼Óµ÷ÓÃÊı¾İÊ±²ÉÓÃ¸³Öµ²Ù×÷
-//         Ö§³ÖÎŞ¸³ÖµÔËËãµÄÊı¾İÀàĞÍ
-//         ÓÉÓÚ²»°üº¬¸´ÔÓµ÷ÓÃ,ËùÓĞ·½·¨Ğ´ÔÚÍ·ÎÄ¼şÖĞ
+//åŠŸèƒ½æè¿°:ç®€å•å¾ªç¯é˜Ÿåˆ—æ¨¡æ¿ç±»
+//         é˜Ÿåˆ—ä¿å­˜æ•°æ®(éæŒ‡é’ˆ),æ·»åŠ è°ƒç”¨æ•°æ®æ—¶é‡‡ç”¨èµ‹å€¼æ“ä½œ
+//         æ”¯æŒæ— èµ‹å€¼è¿ç®—çš„æ•°æ®ç±»å‹
+//         ç”±äºä¸åŒ…å«å¤æ‚è°ƒç”¨,æ‰€æœ‰æ–¹æ³•å†™åœ¨å¤´æ–‡ä»¶ä¸­
 #pragma once
 template <typename T>
 class Queue
 {
 public:
 	enum {DEFAULTNUM = 32};
-	//¶ÓÁĞÊı¾İ
+	//é˜Ÿåˆ—æ•°æ®
 	T* p_DataList;
 	int m_DataNum;
-	//¶ÓÁĞÍ·Î²
+	//é˜Ÿåˆ—å¤´å°¾
 	int p_Head;
 	int p_Tail;
-	//¹¹Ôìº¯Êı´´½¨¶ÓÁĞ²¢³õÊ¼»¯Îª¿Õ,Ôİ²»Ö§³Ö¿½±´
+	//æ„é€ å‡½æ•°åˆ›å»ºé˜Ÿåˆ—å¹¶åˆå§‹åŒ–ä¸ºç©º,æš‚ä¸æ”¯æŒæ‹·è´
 	Queue()//int dataNum=DEFAULTNUM)
 	{
 		p_Head=0;
@@ -51,7 +72,7 @@ public:
 			p_DataList=0;
 		}
 	}
-	Initial(int dataNum = DEFAULTNUM)
+	void Initial(int dataNum = DEFAULTNUM)
 	{
 		if (p_DataList != 0)
 		{
@@ -64,7 +85,7 @@ public:
 		p_DataList = new T[dataNum];
 		m_DataNum = dataNum;
 	}
-	Unitial()
+	void Unitial()
 	{
 		if (p_DataList != 0)
 		{
@@ -75,7 +96,7 @@ public:
 		p_Tail = 0;
 		m_DataNum = 0;
 	}
-	//·½·¨
+	//æ–¹æ³•
 	int SetSize(int dataNum)
 	{
 		if (p_DataList != 0)
@@ -116,7 +137,7 @@ public:
 		return p_Head-p_Tail==1||(p_Head==0&&p_Tail==m_DataNum-1);
 	}
 
-	//É¾³ıÍ·Êı¾İ
+	//åˆ é™¤å¤´æ•°æ®
 	bool DelHead()
 	{
 		if (IsEmpty()) return false;
@@ -127,7 +148,7 @@ public:
 		}
 		return true;
 	}
-	//±£»¤Í·Êı¾İÇ°ÌáÏÂÌí¼ÓÎ²Êı¾İ
+	//ä¿æŠ¤å¤´æ•°æ®å‰æä¸‹æ·»åŠ å°¾æ•°æ®
 	bool AddTail(T data)
 	{
 		if (IsFull()) return false;
@@ -140,7 +161,7 @@ public:
 		}
 		return true;
 	}
-	//Ç¿ÖÆÌí¼ÓÎ²Êı¾İ
+	//å¼ºåˆ¶æ·»åŠ å°¾æ•°æ®
 	bool ForcTail(T data)
 	{
 		if (IsFull()) DelHead();
@@ -153,7 +174,7 @@ public:
 		}
 		return true;
 	}
-	//»ñµÃÎ²Êı¾İ
+	//è·å¾—å°¾æ•°æ®
 	bool GetTail(T& data)
 	{
 		if (IsEmpty()) return false;
@@ -166,7 +187,7 @@ public:
 //data=*(p_DataList+m_DataNum-1);
 		return true;
 	}
-	//»ñµÃÎ²Êı¾İ
+	//è·å¾—å°¾æ•°æ®
 	T* GetTail()
 	{
 		if (IsEmpty()) return 0;
@@ -180,7 +201,7 @@ public:
 		//memcpy(&data,(p_DataList+m_DataNum-1),sizeof(T));
 		//data=*(p_DataList+m_DataNum-1);
 	}
-	//»ñµÃÍ·Êı¾İ
+	//è·å¾—å¤´æ•°æ®
 	bool GetHead(T& data)
 	{
 		if (IsEmpty()) return false;
@@ -188,7 +209,7 @@ public:
 		//data=*(p_DataList+p_Head);
 		return true;
 	}
-	//»ñµÃÍ·Êı¾İ
+	//è·å¾—å¤´æ•°æ®
 	T* GetHead()
 	{
 		if (IsEmpty()) return 0;
@@ -197,7 +218,7 @@ public:
 		//data=*(p_DataList+p_Head);
 		//return true;
 	}
-	//»ñµÃÊı¾İ
+	//è·å¾—æ•°æ®
 	bool GetData(T& data,int index)
 	{
 		if (IsEmpty()) return false;
@@ -209,7 +230,7 @@ public:
 		//data=*(p_DataList+pRead);
 		return true;
 	}
-	//»ñµÃÊı¾İ
+	//è·å¾—æ•°æ®
 	T* GetData(int index)
 	{
 		if (IsEmpty()) return 0;
@@ -222,7 +243,7 @@ public:
 		//data=*(p_DataList+pRead);
 		//return true;
 	}
-	//»ñµÃÊı¾İ
+	//è·å¾—æ•°æ®
 	bool GetLast(T& data,int index)
 	{
 		if (IsEmpty()) return false;
@@ -234,7 +255,7 @@ public:
 		data=*(p_DataList+pRead);
 		return true;
 	}
-	//»ñµÃÊı¾İ
+	//è·å¾—æ•°æ®
 	T* GetLast(int index)
 	{
 		if (IsEmpty()) return 0;
