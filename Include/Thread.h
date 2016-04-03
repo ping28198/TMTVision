@@ -1,9 +1,9 @@
 ﻿///<proj_info>
 //==============================================================================
-// 项目名 ：智能监控
-// 文件名 ：Thread.h
-// 作  者 ：王磊
-// 用  途 ：Thread       简单线程类,可派生重载任务函数 
+// 项目名 : 智能监控
+// 文件名 : Thread.h
+// 作  者 : 王磊
+// 用  途 : Thread       简单线程类,可派生重载任务函数 
 //          TaskThread   单任务线程类,可动态变更任务函数  
 //          TaskThreadEx 队列任务线程类,可动态变更任务函数队列
 //			1:声明后创建线程并执行ThreadMain,线程在ThreadMain退出时销毁,
@@ -11,7 +11,7 @@
 //			  线程执行后可以手动挂起和更改线程 任务处理函数,
 //			  当任务函数被置零时,线程挂起,等待新的 任务处理函数
 //			3:线程主函数重复执行任务处理函数,主函数后包含中断处理
-// 版  权 ：霍比特人
+// 版  权 : 霍比特人
 //==============================================================================
 ///</proj_info>
 
@@ -24,6 +24,9 @@
 //                               线程ID改为静态以便为对象计数 m_nThreadID
 //                               添加每次任务执行后等待时间 m_waiteTime
 //3.0     王磊        2016.3.29  整理线程类分层功能
+//3.1     王磊        2016.4.3   更新线程计时等待功能,m_includeTaskTime=
+//                               false计时器不计任务时间, true 计时器记录任务时间,
+//                               不足m_waiteTime将等待余下时间
 //==============================================================================
 ///</ver_info>
 
@@ -114,9 +117,10 @@ public:
 	HANDLE  m_hParent;//2.0
 	HANDLE  m_hEvt;
 protected:
-	bool  m_bExit;
+	bool m_bExit;
 	int m_times;
 	long m_waiteTime;
+	bool m_includeTaskTime;//3.1
 public:
 	enum THSTATUS { enAvialable = 0, enRunning, enSuspend, enExit, enCorpse};
 	THSTATUS m_ThStatus;
@@ -130,7 +134,7 @@ private:
 	static void ThreadMain(void* thisObj);
 public:
 	//创建线程
-	void  Create(int times = -1, long waiteTime = 0);
+	void  Create(int times = -1, long waiteTime = 0, bool includeTaskTime = false);
 	//继续执行挂起的线程
 	void  Resume(void);
 	//挂起线程
@@ -195,7 +199,7 @@ private:
 	static void ThreadMain(void* thisObj);
 public:
 	//创建线程
-	void  Create(int times = -1, long waiteTime = 0);
+	void  Create(int times = -1, long waiteTime = 0, bool includeTaskTime = false);
 //任务功能
 protected:
 	ThreadTaskFun p_Task;
@@ -249,9 +253,9 @@ typedef struct tagThreadTask
 //┃空任务│空任务  ┃ 
 //┃任务0 │参数0   ┃ <-队列头线程执行后下移,或DelHeadTask删除
 //┃任务1 │参数1   ┃ <-队列等待中的任务
-//┃  ：  │  ：    ┃
+//┃  :   │  :     ┃
 //┃任务n │参数n   ┃ <-队列尾可以用AddTailTask添加.
-//┃  ：  │  ：    ┃
+//┃  :   │  :     ┃
 //┃空任务│空参数  ┃
 //┃  ↙  │ ↙     ┃ <-循环队列,固定长度,循环存储
 //┠───┴────┨       
@@ -271,7 +275,7 @@ private:
 	static void ThreadMain(void* thisObj);
 public:
 	//创建线程
-	void  Create(int times = -1, long waiteTime = 0);
+	void  Create(int times = -1, long waiteTime = 0, bool includeTaskTime = false);
 	//强制删除线程,将当前任务卸载,重启线程,并返回新的线程指针
 	void  Recover(void);
 //任务功能

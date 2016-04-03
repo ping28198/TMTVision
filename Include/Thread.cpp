@@ -1,6 +1,6 @@
 #include "Thread.h"
 #include <process.h>
-
+#include "ArWatch.h"
 int Mod(int i,int j)
 {
 	int tmp=i%j;
@@ -45,6 +45,7 @@ Thread::Thread(HANDLE  hParent)//2.0
 	m_hParent = hParent;//2.0
 	m_nThreadID = m_nThreadID + 1;//2.0
 	m_waiteTime = 0;
+	m_includeTaskTime = false;//3.1
 	m_ThStatus = enExit;
 }
 //析构时设置参数等待线程主函数返回,需要等待1秒
@@ -67,24 +68,36 @@ void Thread::ThreadMain(void* thisObj)
 	Thread* pThisObj = (Thread*)thisObj;
 	while (!pThisObj->m_bExit && pThisObj->m_times != 0)//中断0:退出
 	{
+		double taskTime = 0;//3.1
 		//任务处理部分
 		pThisObj->m_ThStatus = Thread::enSuspend;
 		::WaitForSingleObject(pThisObj->m_hEvt, INFINITE);//中断2:挂起
 		pThisObj->m_ThStatus = Thread::enRunning;
 		//::EnterCriticalSection(&pThisObj->m_section);
-		pThisObj->Task();//3.0
-							//::LeaveCriticalSection(&pThisObj->m_section);
+
+		if (pThisObj->m_includeTaskTime)//3.1
+		{
+			ArWatch arWatch;
+			arWatch.SetData(&taskTime);
+			pThisObj->Task();//3.0
+		}
+		else
+		{
+			pThisObj->Task();//3.0
+		}
+		//::LeaveCriticalSection(&pThisObj->m_section);
+
 		if (pThisObj->m_times>0)//中断3计数退出
 		{
 			pThisObj->m_times--;
 		}
-		Sleep(pThisObj->m_waiteTime);//2.0
+		Sleep(MAX(pThisObj->m_waiteTime - taskTime, 0));//3.1
 	}
 	pThisObj->m_ThStatus = Thread::enExit;
 	OutputDebugString(L"<\\Thread::ThreadMain()>\n");
 }
 //创建线程
-void  Thread::Create(int times, long waiteTime)//2.0
+void  Thread::Create(int times, long waiteTime, bool includeTaskTime)//2.0
 {
 	if (m_hEvt == 0)
 	{
@@ -94,6 +107,7 @@ void  Thread::Create(int times, long waiteTime)//2.0
 	{
 		m_times = times;
 		m_waiteTime = MAX(waiteTime, 0);
+		m_includeTaskTime = includeTaskTime;//3.1
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
 		if (m_hThread != 0) m_ThStatus = enAvialable;
 		OutputDebugString(L"<Thread::Create()>\n");
@@ -190,15 +204,27 @@ void TaskThread::ThreadMain(void* thisObj)
 	TaskThread* pThisObj = (TaskThread*)thisObj;
 	while (!pThisObj->m_bExit && pThisObj->m_times != 0)//中断0:退出
 	{
+		double taskTime = 0;//3.1
 		//任务处理部分
 		if (pThisObj->p_Task)//中断1:释放
 		{
 			pThisObj->m_ThStatus = Thread::enSuspend;
 			::WaitForSingleObject(pThisObj->m_hEvt, INFINITE);//中断2:挂起
 			pThisObj->m_ThStatus = Thread::enRunning;
+
 			//::EnterCriticalSection(&pThisObj->m_section);
-			pThisObj->p_Task(pThisObj->p_Para);
+			if (pThisObj->m_includeTaskTime)//3.1
+			{
+				ArWatch arWatch;
+				arWatch.SetData(&taskTime);
+				pThisObj->p_Task(pThisObj->p_Para);//3.0
+			}
+			else
+			{
+				pThisObj->p_Task(pThisObj->p_Para);//3.0
+			}
 			//::LeaveCriticalSection(&pThisObj->m_section);
+
 		}
 		else
 		{
@@ -210,14 +236,14 @@ void TaskThread::ThreadMain(void* thisObj)
 		{
 			pThisObj->m_times--;
 		}
-		Sleep(pThisObj->m_waiteTime);//2.0
+		Sleep(MAX(pThisObj->m_waiteTime - taskTime, 0));//3.1
 	}
 	pThisObj->p_Task = 0;
 	pThisObj->m_ThStatus = Thread::enExit;
 	OutputDebugString(L"<\\TaskThread::ThreadMain()>\n");
 }
 //创建线程
-void TaskThread::Create(int times, long waiteTime)
+void TaskThread::Create(int times, long waiteTime, bool includeTaskTime)
 {
 	if (m_hEvt == 0)
 	{
@@ -227,6 +253,7 @@ void TaskThread::Create(int times, long waiteTime)
 	{
 		m_times = times;
 		m_waiteTime = MAX(waiteTime, 0);
+		m_includeTaskTime = includeTaskTime;//3.1
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
 		if (m_hThread != 0) m_ThStatus = enAvialable;
 		OutputDebugString(L"<TaskThread::Create()>\n");
@@ -269,15 +296,15 @@ void  TaskThread::RegTask(ThreadTaskFun pFunc, void* pPara)
 //┠────────┨
 //┃线程主函数      ┃ <-线程创建Create后开始执行,处理任务Task和消息,主函数退出后线程销毁
 //┠───┬────┨
-//┃  ↖  │ ↖     ┃ <-循环队列,固定长度,循环存储
+//┃  ↘  │ ↘     ┃ <-循环队列,固定长度,循环存储
 //┃空任务│空任务  ┃ 
 //┃任务0 │参数0   ┃ <-队列头线程执行后下移,或DelHeadTask删除
 //┃任务1 │参数1   ┃ <-队列等待中的任务
-//┃  ：  │  ：    ┃
+//┃  :   │  :     ┃
 //┃任务n │参数n   ┃ <-队列尾可以用AddTailTask添加.
-//┃  ：  │  ：    ┃
+//┃  :   │  :     ┃
 //┃空任务│空参数  ┃
-//┃  ↖  │ ↖     ┃ <-循环队列,固定长度,循环存储
+//┃  ↙  │ ↙     ┃ <-循环队列,固定长度,循环存储
 //┠───┴────┨       
 //┃中断处理        ┃ <-确定主函数是否关起退出,ForceEnd中断0强制退出,m_times中断3计数退出
 //┗━━━━━━━━┛       Suspend中断2挂起等待,主函数循环暂停.
@@ -300,6 +327,7 @@ void TaskThreadEx::ThreadMain(void* thisObj)
 	TaskThreadEx* pThisObj = (TaskThreadEx*)thisObj;
 	while (!pThisObj->m_bExit && pThisObj->m_times != 0)//中断0:退出
 	{
+		double taskTime = 0;//3.1
 		//任务获取部分
 		//判断任务队列是否为空
 		if (pThisObj->p_TaskListHead == pThisObj->p_TaskListTail - 1 || pThisObj->m_TaskNum <= 0)
@@ -319,9 +347,20 @@ void TaskThreadEx::ThreadMain(void* thisObj)
 		{
 			pThisObj->m_ThStatus = Thread::enRunning;
 			OutputDebugString(L"ThreadMain RunTask\n");
+
 			//::EnterCriticalSection(&pThisObj->m_section);
-			pThisObj->p_Task(pThisObj->p_Para);
+			if (pThisObj->m_includeTaskTime)//3.1
+			{
+				ArWatch arWatch;
+				arWatch.SetData(&taskTime);
+				pThisObj->p_Task(pThisObj->p_Para);//3.0
+			}
+			else
+			{
+				pThisObj->p_Task(pThisObj->p_Para);//3.0
+			}
 			//::LeaveCriticalSection(&pThisObj->m_section);
+
 			//任务完成后处理
 			pThisObj->p_Task = 0;
 			pThisObj->p_Para = 0;
@@ -338,14 +377,14 @@ void TaskThreadEx::ThreadMain(void* thisObj)
 		{
 			pThisObj->m_times--;
 		}
-		Sleep(pThisObj->m_waiteTime);//2.0
+		Sleep(MAX(pThisObj->m_waiteTime - taskTime, 0));//3.1
 	}
 	pThisObj->p_Task = 0;
 	pThisObj->m_ThStatus = Thread::enExit;
 	OutputDebugString(L"<\\TaskThreadEx::ThreadMain()>\n");
 }
 //创建线程
-void TaskThreadEx::Create(int times, long waiteTime)
+void TaskThreadEx::Create(int times, long waiteTime, bool includeTaskTime)
 {
 	if (m_hEvt == 0)
 	{
@@ -355,6 +394,7 @@ void TaskThreadEx::Create(int times, long waiteTime)
 	{
 		m_times = times;
 		m_waiteTime = MAX(waiteTime, 0);
+		m_includeTaskTime = includeTaskTime;//3.1
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
 		if (m_hThread != 0) m_ThStatus = enAvialable;
 		OutputDebugString(L"<TaskThreadEx::Create()>\n");
