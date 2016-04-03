@@ -17,7 +17,7 @@ XMLOperator::~XMLOperator(void)
 //接口函数
 
 //---------------------------------------------------------------------
-//描述：添加根节点
+//描述: 添加根节点
 void XMLOperator::AddRoot(wchar_t* strName, wchar_t* strText)
 {
 	if(m_pRoot)
@@ -38,7 +38,7 @@ void XMLOperator::AddRoot(wchar_t* strName, wchar_t* strText)
 }
 
 //---------------------------------------------------------------------
-//描述：添加子节点
+//描述: 添加子节点
 void XMLOperator::AddChild(wchar_t* strParent, wchar_t* strName, wchar_t* strText)
 {
 	PNode pDestNode = NULL;
@@ -74,7 +74,7 @@ void XMLOperator::AddChild(wchar_t* strParent, wchar_t* strName, wchar_t* strTex
 	}
 }
 //---------------------------------------------------------------------
-//描述：保存XML文件
+//描述: 保存XML文件
 bool XMLOperator::SaveXML(wchar_t* strFileName)
 {
 	if(NULL == m_pRoot)
@@ -86,7 +86,7 @@ bool XMLOperator::SaveXML(wchar_t* strFileName)
 	HRESULT hr = pDoc.CreateInstance(__uuidof(MSXML2::DOMDocument));
 	if(!SUCCEEDED(hr)) 
     {                
-		MessageBoxW(NULL, L"无法创建DOMDocument对象，请检查是否安装了MS XML Parser 运行库!", L"错误", MB_OK); 
+		MessageBoxW(NULL, L"无法创建DOMDocument对象, 请检查是否安装了MS XML Parser 运行库!", L"错误", MB_OK); 
 		return false;
     } 
 
@@ -120,14 +120,14 @@ bool XMLOperator::SaveXML(wchar_t* strFileName)
 }
 
 //---------------------------------------------------------------------
-//描述：读取XML文件
+//描述: 读取XML文件
 bool  XMLOperator::LoadXML(wchar_t* strFileName)
 {
 	MSXML2::IXMLDOMDocumentPtr pDoc;
 	HRESULT hr = pDoc.CreateInstance(__uuidof(MSXML2::DOMDocument));
 	if(!SUCCEEDED(hr)) 
     {                
-		MessageBoxW(NULL, L"无法创建DOMDocument对象，请检查是否安装了MS XML Parser 运行库!", L"错误", MB_OK); 
+		MessageBoxW(NULL, L"无法创建DOMDocument对象, 请检查是否安装了MS XML Parser 运行库!", L"错误", MB_OK); 
 		return false;
     } 
 	_variant_t vtFileName(strFileName);
@@ -198,7 +198,7 @@ bool  XMLOperator::LoadXML(wchar_t* strFileName)
 	return true;
 }
 //---------------------------------------------------------------------
-//描述：获取参数值
+//描述: 获取参数值
 bool XMLOperator::GetValue(wchar_t* strName, wchar_t* strValue)
 {
 	PNode pDestNode = NULL;
@@ -214,7 +214,7 @@ bool XMLOperator::GetValue(wchar_t* strName, wchar_t* strValue)
 	}
 }
 //---------------------------------------------------------------------
-//描述：
+//描述: 
 bool  XMLOperator::ChangeValue(SHORTWSTR strNameArray[],int iDepth, wchar_t*  strValue)
 {
 	PNode pDestNode = NULL;
@@ -250,7 +250,7 @@ bool  XMLOperator::ChangeValue(SHORTWSTR strNameArray[],int iDepth, wchar_t*  st
 
 }
 //---------------------------------------------------------------------
-//描述：
+//描述: 
 bool XMLOperator::GetValue(SHORTWSTR strNameArray[],int iDepth, SHORTWSTR& strValue)
 {
 	PNode pDestNode = NULL;
@@ -290,13 +290,13 @@ bool XMLOperator::GetValue(SHORTWSTR strNameArray[],int iDepth, SHORTWSTR& strVa
 //私有函数
 
 //------------------------------------------------------------------
-//描述：销毁根结点下的所有数据
+//描述: 销毁根结点下的所有数据
 void    XMLOperator::DestroyRoot(PNode  pRoot)
 {
 	DestroyNode(pRoot);
 }
 //------------------------------------------------------------------
-//描述：销毁指定的节点
+//描述: 销毁指定的节点
 void    XMLOperator::DestroyNode(PNode pNode)
 {
 	if(pNode && NULL != pNode->m_pChild)
@@ -324,7 +324,7 @@ void    XMLOperator::DestroyNode(PNode pNode)
 }
 
 //------------------------------------------------------------------
-//描述：查找指定的节点
+//描述: 查找指定的节点
 bool   XMLOperator::FindNode(wchar_t* strName, PNode pNode, PNode& pDestNode)
 {
 	if(wcscmp(pNode->m_strName, strName) == 0)
@@ -346,7 +346,7 @@ bool   XMLOperator::FindNode(wchar_t* strName, PNode pNode, PNode& pDestNode)
 	}
 }
 //------------------------------------------------------------------
-//描述：添加节点到XML文件中
+//描述: 添加节点到XML文件中
 void    XMLOperator::AddNodeToXML(PNode pParent, 
 								   MSXML2::IXMLDOMElementPtr& pXMLParent,
 								   MSXML2::IXMLDOMDocumentPtr pDoc)
@@ -391,7 +391,7 @@ void    XMLOperator::AddNodeToXML(PNode pParent,
 	}
 }
 //------------------------------------------------------------------
-//描述：获取XML文件中的节点信息
+//描述: 获取XML文件中的节点信息
 void    XMLOperator::GetXMLNodeInfo(MSXML2::IXMLDOMNodePtr pNode)
 {
 	if(0 == pNode)
@@ -473,7 +473,7 @@ void    XMLOperator::GetXMLNodeInfo(MSXML2::IXMLDOMNodePtr pNode)
 }
 
 //------------------------------------------------------------------
-//描述：
+//描述: 
 bool   XMLOperator::IsLeaf(MSXML2::IXMLDOMNodePtr pNode)
 {
 	MSXML2::IXMLDOMNodeListPtr pList =  pNode->GetchildNodes();

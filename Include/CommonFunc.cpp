@@ -20,14 +20,14 @@ CCommonFunc::~CCommonFunc(void)
 //////////////////////////////////////////////////
 //定义的公共函数
 //------------------------------------------------------------
-//描述：获取完整的程序名描述
+//描述: 获取完整的程序名描述
 void CCommonFunc::GetAppPathName(wchar_t* strAppPath , size_t strLen)
 {
 	::GetModuleFileNameW(NULL, strAppPath, strLen);
 }
 
 //------------------------------------------------------------
-//描述：获取程序所在路径
+//描述: 获取程序所在路径
 void CCommonFunc::GetAppPath(wchar_t* strAppPath, size_t strLen)
 {
 	wchar_t strTempAppPath[256] = L"\0";
@@ -47,7 +47,7 @@ void CCommonFunc::GetAppPath(wchar_t* strAppPath, size_t strLen)
 	StringCchCopyW(strAppPath, strLen, strTempAppPath);
 }
 //------------------------------------------------------------
-//描述：
+//描述: 
 void CCommonFunc::GetModulePath(void* hModuel, wchar_t* strPath , size_t strLen)
 {
 	wchar_t strTempAppPath[256] = L"\0";
@@ -68,7 +68,7 @@ void CCommonFunc::GetModulePath(void* hModuel, wchar_t* strPath , size_t strLen)
 
 }
 //------------------------------------------------------------
-//描述：
+//描述: 
 void CCommonFunc::GetAppName(wchar_t* strAppName, size_t iStrLen)
 {
 	wchar_t strTempAppPath[256] = L"\0";
@@ -93,7 +93,7 @@ void CCommonFunc::GetAppName(wchar_t* strAppName, size_t iStrLen)
 	StringCchCopyW(strAppName,iStrLen, pChar);
 }
 //------------------------------------------------------------
-//描述：
+//描述: 
 void CCommonFunc::GetFilePath(wchar_t* strPathName, wchar_t* strPath, size_t iStrPathLen)
 {
 	wchar_t strTempAppPath[256] = L"\0";
@@ -113,7 +113,7 @@ void CCommonFunc::GetFilePath(wchar_t* strPathName, wchar_t* strPath, size_t iSt
 
 }
 //------------------------------------------------------------
-//描述：
+//描述: 
 void CCommonFunc::GetFileName(wchar_t* strPathName, wchar_t* strFileName, size_t iStrFileNameLen)
 {
 	if(wcslen(strPathName) == 0) return;
@@ -141,7 +141,7 @@ void CCommonFunc::GetFileName(wchar_t* strPathName, wchar_t* strFileName, size_t
 	StringCchCopyW(strFileName,iStrFileNameLen, pChar);
 }
 //------------------------------------------------------------
-//描述：
+//描述: 
 void CCommonFunc::GetFileExt(wchar_t* strPathName, wchar_t* strExt, size_t iStrExtLen)
 {
 	wchar_t strTempPathName[256] = L"\0";
@@ -160,7 +160,7 @@ void CCommonFunc::GetFileExt(wchar_t* strPathName, wchar_t* strExt, size_t iStrE
 	StringCchCopyW(strExt, iStrExtLen, pChar);
 }
 //------------------------------------------------------------
-//描述：
+//描述: 
 void CCommonFunc::GetFileNoExt(wchar_t* strPathName, wchar_t* strName, int iNameLen)
 {
 	wchar_t strTempPathName[256] = L"\0";
@@ -417,7 +417,7 @@ int  CCommonFunc::FileNumInDir(wchar_t* strDir, wchar_t* strExt)
 	return iFileNum;
 }
 //------------------------------------------------------------
-//描述:搜索指定后缀的文件，仅在一级目录中
+//描述:搜索指定后缀的文件, 仅在一级目录中
 #ifdef  UNICODE
 bool  CCommonFunc::SearchFile(wchar_t* strDir, wchar_t* strExt,FileNameSet& Set)
 {
@@ -814,9 +814,9 @@ bool  CCommonFunc::WriteWStrToText(wchar_t* strFileName, wchar_t* pData, int str
 	return true;
 }
 
-//描述：将字符串{1,1,1}转换为double型数组
+//描述: 将字符串{1,1,1}转换为double型数组
 //参数:
-//	wchar_t* strAppName 需要运行的程序，可以带有命令行参数
+//	wchar_t* strAppName 需要运行的程序, 可以带有命令行参数
 bool  CCommonFunc::StringToDoubles(wchar_t* srcString,  int strLen,double* pData, int& dataLen)
 {
 	wchar_t *pChar=srcString;
@@ -871,9 +871,9 @@ bool  CCommonFunc::StringToDoubles(wchar_t* srcString,  int strLen,double* pData
 	return false;
 }
 ///</func_info>
-//描述：将字符串{1,1,1}转换为int型数组
+//描述: 将字符串{1,1,1}转换为int型数组
 //参数:
-//	wchar_t* strAppName 需要运行的程序，可以带有命令行参数
+//	wchar_t* strAppName 需要运行的程序, 可以带有命令行参数
 bool  CCommonFunc::StringToInts(wchar_t* srcString,  int strLen,int* pData, int& dataLen)
 {
 	wchar_t *pChar=srcString;
