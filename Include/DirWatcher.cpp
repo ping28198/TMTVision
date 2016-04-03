@@ -123,14 +123,14 @@ void DirWatchServer::FreePath()
 }
 //先扫描注册文件夹所有文件, 文件名推入队列中保留最近的文件
 //再重载启动函数,内部添加FindFirstChangeNotification用于启动监控
-void DirWatchServer::Create(int times, long waiteTime)
+void DirWatchServer::Create(int times, long waiteTime, bool includeTaskTime = true)
 {
 	if (m_path[0] == 0 || m_hDir == 0)
 	{
 		OutputDebugString(L"<DirWatchServer: Create() failed.>\n");
 		return;
 	}
-    Thread::Create(times, waiteTime);
+    Thread::Create(times, waiteTime, includeTaskTime);
 }
 //重载启动函数
 void DirWatchServer::Destroy()

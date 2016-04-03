@@ -108,8 +108,9 @@ struct FileItem
 	LONGWSTR m_fileName;
 	DWORD m_fileAction;
 	bool m_fileProcessed;
-};//==============================================================================
-  ///</datastruct_info>
+};
+//==============================================================================
+///</datastruct_info>
 
 ///<class_info>
 //==============================================================================
@@ -143,7 +144,7 @@ public:
 	void FreePath();
 	//先扫描注册文件夹所有文件, 文件名推入队列中保留最近的文件
 	//再重载启动函数,内部添加FindFirstChangeNotification用于启动监控
-	void Create(int times = -1, long waiteTime = 0);
+	void Create(int times = -1, long waiteTime = 0, bool includeTaskTime = true);
 	//重载启动函数
 	void Destroy();
 	//供重载的操作函数,主函数会重复执行该函数,内部调用Watch()函数,具有线程保护
