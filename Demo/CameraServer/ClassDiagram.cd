@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="CameraServer">
+    <Position X="7.5" Y="2.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <InheritanceLine Type="Thread" ManuallyRouted="true">
+      <Path>
+        <Point X="1.25" Y="1.048" />
+        <Point X="1.25" Y="2.327" />
+        <Point X="3.167" Y="2.327" Type="JumpStart" />
+        <Point X="3.333" Y="2.327" Type="JumpEnd" />
+        <Point X="5.167" Y="2.327" Type="JumpStart" />
+        <Point X="5.333" Y="2.327" Type="JumpEnd" />
+        <Point X="6.885" Y="2.327" Type="JumpStart" />
+        <Point X="7.052" Y="2.327" Type="JumpEnd" />
+        <Point X="8.25" Y="2.327" />
+        <Point X="8.25" Y="2.75" />
+      </Path>
+    </InheritanceLine>
+    <AssociationLine Name="pDirWatchServer" Type="DirWatchServer">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.11" Y="-0.221" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAAAAAAAAAAAAABAAEAAAFAAAAIAAAA=</HashCode>
+      <FileName>CameraServer.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="pDirWatchServer" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="DirWatcher" Collapsed="true">
+    <Position X="4.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQCAgAAJAACAEAACAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\DirWatcher.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DirWatchServer" Collapsed="true">
+    <Position X="4.5" Y="2.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="DirWatchServer::__unnamed_enum_0150_2" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>D:\行人识别项目\Code\TMTVision\Include\DirWatcher.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <InheritanceLine Type="Thread" ManuallyRouted="true">
+      <Path>
+        <Point X="1.25" Y="1.048" />
+        <Point X="1.25" Y="1.868" />
+        <Point X="3.167" Y="1.868" Type="JumpStart" />
+        <Point X="3.333" Y="1.868" Type="JumpEnd" />
+        <Point X="5.25" Y="1.868" />
+        <Point X="5.25" Y="2.75" />
+      </Path>
+    </InheritanceLine>
+    <AssociationLine Name="m_fileNameQueue" Type="Queue&lt;T&gt;">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-0.507" Y="1.669" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAEAAAABAAAAAAAABAAAAAAACBAAEAAAEAAgAAAAAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\DirWatcher.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="m_fileNameQueue" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="MessageServer" Collapsed="true">
+    <Position X="2.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAAAIEAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MessageServer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TaskThread" Collapsed="true">
+    <Position X="0.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAoACIAAEAAAAgAAAAEAAAAAAAAEAAAAAAAAAACAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\Thread.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TaskThreadEx" Collapsed="true">
+    <Position X="0.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAiAAAEAAAIAAQFAAAAACAAAAkAAEAAAAAAAAAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\Thread.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Thread" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAADIAQEAAAAACACAAAQAACBAAWAIAEAAAAgAAAg=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\Thread.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TmtSocket" Collapsed="true">
+    <Position X="2.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIikAAAAAQBiBAAMgIACAAAAAgAAACQURAIAAEgAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\TmtSocket.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TmtSocketServer" Collapsed="true">
+    <Position X="2.5" Y="2.75" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="TmtSocketServer::__unnamed_enum_0160_3" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>D:\行人识别项目\Code\TMTVision\Include\TmtSocket.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <InheritanceLine Type="Thread" ManuallyRouted="true">
+      <Path>
+        <Point X="1.25" Y="1.048" />
+        <Point X="1.25" Y="1.443" />
+        <Point X="3.25" Y="1.443" />
+        <Point X="3.25" Y="2.75" />
+      </Path>
+    </InheritanceLine>
+    <InheritanceLine Type="TmtSocket" ManuallyRouted="true" FixedFromPoint="true">
+      <Path>
+        <Point X="3.25" Y="1.048" />
+        <Point X="3.25" Y="1.171" />
+        <Point X="3.25" Y="1.171" />
+        <Point X="3.25" Y="2.75" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAQABAAAAAAAAAAAAAAABARAEAAAAAAAAEgAAAAAAAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\TmtSocket.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BackgroundDetector" Collapsed="true">
+    <Position X="9.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAgAEAAJAAAAAAAAARAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\Detector.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Detector" Collapsed="true">
+    <Position X="9.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAAQJACAAAAAAARAABAAAAAEAAAAAAEBAAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\Detector.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Queue&lt;T&gt;" Collapsed="true">
+    <Position X="6.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEBAAFIAECAAgACABAAIAARAQAAAAAAoAAAIAIBAgAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\Queue.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>
