@@ -94,10 +94,6 @@ public:
 		TMTV_STARTWARN = 2,  //已启动的算法
 	};
 	int WarnningLevel = TMTV_NOWARN;//警告等级,设置算法启动状态
-	~Tmtv_AlgorithmInfo()
-	{
-		int a = 0;
-	}
 };
 //==============================================================================
 ///</datastruct_info>
