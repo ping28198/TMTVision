@@ -69,6 +69,7 @@ bool TmtSocket::SetSendAddr(int remoteRecvPort, char* remoteRecvIp, int localSen
 			return false;
 		}
 	}
+	return false;
 }
 
 bool TmtSocket::SetRecvAddr(int localRecvPort, char* localRecvIP)
