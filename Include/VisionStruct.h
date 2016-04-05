@@ -166,8 +166,8 @@ struct Tmtv_AskInfo//指令信息, 主程序端发往相机服务端
 		TMTV_SETALGO = 108      //暂定CameraInfo指定的算法
 	};
 	int Asktype;
-	DWORD hAskHandle;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
-	DWORD hAnswerHandle;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用	
+	HANDLE hAskHandle;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
+	HANDLE hAnswerHandle;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用	
 	Tmtv_CameraInfo CameraInfo;
 };
 //==============================================================================
@@ -205,8 +205,8 @@ struct Tmtv_MsgInfo//指令信息, 相机服务端发往主程序端
 		TMTV_DETECTED = 299,         //推送检测到的的mImgInfo图片+缺陷
 	};
 	int MsgType;
-	DWORD hAskHandle;            //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
-	DWORD hAnswerHandle;         //1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用
+	HANDLE hAskHandle;            //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
+	HANDLE hAnswerHandle;         //1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用
 	//Tmtv_CameraInfo CameraInfo;//1.1//冗余的数据
 	Tmtv_ImageInfo ImgInfo;
 };

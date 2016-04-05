@@ -48,6 +48,7 @@ typedef char				HUGESTR[TMTV_HUGESTRLEN];
 typedef char				NetIP[TMTV_IPSTRLEN];
 typedef char*			    StrPointer;
 typedef char				StrChar;
+typedef void*               HANDLE;
 //==============================================================================
 ///</datastruct_info>
 
