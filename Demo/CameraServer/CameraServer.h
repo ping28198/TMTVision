@@ -24,6 +24,8 @@
 #include "DirWatcher.h"
 #include "Thread.h"
 #include "CommonDefine.h"
+#include "VisionStruct.h"
+#include "Detector.h"
 //==============================================================================
 ///</header_info>
 
@@ -40,16 +42,46 @@ public:
 //文件监控
 public:
 	DirWatchServer *pDirWatchServer;
-
-//线程功能
+	//Tmtv_CameraInfo m_ImageInfo.mCameraInfo;
+	BackgroundDetector m_Detector;
+	static int m_CameraServerID;
+	Tmtv_ImageInfo m_ImageInfo;//仅保存短算法结构
+//线程功能,内部调用,禁止外部调用
 public:
     //创建线程
 	void  Create(int times = -1, long waiteTime = 0, bool includeTaskTime = true);
+	//继续执行挂起的线程
+	void  Resume(void);
+	//挂起线程
+	void  Suspend(void);
 	//设置参数使主函数退出以销毁线程
 	void  Destroy(void);
+	//调用WindowsAPI强制结束当前线程
+	void  ForceEnd(void);
+//任务功能
+public:
 	//处理pDirWatchServer中的图像队列
 	void Task();
+
+//消息功能,由父线程调用或返回给父线程
+	//添加相机,操作CameraServer对象, 准备pDirWatchServer对象
+	bool AddCamera(Tmtv_CameraInfo cameraInfo);
+	//删除相机,操作CameraServer对象, 准备pDirWatchServer对象
+	bool DelCamera(Tmtv_CameraInfo cameraInfo);
+	//打开相机,操作pDirWatchServer对象
+	bool StartCamera(Tmtv_CameraInfo cameraInfo);
+	//停止相机,操作pDirWatchServer对象
+	bool StopCamera(Tmtv_CameraInfo cameraInfo);
+	//设置相机,操作pDirWatchServer对象
+	bool SetCamera(Tmtv_CameraInfo cameraInfo);
+	//打开相机算法,操作m_Detector对象
+	bool StartAlgorithm(Tmtv_CameraInfo cameraInfo);
+	//停止相机算法,操作m_Detector对象
+	bool StopAlgorithm(Tmtv_CameraInfo cameraInfo);
+	//停止相机算法,操作m_Detector对象
+	bool SetAlgorithm(Tmtv_CameraInfo cameraInfo);
 };
+int CameraServer::m_CameraServerID=0;
 //==============================================================================
 ///</class_info>
 

@@ -44,8 +44,6 @@
 	   │
        ├ MessageServer:消息管理服务
 	   │
-       ├ CameraServerState:程序静态数据
-	   │
        └ MainFunc:程序入口函数
 
 /////////////////////////////////////////////////////////////////////////////
@@ -85,10 +83,10 @@
 ┌┴─────┐┌┴─┴─────┐┌┴─┴──────┐  │  │        │
 ├TaskThreadEx│├TmtSocketServer │├ DirWatcherServer │◁-│─│──┐  │
 └──────┘└────────┘│ └m_fileNameQueue┼─┘  │    │  │
-                                    └─────────┘      │    │  │
-                                                ┌───────┴─┐│  │
-                                                ├CameraServer      ││  │
-                                                │├pDirWatchServer ┼┘  │
-                                                │└ m_Detector ──┼──┘
-                                                └─────────┘
+                  ▲                └─────────┘      │    │  │
+                  │                            ┌───────┴─┐│  │
+                ┌┴──────┐              ├CameraServer      ││  │
+                ├ MessageServer│              │├pDirWatchServer ┼┘  │
+                │ └MessageServer│              │└ m_Detector ──┼──┘
+                └───────┘              └─────────┘
 /////////////////////////////////////////////////////////////////////////////
