@@ -146,6 +146,7 @@ void DirWatchServer::Task()
 	tmpFileItem.m_fileProcessed = false;
 	EnterCriticalSection(&m_section);
 	DirWatcher::Watch(tmpFileItem.m_fileName, tmpFileItem.m_fileAction);
-	m_fileNameQueue.ForcTail(tmpFileItem);
+	//m_fileNameQueue.ForcTail(tmpFileItem);
+	m_fileNameQueue.AddTail(tmpFileItem);
 	LeaveCriticalSection(&m_section);
 }
