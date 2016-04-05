@@ -106,6 +106,7 @@ void  Thread::Create(int times, long waiteTime, bool includeTaskTime)//2.0
 	if (m_hThread == 0)
 	{
 		m_times = times;
+		m_bExit = false;
 		m_waiteTime = MAX(waiteTime, 0);
 		m_includeTaskTime = includeTaskTime;//3.1
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
