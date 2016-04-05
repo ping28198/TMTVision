@@ -235,7 +235,7 @@ public:
 	{
 		if (IsEmpty()) return 0;
 		if (index>=GetLength()|| index<0) return 0;
-		int pRead=p_Head+index-1;
+		int pRead=p_Head+index;
 		if (pRead>=m_DataNum) pRead-=m_DataNum;
 		if (pRead<0) pRead+=m_DataNum;
 		return (p_DataList+pRead);
@@ -248,7 +248,7 @@ public:
 	{
 		if (IsEmpty()) return false;
 		if (index>=GetLength()|| index<0) return false;
-		int pRead=p_Tail-index-1;
+		int pRead=p_Tail-index;
 		if (pRead>=m_DataNum) pRead-=m_DataNum;
 		if (pRead<0) pRead+=m_DataNum;
 		memcpy(&data,(p_DataList+pRead),sizeof(T));

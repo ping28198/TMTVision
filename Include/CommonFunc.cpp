@@ -1,4 +1,4 @@
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "CommonFunc.h"
 #include <windows.h>
 #include <string.h>

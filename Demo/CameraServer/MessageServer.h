@@ -96,7 +96,8 @@ public://相机、算法操作命令
 public://返回消息
 	bool RevMsg(Tmtv_MsgInfo msgInfo);
 	bool RevImage(Tmtv_ImageInfo imgInfo, HANDLE hAnswerHandle);
-
+	
 	void ServerProcess(int revLen);
 };
-
+//==============================================================================
+///</class_info>
