@@ -6,14 +6,15 @@
 bool BackgroundDetector::Initial(Tmtv_AlgorithmInfo *pAlgorithmInfo)
 {
 	Detector::Initial(pAlgorithmInfo);
-		///<BackgroundSubtractorMOG2初始化>
+	///<BackgroundSubtractorMOG2初始化>
 
 
 
 
 
 
-		///</BackgroundSubtractorMOG2初始化>
+	///</BackgroundSubtractorMOG2初始化>
+	p_AlgorithmInfo->WarnningLevel == Tmtv_AlgorithmInfo::TMTV_STARTWARN;
 }
 //卸载资源和掩码图像
 void BackgroundDetector::Unitial()
@@ -31,7 +32,15 @@ void BackgroundDetector::Unitial()
 //识别当前图像队列
 bool BackgroundDetector::Detect(Mat & srcImageData, Mat & rectImageData, Tmtv_DefectInfo & defects, void * paras, long paraSize)
 {
-
+	m_DetectedNum++;
+	if (m_DetectedNum < PERDETECTNUM)
+	{
+		p_AlgorithmInfo->WarnningLevel == Tmtv_AlgorithmInfo::TMTV_PREWARN;
+	}
+	else
+	{
+		p_AlgorithmInfo->WarnningLevel == Tmtv_AlgorithmInfo::TMTV_STARTWARN;
+	}
 	return false;
 }
 

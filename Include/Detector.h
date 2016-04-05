@@ -37,7 +37,7 @@ using namespace cv;
 class Detector
 {
 public:
-	enum {SETTINGSIZE = 1024};
+	enum {SETTINGSIZE = 1024,PERDETECTNUM=8};
 public:
 	//预先准备的掩码图像
 	Mat *p_maskImageData;
@@ -46,6 +46,7 @@ public:
 	//不同算法参数结构不同,派生自Tmtv_AlgorithmInfo结构
 	long algorithmInfoSize;
 	Tmtv_AlgorithmInfo *p_AlgorithmInfo;
+	long m_DetectedNum;
 	Detector()
 	{
 		m_imageHeight = 0;
@@ -53,15 +54,18 @@ public:
 		p_maskImageData = 0;
 		algorithmInfoSize = sizeof(Tmtv_AlgorithmInfo);
 		p_AlgorithmInfo = 0;
+		m_DetectedNum = 0;
 	}
 	~Detector() { Unitial(); }
 	//初始化资源和掩码图像
 	bool Initial(Tmtv_AlgorithmInfo *pAlgorithmInfo)
 	{
+		m_DetectedNum = 0;
 		if (pAlgorithmInfo == 0) return false;
 		if (pAlgorithmInfo->structSize < algorithmInfoSize) return false;
 		p_AlgorithmInfo = (Tmtv_AlgorithmInfo*)malloc(pAlgorithmInfo->structSize);
 		memcpy(p_AlgorithmInfo, pAlgorithmInfo, pAlgorithmInfo->structSize);
+		p_AlgorithmInfo->WarnningLevel == Tmtv_AlgorithmInfo::TMTV_PREWARN;
 		Mat tmpMat = cv::imread(p_AlgorithmInfo->MaskImgPath);
 		if (tmpMat.empty()) return false;
 		Size mskSize = tmpMat.size();
@@ -98,6 +102,7 @@ public:
 			//delete p_AlgorithmInfo;
 			p_AlgorithmInfo = 0;
 		}
+		m_DetectedNum = 0;
 	}
 	//重设算法
 	void Reset(Tmtv_AlgorithmInfo *pAlgorithmInfo)
@@ -132,7 +137,7 @@ public:
 			return true;
 		}
 		return false;
-	};
+	}; 
 };
 //==============================================================================
 ///</class_info>
@@ -163,8 +168,6 @@ struct Tmtv_BackgroundDetectorInfo: Tmtv_AlgorithmInfo	//算法信息
 };
 //==============================================================================
 ///</datastruct_info>
-
-
 
 ///<class_info>
 //==============================================================================
@@ -203,6 +206,30 @@ public:
 	bool Detect(Mat& srcImageData, Mat& rectImageData,
 		Tmtv_DefectInfo & defects,
 		void* paras = 0, long paraSize = 0);
+	//识别当前图像队列
+	bool Detect(LONGSTR srcImagePath, LONGSTR rectImagePath,
+		Tmtv_DefectInfo & defects,
+		void* paras = 0, long paraSize = 0)
+	{
+		Mat srcImageData = cv::imread(srcImagePath);
+		Mat rectImageData;
+		srcImageData.copyTo(rectImageData);
+		if (srcImageData.empty())
+		{
+			return false;
+		}
+
+		bool detected = Detect(srcImageData, rectImageData, defects, paras, paraSize);
+		if (detected)
+		{
+			if (rectImagePath[0] != 0)
+			{
+				cv::imwrite(rectImagePath, srcImageData);
+			}
+			return true;
+		}
+		return false;
+	};
 };
 //==============================================================================
 ///</class_info>
