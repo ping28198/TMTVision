@@ -226,9 +226,9 @@ int TmtSocket::ReleaseSocket()
 
 void TmtSocket::ToString(MEGAWSTR & string, int method, int color)
 {
-	NetIPW m_RemoteRecvIPW;
-	NetIPW m_LocalSendIPW;
-	NetIPW m_LocalRecvIPW;
+	NetIPW m_RemoteRecvIPW = { 0 };
+	NetIPW m_LocalSendIPW = { 0 };
+	NetIPW m_LocalRecvIPW = { 0 };
 	CCommonFunc::AnsiToUnicode(m_RemoteRecvIP, m_RemoteRecvIPW, TMTV_IPSTRLEN);
 	CCommonFunc::AnsiToUnicode(m_LocalSendIP, m_LocalSendIPW, TMTV_IPSTRLEN);
 	CCommonFunc::AnsiToUnicode(m_LocalRecvIP, m_LocalRecvIPW, TMTV_IPSTRLEN);
@@ -283,7 +283,9 @@ TmtSocketServer::~TmtSocketServer()
 	}
 }
 
-bool TmtSocketServer::Initial(int remoteRecvPort, char * remoteRecvIp, int localRecvPort, char* localRecvIP, int localSendPort, char * localSendIP,  DWORD optionFlag)
+bool TmtSocketServer::Initial(int remoteRecvPort, char * remoteRecvIp, 
+	                          int localRecvPort, char* localRecvIP, 
+	                          int localSendPort, char * localSendIP,  DWORD optionFlag)
 {
 	ForceEnd();
 	if (!SetOption(optionFlag))

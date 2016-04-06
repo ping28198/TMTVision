@@ -42,12 +42,12 @@
 class ObjToString
 {
 public:
-	static void ToString(MEGAWSTR wstring, Tmtv_AlgorithmInfo algorithmInfo, int method = 0, int color = 37);
-	static void ToString(MEGAWSTR wstring, Tmtv_CameraInfo  camraInfo, int method = 0, int color = 37);
-	static void ToString(MEGAWSTR wstring, Tmtv_DefectInfo  defectInfo, int method = 0, int color = 37);
-	static void ToString(MEGAWSTR wstring, Tmtv_ImageInfo  imageInfo, int method = 0, int color = 37);
-	static void ToString(MEGAWSTR wstring, Tmtv_AskInfo  askInfo, int method = 0, int color = 37);
-	static void ToString(MEGAWSTR wstring, Tmtv_MsgInfo  msgInfo, int method = 0, int color = 37);
+	static void ToString(MEGAWSTR wstring, Tmtv_AlgorithmInfo& algorithmInfo, int method = 0, int color = 37);
+	static void ToString(MEGAWSTR wstring, Tmtv_CameraInfo&  camraInfo, int method = 0, int color = 37);
+	static void ToString(MEGAWSTR wstring, Tmtv_DefectInfo&  defectInfo, int method = 0, int color = 37);
+	static void ToString(MEGAWSTR wstring, Tmtv_ImageInfo&  imageInfo, int method = 0, int color = 37);
+	static void ToString(MEGAWSTR wstring, Tmtv_AskInfo&  askInfo, int method = 0, int color = 37);
+	static void ToString(MEGAWSTR wstring, Tmtv_MsgInfo&  msgInfo, int method = 0, int color = 37);
 	static int InfoCheck(void* pBuffer, long  bufferSize);
 	static int ToString(MEGAWSTR wstring, void* pBuffer, long  bufferSize, int method = 0, int color = 37);
 };
