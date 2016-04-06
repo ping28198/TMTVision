@@ -23,18 +23,18 @@ public:
 	virtual ~CfgFileOp();
 	int openfile(char* filepath);
 	int closefile();
-	int ReadConfig(char* item_str,char* value_str,int bufferlength);
-	int ReadConfig(char* item_str,int &value_int);
-	int ReadConfig(char* item_str,double &value_db);
-	int ReadConfig(char* filename, map<string, string> &m);
-	int ReadConfig(char* filename,char* item_str,char* value_str,int bufferlength);
+	int ReadConfig(const char* item_str,char* value_str,int bufferlength);
+	int ReadConfig(const char* item_str,int &value_int);
+	int ReadConfig(const char* item_str,double &value_db);
+	int ReadConfig(const char* filename, map<string, string> &m);
+	int ReadConfig(const char* filename, const char* item_str,char* value_str,int bufferlength);
 	int ReadConfig(map<string, string> &m);
-	int WriteConfig(char* item_str,char* value_str);
-	int WriteConfig(char* item_str,int value_int);
-	int WriteConfig(char* item_str,double value_db);
-	int WriteConfig(char* filename,char* item_str,int value_int);
-	int WriteConfig(char* filename,char* item_str,char* value_str);
-	int WriteConfig(char* filename, map<string, string> * m);
+	int WriteConfig(const char* item_str, const char* value_str);
+	int WriteConfig(const char* item_str, const int value_int);
+	int WriteConfig(const char* item_str, const double value_db);
+	int WriteConfig(const char* filename, const char* item_str, const int value_int);
+	int WriteConfig(const char* filename, const char* item_str, const char* value_str);
+	int WriteConfig(const char* filename, map<string, string> * m);
 	int WriteConfig(map<string,string> *m);
 
 

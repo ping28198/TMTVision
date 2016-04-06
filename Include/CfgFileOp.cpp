@@ -25,33 +25,33 @@ bool CfgFileOp::IsCommentChar(char c)
 
 void CfgFileOp::Trim(string & str)
 {
-	if (str.empty()) return;
-	unsigned int i, start_pos, end_pos;
-	for (i = 0; i < str.size(); ++i) 
-	{
-		if (!IsSpace(str[i]))
-		{
-			break;
-		}
-	}
-	if (i == str.size()) 
-	{ // È«²¿ÊÇ¿Õ°××Ö·û´®
-		str = "";
-		return;
-	}
+	//if (str.empty()) return;
+	//unsigned int i, start_pos, end_pos;
+	//for (i = 0; i < str.size(); ++i) 
+	//{
+	//	if (!IsSpace(str[i]))
+	//	{
+	//		break;
+	//	}
+	//}
+	//if (i == str.size()) 
+	//{ // È«²¿ÊÇ¿Õ°××Ö·û´®
+	//	str = "";
+	//	return;
+	//}
 
-	start_pos = i;
+	//start_pos = i;
 
-	for (i = str.size() - 1; i >= 0; --i) 
-	{
-		if (!IsSpace(str[i])) 
-		{
-			break;
-		}
-	}
-	end_pos = i;
+	//for (i = str.size() - 1; i >= 0; --i) 
+	//{
+	//	if (!IsSpace(str[i])) 
+	//	{
+	//		break;
+	//	}
+	//}
+	//end_pos = i;
 
-	str = str.substr(start_pos, end_pos - start_pos + 1);
+	//str = str.substr(start_pos, end_pos - start_pos + 1);
 }
 
 bool CfgFileOp::AnalyseLine(const string & line, string & key, string & value)
@@ -99,7 +99,7 @@ CfgFileOp::~CfgFileOp()
 	infile.close();
 }
 
-int CfgFileOp::ReadConfig(char* item_str,char* value_str,int bufferlength)
+int CfgFileOp::ReadConfig(const char* item_str,char* value_str,int bufferlength)
 {
 	map<string,string>::iterator it;
 	for (it=mpdata.begin();it!=mpdata.end();it++)
@@ -117,7 +117,7 @@ int CfgFileOp::ReadConfig(char* item_str,char* value_str,int bufferlength)
 	return FINISH;
 }
 
-int CfgFileOp::ReadConfig(char* item_str,int &value_int)
+int CfgFileOp::ReadConfig(const char* item_str,int &value_int)
 {
 	char tmp_str[256];
 	int backcode = ReadConfig(item_str,tmp_str,sizeof(tmp_str));
@@ -126,7 +126,7 @@ int CfgFileOp::ReadConfig(char* item_str,int &value_int)
 	return FINISH;
 }
 
-int CfgFileOp::ReadConfig(char* item_str,double &value_db)
+int CfgFileOp::ReadConfig(const char* item_str,double &value_db)
 {
 	char tmp_str[256];
 	int backcode = ReadConfig(item_str,tmp_str,sizeof(tmp_str));
@@ -137,7 +137,7 @@ int CfgFileOp::ReadConfig(char* item_str,double &value_db)
 	return FINISH;
 }
 
-int CfgFileOp::ReadConfig(char* filename, map<string, string> &m)
+int CfgFileOp::ReadConfig(const char* filename, map<string, string> &m)
 {
 	m.clear();
 	ifstream infile(filename);
@@ -156,7 +156,7 @@ int CfgFileOp::ReadConfig(char* filename, map<string, string> &m)
 	return FINISH;
 }
 
-int CfgFileOp::ReadConfig(char* filename,char* item_str,char* value_str,int bufferlength)
+int CfgFileOp::ReadConfig(const char* filename, const char* item_str,char* value_str,int bufferlength)
 {
 	ifstream minfile(filename);
 	if (!minfile) 
@@ -189,21 +189,21 @@ int CfgFileOp::ReadConfig(map<string, string> &m)
 	return FINISH;
 }
 
-int CfgFileOp::WriteConfig(char* item_str,char* value_str)
+int CfgFileOp::WriteConfig(const char* item_str, const char* value_str)
 {
 	mpdata[item_str]=value_str;
 	WriteConfig(mfilepath,&mpdata);
 	return FINISH;
 }
 
-int CfgFileOp::WriteConfig(char* item_str,double value_db)
+int CfgFileOp::WriteConfig(const char* item_str, const double value_db)
 {
 	char tmp[256];
 	sprintf_s(tmp,sizeof(tmp),"%.5f",value_db);
 	WriteConfig(item_str,tmp);
 	return FINISH;
 }
-int CfgFileOp::WriteConfig(char* item_str,int value_int)
+int CfgFileOp::WriteConfig(const char* item_str, const int value_int)
 {
 	char tmp[256];
 	sprintf_s(tmp,sizeof(tmp),"%d",value_int);
@@ -211,7 +211,7 @@ int CfgFileOp::WriteConfig(char* item_str,int value_int)
 	return FINISH;
 }
 
-int CfgFileOp::WriteConfig(char* filename,char* item_str,int value_int)
+int CfgFileOp::WriteConfig(const char* filename, const char* item_str, const int value_int)
 {
 	char tmpstr[256];
 	sprintf_s(tmpstr,sizeof(tmpstr),"%d",value_int);
@@ -219,7 +219,7 @@ int CfgFileOp::WriteConfig(char* filename,char* item_str,int value_int)
 	return FINISH;
 }
 
-int CfgFileOp::WriteConfig(char* filename, map<string, string> *m)
+int CfgFileOp::WriteConfig(const char* filename, map<string, string> *m)
 {
 	ofstream motfile(filename);
 	if (!motfile)
@@ -248,7 +248,7 @@ int CfgFileOp::WriteConfig(map<string,string> *m)
 	return FINISH;
 }
 
-int CfgFileOp::WriteConfig(char* filename,char* item_str,char* value_str)
+int CfgFileOp::WriteConfig(const char* filename, const char* item_str, const char* value_str)
 {
 	map<string,string> maptmp;
 	int backcode = ReadConfig(filename,maptmp);
