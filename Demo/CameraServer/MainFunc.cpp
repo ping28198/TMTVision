@@ -19,16 +19,23 @@ int main(int argc, char *argv[])
 	cameraServer.StartCamera();
 	
 	MessageServer messageServer;
-	messageServer.Initial(103, "127.0.0.1", 105, "127.0.0.1", 106, "127.0.0.1");
+	messageServer.Initial(5004, "127.0.0.1", 5003, NULL, 5006, NULL);
 	messageServer.Create();
 	messageServer.Resume();
 
 
+	Tmtv_MsgInfo msgInfo;
+	msgInfo.MsgType = Tmtv_MsgInfo::TMTV_ADDCAM_OK;
+	//messageServer.SendMsgInfo(askInfo);
+	TmtSocket tmtSocket;
+	tmtSocket.SetSendAddr(5003, "127.0.0.1", 5006, NULL);
 
 	MEGAWSTR  wstring;
 	MEGASTR  string;
 	while (1)
 	{
+	/*	messageServer.SendMsgInfo(msgInfo);*/
+		tmtSocket.SendMsg((void *)& msgInfo, msgInfo.structSize);
 		system("cls");
 		wstring[0] = 0;	
 		string[0] = 0;

@@ -66,9 +66,9 @@ bool MessageServer::StartAlgorithm(Tmtv_CameraInfo cameraInfo)
 	return false;
 }
 
-bool MessageServer::SendMsg(Tmtv_MsgInfo msgInfo)
+bool MessageServer::SendMsgInfo(Tmtv_MsgInfo msgInfo)
 {
-	return false;
+	return SendMsg((void *)& msgInfo, msgInfo.structSize);
 }
 
 bool MessageServer::SendImage(Tmtv_ImageInfo imgInfo, HANDLE hAnswerHandle)

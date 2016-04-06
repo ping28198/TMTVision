@@ -143,7 +143,7 @@ void CameraServer::Task()
 
 
 //添加相机,操作CameraServer对象
-bool CameraServer::AddCamera(Tmtv_CameraInfo cameraInfo)
+bool CameraServer::AddCamera(Tmtv_CameraInfo& cameraInfo)
 {
 	if (m_ImageInfo.mCameraInfo.CameraPath[0] == 0 &&
 		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_NOCAM)
@@ -249,7 +249,7 @@ bool CameraServer::StopCamera()
 	return false;
 }
 //设置相机,操作pDirWatchServer对象
-bool CameraServer::SetCamera(Tmtv_CameraInfo cameraInfo)
+bool CameraServer::SetCamera(Tmtv_CameraInfo& cameraInfo)
 {
 	switch (cameraInfo.Status)
 	{
@@ -270,7 +270,7 @@ bool CameraServer::SetCamera(Tmtv_CameraInfo cameraInfo)
 	return false;
 }
 //打开相机算法,操作m_Detector对象
-bool CameraServer::StartAlgorithm(Tmtv_AlgorithmInfo algorithmInfo)
+bool CameraServer::StartAlgorithm(Tmtv_AlgorithmInfo& algorithmInfo)
 {
 	if (m_ImageInfo.mCameraInfo.CameraPath[0] != 0 &&
 		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
@@ -302,7 +302,7 @@ bool CameraServer::StopAlgorithm()
 	return false;
 }
 //停止相机算法,操作m_Detector对象
-bool CameraServer::SetAlgorithm(Tmtv_AlgorithmInfo algorithmInfo)
+bool CameraServer::SetAlgorithm(Tmtv_AlgorithmInfo& algorithmInfo)
 {
 	switch (algorithmInfo.WarnningLevel)
 	{

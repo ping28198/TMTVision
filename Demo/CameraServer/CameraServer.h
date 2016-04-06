@@ -61,7 +61,7 @@ public:
 
 //消息功能,由父线程调用或返回给父线程
 	//添加相机,操作CameraServer对象, 准备pDirWatchServer对象
-	bool AddCamera(Tmtv_CameraInfo cameraInfo);
+	bool AddCamera(Tmtv_CameraInfo& cameraInfo);
 	//删除相机,操作CameraServer对象, 准备pDirWatchServer对象
 	bool DelCamera();
 	//打开相机,操作pDirWatchServer对象
@@ -69,13 +69,13 @@ public:
 	//停止相机,操作pDirWatchServer对象
 	bool StopCamera();
 	//设置相机,操作pDirWatchServer对象
-	bool SetCamera(Tmtv_CameraInfo cameraInfo);
+	bool SetCamera(Tmtv_CameraInfo& cameraInfo);
 	//打开相机算法,操作m_Detector对象
-	bool StartAlgorithm(Tmtv_AlgorithmInfo algorithmInfo);
+	bool StartAlgorithm(Tmtv_AlgorithmInfo& algorithmInfo);
 	//停止相机算法,操作m_Detector对象
 	bool StopAlgorithm();
 	//停止相机算法,操作m_Detector对象
-	bool SetAlgorithm(Tmtv_AlgorithmInfo algorithmInfo);
+	bool SetAlgorithm(Tmtv_AlgorithmInfo& algorithmInfo);
 
 public:
 	//调试函数,显示对象信息
