@@ -15,7 +15,7 @@
 //版本号  开发人员      时间      描述
 //1.0     杨朝霖      2009-03-23   创建模块
 //1.1     杨朝霖      2010-08-25   添加了进程权限修改函数
-//1.2     杨朝霖      2010-08-29   将其它函数中字符串格式化得函数改为了SafeStringPrintf
+//1.2     杨朝霖      2010-08-29   将其它函数中字符串格式化得函数改为了SafeWStringPrintf
 //1.3     杨朝霖      2011-1-19    TimeOffset时间类型改为ULONGLONG
 //1.4     王磊        2012-10-1    添加StringToDoubles\StringToInts\StringToTINYSTRS方法
 //1.5     王磊        2013-2-20    添加GetNowDate得到的字符串只有年月日
@@ -228,7 +228,15 @@ public:
 	//参数: wchar_t* strDest 需要格式化的宽字节缓冲
 	//      size_t iStrLen  宽字节缓冲的最大尺寸(以字符的个数为单位, 不是字节大小,可用STR_LEN宏获取)
 	//      int strMutiByteLen 多字节缓冲区的最大尺寸
-	static void  SafeStringPrintf(wchar_t* strDest, size_t iStrLen, wchar_t* strFormat, ...);
+	static void  SafeWStringPrintf(wchar_t* strDest, size_t iStrLen, wchar_t* strFormat, ...);
+	///</func_info>
+
+	///<func_info>
+	//描述: 安全的宽字符串格式化函数
+	//参数: wchar_t* strDest 需要格式化的宽字节缓冲
+	//      size_t iStrLen  宽字节缓冲的最大尺寸(以字符的个数为单位, 不是字节大小,可用STR_LEN宏获取)
+	//      int strMutiByteLen 多字节缓冲区的最大尺寸
+	static void  SafeStringPrintf(char* strDest, size_t iStrLen, char* strFormat, ...);
 	///</func_info>
 
 	///<func_info>
@@ -236,10 +244,15 @@ public:
 	//参数: wchar_t* strDest 需要拷贝的目的宽字节缓冲
 	//      size_t iStrLen  宽字节缓冲的最大尺寸(以字符的个数为单位, 不是字节大小,可用STR_LEN宏获取)
 	//      wchar_t* strSource 需要拷贝的源宽字节缓冲
-	static void  SafeStringCpy(wchar_t* strDest, size_t iStrLen, wchar_t* strSource);
-
-
+	static void  SafeWStringCpy(wchar_t* strDest, size_t iStrLen, wchar_t* strSource);
 	///</func_info>
+
+	///<func_info>
+	//描述: 安全的宽字符串拷贝函数
+	//参数: wchar_t* strDest 需要拷贝的目的宽字节缓冲
+	//      size_t iStrLen  宽字节缓冲的最大尺寸(以字符的个数为单位, 不是字节大小,可用STR_LEN宏获取)
+	//      wchar_t* strSource 需要拷贝的源宽字节缓冲
+	static void  SafeStringCpy(char* strDest, size_t iStrLen, char* strSource);
 	///</func_info>
 
 	///<func_info>

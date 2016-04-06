@@ -18,7 +18,7 @@ bool DirWatcher::RegPath(LONGWSTR path, DWORD action)
 	}
 	m_hDir = hDir;
 	m_action = action;
-	CCommonFunc::SafeStringCpy(m_path, STR_LEN(m_path), path);
+	CCommonFunc::SafeWStringCpy(m_path, STR_LEN(m_path), path);
 	return true;
 }
 //执行前强制停止线程, 停止监控文件夹
@@ -59,31 +59,31 @@ bool DirWatcher::Watch(LONGWSTR& fileName, DWORD& action)
 		switch (pnotify->Action)
 		{
 		case FILE_ACTION_ADDED:
-			CCommonFunc::SafeStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
+			CCommonFunc::SafeWStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
 			action = FILE_ACTION_ADDED;
 			OutputDebugString(L"<DirWatcher::Watch() FILE_ACTION_ADDED.>\n");
 			return true;
 			break;
 		case FILE_ACTION_REMOVED:
-			CCommonFunc::SafeStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
+			CCommonFunc::SafeWStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
 			action = FILE_ACTION_REMOVED;
 			OutputDebugString(L"<DirWatcher::Watch() FILE_ACTION_REMOVED.>\n");
 			return true;
 			break;
 		case FILE_ACTION_MODIFIED:
-			CCommonFunc::SafeStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
+			CCommonFunc::SafeWStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
 			action = FILE_ACTION_MODIFIED;
 			OutputDebugString(L"<DirWatcher::Watch() FILE_ACTION_MODIFIED.>\n");
 			return true;
 			break;	
 		case FILE_ACTION_RENAMED_OLD_NAME:
-			CCommonFunc::SafeStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
+			CCommonFunc::SafeWStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
 			action = FILE_ACTION_RENAMED_OLD_NAME;
 			OutputDebugString(L"<DirWatcher::Watch() FILE_ACTION_RENAMED_OLD_NAME.>\n");
 			return true;
 			break;
 		case FILE_ACTION_RENAMED_NEW_NAME:
-			CCommonFunc::SafeStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
+			CCommonFunc::SafeWStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
 			action = FILE_ACTION_RENAMED_NEW_NAME;
 			return true;
 			break;
@@ -188,38 +188,38 @@ void DirWatchServer::ToString(HUGEWSTR & string, int method, int color)
 	string[0] = 0;
 	if (method==0)
 	{
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatchServer m_path=\"%s\">\n", m_path);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatchServer m_path=\"%s\">\n", m_path);
 		for (int i = m_fileNameQueue.GetLength() - 1; i >= 0; i--)
 		{
-			CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, L"%s  <m_fileNameQueue(%d)=\"%s\" %d %d>\n",
+			CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s  <m_fileNameQueue(%d)=\"%s\" %d %d>\n",
 				string,
 				i,
 				m_fileNameQueue.GetData(i)->m_fileName,
 				m_fileNameQueue.GetData(i)->m_fileAction, 
 				m_fileNameQueue.GetData(i)->m_fileProcessed);
 		}
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, L"%s</DirWatchServer>\n", string);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</DirWatchServer>\n", string);
 	}
 	else if (method == 1)
 	{
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatchServer m_path=\"%s\" Num=%d>\n",
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatchServer m_path=\"%s\" Num=%d>\n",
 			m_path, m_fileNameQueue.GetLength());
 	}
 	else if (method == 2)
 	{
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatchServer m_path=\"%s\" Num=%d>\n", 
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatchServer m_path=\"%s\" Num=%d>\n", 
 			m_path, m_fileNameQueue.GetLength());
 		int i = m_fileNameQueue.GetLength() - 1;
 		if(!m_fileNameQueue.IsEmpty())
 		{
-			CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, L"%s  <m_fileNameQueue(%d)=\"%s\" %d %d>\n",
+			CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s  <m_fileNameQueue(%d)=\"%s\" %d %d>\n",
 				string,
 				i,
 				m_fileNameQueue.GetTail()->m_fileName,
 				m_fileNameQueue.GetData(i)->m_fileAction, 
 				m_fileNameQueue.GetTail()->m_fileProcessed);
 		}
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, L"%s</DirWatchServer>\n", string);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</DirWatchServer>\n", string);
 	}
 //#define COL(x)  L"\033[;" #x L"m"  
 //#define RED     COL(31)  
@@ -233,7 +233,7 @@ void DirWatchServer::ToString(HUGEWSTR & string, int method, int color)
 	if (color >= 30 && color <= 39)
 	{
 		HUGEWSTR testString = { 0 };
-		CCommonFunc::SafeStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
-		CCommonFunc::SafeStringCpy(string, TMTV_HUGESTRLEN, testString);
+		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
+		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
 	}
 }

@@ -15,8 +15,10 @@
 #include "Thread.h"
 #include "Detector.h"
 #include "MemoryFile.h"
-
+#include "Queue.h"
+#include "DirWatcher.h"
 #include "TmtCrypt.h"
+#include "XMLOperator.h"
 //opencvÍ·ÎÄ¼þ
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"

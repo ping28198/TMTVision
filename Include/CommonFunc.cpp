@@ -97,7 +97,7 @@ void CCommonFunc::GetAppName(wchar_t* strAppName, size_t iStrLen)
 void CCommonFunc::GetFilePath(wchar_t* strPathName, wchar_t* strPath, size_t iStrPathLen)
 {
 	wchar_t strTempAppPath[256] = L"\0";
-	SafeStringPrintf(strTempAppPath, _countof(strTempAppPath),  L"%s", strPathName);
+	SafeWStringPrintf(strTempAppPath, _countof(strTempAppPath),  L"%s", strPathName);
 	wchar_t* pChar = strTempAppPath;
 	while(*pChar != L'\0')
 	{
@@ -119,7 +119,7 @@ void CCommonFunc::GetFileName(wchar_t* strPathName, wchar_t* strFileName, size_t
 	if(wcslen(strPathName) == 0) return;
 	wchar_t strTempPathName[256] = L"\0";
 	//wsprintfW(strTempPathName, L"%s", strPathName);
-	SafeStringPrintf(strTempPathName, _countof(strTempPathName),  L"%s", strPathName);
+	SafeWStringPrintf(strTempPathName, _countof(strTempPathName),  L"%s", strPathName);
 	wchar_t* pChar = strTempPathName;
 	wchar_t* pStartChar = strTempPathName;
 
@@ -145,7 +145,7 @@ void CCommonFunc::GetFileName(wchar_t* strPathName, wchar_t* strFileName, size_t
 void CCommonFunc::GetFileExt(wchar_t* strPathName, wchar_t* strExt, size_t iStrExtLen)
 {
 	wchar_t strTempPathName[256] = L"\0";
-	SafeStringPrintf(strTempPathName, _countof(strTempPathName),  L"%s", strPathName);
+	SafeWStringPrintf(strTempPathName, _countof(strTempPathName),  L"%s", strPathName);
 	//wsprintfW(strTempPathName, L"%s", strPathName);
 	wchar_t* pChar = strTempPathName;
 	while(*pChar != L'\0')
@@ -164,7 +164,7 @@ void CCommonFunc::GetFileExt(wchar_t* strPathName, wchar_t* strExt, size_t iStrE
 void CCommonFunc::GetFileNoExt(wchar_t* strPathName, wchar_t* strName, int iNameLen)
 {
 	wchar_t strTempPathName[256] = L"\0";
-	SafeStringPrintf(strTempPathName, _countof(strTempPathName),  L"%s", strPathName);
+	SafeWStringPrintf(strTempPathName, _countof(strTempPathName),  L"%s", strPathName);
 	wchar_t* pChar = strTempPathName;
 	while(*pChar != L'.')
 	{
@@ -262,7 +262,7 @@ bool CCommonFunc::DelDir(wchar_t* strDir)
 		WIN32_FIND_DATA FindFileData;
 		HANDLE hFind;
 		wchar_t strSearchPath[256];
-		SafeStringPrintf(strSearchPath, _countof(strSearchPath), L"%s*.*", strDir);
+		SafeWStringPrintf(strSearchPath, _countof(strSearchPath), L"%s*.*", strDir);
 		hFind = ::FindFirstFileW(strSearchPath, (LPWIN32_FIND_DATAW)&FindFileData);
 		do
 		{ 
@@ -278,9 +278,9 @@ bool CCommonFunc::DelDir(wchar_t* strDir)
 					WIN32_FIND_DATA SubFindFileData;
 					HANDLE hSubFind;
 					wchar_t strSubSearchPath[256];
-					SafeStringPrintf(strSubSearchPath, _countof(strSubSearchPath), L"%s%s\\*.*", strDir, FindFileData.cFileName);
+					SafeWStringPrintf(strSubSearchPath, _countof(strSubSearchPath), L"%s%s\\*.*", strDir, FindFileData.cFileName);
 					hSubFind = ::FindFirstFileW(strSubSearchPath, (LPWIN32_FIND_DATAW)&SubFindFileData);
-					SafeStringPrintf(strSubSearchPath, _countof(strSubSearchPath), L"%s%s\\", strDir, FindFileData.cFileName);
+					SafeWStringPrintf(strSubSearchPath, _countof(strSubSearchPath), L"%s%s\\", strDir, FindFileData.cFileName);
 					//if (hSubFind == INVALID_HANDLE_VALUE)
 					//{
 					//	//::RemoveDirectory(strSubSearchPath);
@@ -291,7 +291,7 @@ bool CCommonFunc::DelDir(wchar_t* strDir)
 				}
 				else
 				{
-					SafeStringPrintf(strSearchPath, _countof(strSearchPath), L"%s%s", strDir, FindFileData.cFileName);
+					SafeWStringPrintf(strSearchPath, _countof(strSearchPath), L"%s%s", strDir, FindFileData.cFileName);
 					DelFile(strSearchPath);
 				}
 			}
@@ -302,7 +302,7 @@ bool CCommonFunc::DelDir(wchar_t* strDir)
 		} while (FindNextFile(hFind, &FindFileData));
 		::FindClose(hFind);
 		::CloseHandle(hDir);
-		SafeStringPrintf(strSearchPath, _countof(strSearchPath), L"%s", strDir);
+		SafeWStringPrintf(strSearchPath, _countof(strSearchPath), L"%s", strDir);
 		::RemoveDirectory(strSearchPath);
 		b = ::GetLastError();
 	}
@@ -380,7 +380,7 @@ int  CCommonFunc::FileNumInDir(wchar_t* strDir, wchar_t* strExt)
 	int iFileNum = 0;
 	HANDLE hFind;
 	wchar_t strSearchPath[256];
-	SafeStringPrintf(strSearchPath, _countof(strSearchPath),  L"%s\\*.*", strDir); 
+	SafeWStringPrintf(strSearchPath, _countof(strSearchPath),  L"%s\\*.*", strDir); 
 	hFind = ::FindFirstFileW(strSearchPath,(LPWIN32_FIND_DATAW)&FindFileData);
     wchar_t strUppExt[20];
 	wcscpy_s(strUppExt,_countof(strUppExt), strExt);
@@ -426,7 +426,7 @@ bool  CCommonFunc::SearchFile(wchar_t* strDir, wchar_t* strExt,FileNameSet& Set)
 	//int iFileNum = 0;
 	HANDLE hFind;
 	wchar_t strSearchPath[256];
-	SafeStringPrintf(strSearchPath,  _countof(strSearchPath), L"%s\\*.*", strDir); 
+	SafeWStringPrintf(strSearchPath,  _countof(strSearchPath), L"%s\\*.*", strDir); 
 	hFind = ::FindFirstFileW(strSearchPath,(LPWIN32_FIND_DATAW)&FindFileData);
     wchar_t strUppExt[20];
 	wcscpy_s(strUppExt,_countof(strUppExt), strExt);
@@ -478,7 +478,7 @@ bool CCommonFunc::SearchDir(wchar_t* strDir, FileNameSet& Set)
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind;
 	wchar_t strSearchPath[256];
-	SafeStringPrintf(strSearchPath, _countof(strSearchPath), L"%s\\*.*", strDir); 
+	SafeWStringPrintf(strSearchPath, _countof(strSearchPath), L"%s\\*.*", strDir); 
 	hFind = ::FindFirstFileW(strSearchPath,(LPWIN32_FIND_DATAW)&FindFileData);
 
 	if (hFind != INVALID_HANDLE_VALUE)
@@ -513,7 +513,7 @@ bool CCommonFunc::SearchDir(wchar_t* strDir, FileItemName* pFileItems,  int& iFi
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind;
 	wchar_t strSearchPath[256];
-	SafeStringPrintf(strSearchPath, _countof(strSearchPath), L"%s\\*.*", strDir); 
+	SafeWStringPrintf(strSearchPath, _countof(strSearchPath), L"%s\\*.*", strDir); 
 	hFind = ::FindFirstFileW(strSearchPath,(LPWIN32_FIND_DATAW)&FindFileData);
 
 	if (hFind != INVALID_HANDLE_VALUE)
@@ -550,7 +550,7 @@ bool CCommonFunc::SearchFile(wchar_t* strDir, wchar_t* strExt, FileItemName* pFi
 	//int iFileNum = 0;
 	HANDLE hFind;
 	wchar_t strSearchPath[256];
-	SafeStringPrintf(strSearchPath, _countof(strSearchPath), L"%s\\*.*", strDir); 
+	SafeWStringPrintf(strSearchPath, _countof(strSearchPath), L"%s\\*.*", strDir); 
 	hFind = ::FindFirstFileW(strSearchPath,(LPWIN32_FIND_DATAW)&FindFileData);
     wchar_t strUppExt[20];
 	wcscpy_s(strUppExt,_countof(strUppExt), strExt);
@@ -578,7 +578,7 @@ bool CCommonFunc::SearchFile(wchar_t* strDir, wchar_t* strExt, FileItemName* pFi
 					{
 						if(pFileItems)
 						{
-							SafeStringPrintf(pFileItems[iFindItemNum], STR_LEN(pFileItems[iFindItemNum]),L"%s", FindFileData.cFileName);
+							SafeWStringPrintf(pFileItems[iFindItemNum], STR_LEN(pFileItems[iFindItemNum]),L"%s", FindFileData.cFileName);
 						}						
 						iFindItemNum++;
 					}
@@ -611,7 +611,7 @@ void  CCommonFunc::UnicodeToAnsi(wchar_t* strWideChar, char* strMutiByte, int st
 }
 //------------------------------------------------------------
 //描述:安全的字符串格式化函数
-void  CCommonFunc::SafeStringPrintf(wchar_t* strDest, size_t iStrLen, wchar_t* strFormat, ...)
+void  CCommonFunc::SafeWStringPrintf(wchar_t* strDest, size_t iStrLen, wchar_t* strFormat, ...)
 {
 	va_list argList;
 	va_start(argList, strFormat);
@@ -619,10 +619,25 @@ void  CCommonFunc::SafeStringPrintf(wchar_t* strDest, size_t iStrLen, wchar_t* s
 	va_end(argList);
 }
 //------------------------------------------------------------
+//描述:安全的字符串格式化函数
+void CCommonFunc::SafeStringPrintf(char * strDest, size_t iStrLen, char * strFormat, ...)
+{
+	va_list argList;
+	va_start(argList, strFormat);
+	StringCchVPrintfA(strDest, iStrLen, strFormat, argList);
+	va_end(argList);
+}
+//------------------------------------------------------------
 //描述:
-void  CCommonFunc::SafeStringCpy(wchar_t* strDest, size_t iStrLen, wchar_t* strSource)
+void  CCommonFunc::SafeWStringCpy(wchar_t* strDest, size_t iStrLen, wchar_t* strSource)
 {
 	StringCchCopyW(strDest, iStrLen, strSource);
+}
+//------------------------------------------------------------
+//描述:
+void CCommonFunc::SafeStringCpy(char * strDest, size_t iStrLen, char * strSource)
+{
+	StringCchCopyA(strDest, iStrLen, strSource);
 }
 
 
@@ -636,7 +651,7 @@ void  CCommonFunc::GetNowTime(wchar_t*  strNowTime, int iDestLen, bool bHigh)
 	{
 
 
-		SafeStringPrintf(strNowTime, iDestLen,  
+		SafeWStringPrintf(strNowTime, iDestLen,  
 			L"%d_%d_%d %d.%d.%d.%d", 
 			NowTime.wYear, 
 			NowTime.wMonth, 
@@ -649,7 +664,7 @@ void  CCommonFunc::GetNowTime(wchar_t*  strNowTime, int iDestLen, bool bHigh)
 	}else
 	{
 
-		SafeStringPrintf(strNowTime, iDestLen,
+		SafeWStringPrintf(strNowTime, iDestLen,
 			L"%d_%d_%d %d.%d.%d", 
 			NowTime.wYear, 
 			NowTime.wMonth, 
@@ -668,7 +683,7 @@ void  CCommonFunc::GetNowDate(wchar_t*  strNowTime, int iDestLen)
 	GetLocalTime(&NowTime);
 	{
 
-		SafeStringPrintf(strNowTime, iDestLen,
+		SafeWStringPrintf(strNowTime, iDestLen,
 			L"%d%02d%02d", 
 			NowTime.wYear, 
 			NowTime.wMonth, 
@@ -726,7 +741,7 @@ bool  CCommonFunc::WriteFloatToText(wchar_t* strFileName, double* pData, int iDa
 {
 	setlocale(LC_ALL, "chs"); 
 	wchar_t  strFilePath[256];
-	SafeStringPrintf(strFilePath,  _countof(strFilePath), L"%s", strFileName);
+	SafeWStringPrintf(strFilePath,  _countof(strFilePath), L"%s", strFileName);
 	FILE* pFile = NULL;
 	_wfopen_s(&pFile, strFilePath, L"w+");
 	if(!pFile)	return false;
@@ -750,7 +765,7 @@ bool  CCommonFunc::WriteIntToText(wchar_t* strFileName, int* pData, int iDatalen
 {
 	setlocale(LC_ALL, "chs"); 
 	wchar_t  strFilePath[256];
-	SafeStringPrintf(strFilePath,  _countof(strFilePath), L"%s", strFileName);
+	SafeWStringPrintf(strFilePath,  _countof(strFilePath), L"%s", strFileName);
 	FILE* pFile = NULL;
 	_wfopen_s(&pFile, strFilePath, L"w+");
 	if(!pFile)	return false;
@@ -774,7 +789,7 @@ bool  CCommonFunc::WriteBufferToText(wchar_t* strFileName, unsigned char* pData,
 {
 	setlocale(LC_ALL, "chs"); 
 	wchar_t  strFilePath[256];
-	SafeStringPrintf(strFilePath,  _countof(strFilePath), L"%s", strFileName);
+	SafeWStringPrintf(strFilePath,  _countof(strFilePath), L"%s", strFileName);
 	FILE* pFile = NULL;
 	_wfopen_s(&pFile, strFilePath, L"w+");
 	if(!pFile)	return false;
@@ -799,7 +814,7 @@ bool  CCommonFunc::WriteWStrToText(wchar_t* strFileName, wchar_t* pData, int str
 	setlocale(LC_ALL, "chs"); 
 	if(pData[strLen]!=0) pData[strLen]=0;//DeWarning 2016.01.23
 	wchar_t  strFilePath[256];
-	SafeStringPrintf(strFilePath,  _countof(strFilePath), L"%s", strFileName);
+	SafeWStringPrintf(strFilePath,  _countof(strFilePath), L"%s", strFileName);
 	FILE* pFile = NULL;
 	_wfopen_s(&pFile, strFilePath, L"a+");
 	if(!pFile)
