@@ -101,6 +101,33 @@ bool DirWatcher::Watch(LONGWSTR& fileName, DWORD& action)
 	return false;
 }
 
+//调试函数,显示对象信息
+//字背景颜色范围: 40--49        字颜色: 30--39
+//	40 : 黑                           30 : 黑
+//	41 : 红                           31 : 红
+//	42 : 绿                           32 : 绿
+//	43 : 黄                           33 : 黄
+//	44 : 蓝                           34 : 蓝
+//	45 : 紫                           35 : 紫
+//	46 : 深绿                         36 : 深绿
+//	47 : 白色                         37 : 白色
+void DirWatcher::ToString(MEGAWSTR & string, int method, int color)
+{
+	string[0] = 0;
+	if (1)
+	{
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatch m_path=\"%s\">\n", m_path);
+	}
+	if (color >= 30 && color <= 39)
+	{
+		MEGAWSTR testString = { 0 };
+		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
+		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
+	}
+}
+
+
+
 
 //创建文件夹读取句柄, 初始化ReadDirectoryChangesW相关参数
 //执行前强制停止线程, 需要用Create()再次启动
@@ -183,7 +210,7 @@ void DirWatchServer::Task()
 //	45 : 紫                           35 : 紫
 //	46 : 深绿                         36 : 深绿
 //	47 : 白色                         37 : 白色
-void DirWatchServer::ToString(HUGEWSTR & string, int method, int color)
+void DirWatchServer::ToString(MEGAWSTR & string, int method, int color)
 {
 	string[0] = 0;
 	if (method==0)
@@ -221,18 +248,9 @@ void DirWatchServer::ToString(HUGEWSTR & string, int method, int color)
 		}
 		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</DirWatchServer>\n", string);
 	}
-//#define COL(x)  L"\033[;" #x L"m"  
-//#define RED     COL(31)  
-//#define GREEN   COL(32)  
-//#define YELLOW  COL(33)  
-//#define BLUE    COL(34)  
-//#define MAGENTA COL(35)  
-//#define CYAN    COL(36)  
-//#define WHITE   COL(0)
-//#define GRAY    L"\033[0m" 
 	if (color >= 30 && color <= 39)
 	{
-		HUGEWSTR testString = { 0 };
+		MEGAWSTR testString = { 0 };
 		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
 		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
 	}

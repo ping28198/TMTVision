@@ -69,11 +69,11 @@ public:
 	bool m_SKInitialOK;
 	int m_OptionFlag;
 	int m_RemoteRecvPort;
-	char m_RemoteRecvIp;
+	NetIP m_RemoteRecvIP;
 	int m_LocalSendPort;
-	char m_LocalSendIP;
+	NetIP m_LocalSendIP;
 	int m_LocalRecvPort;
-	char m_LocalRecvIP;
+	NetIP m_LocalRecvIP;
 private:
 	//int err;
 	//bool m_IsNormal;
@@ -84,6 +84,22 @@ private:
 	SOCKADDR_IN Rc_SrcAddr;
 	SOCKADDR_IN Sd_DstAddr;
 	SOCKADDR_IN Sd_MyAddr;
+
+public:
+	//调试函数,显示对象信息
+	//method=0 xml 完整格式输出, 带换行
+	//1 最短格式输出,只输出队列数量
+	//2 更新格式输出,输出队列最新元素
+	//字背景颜色范围: 40--49        字颜色: 30--39
+	//	40 : 黑                           30 : 黑
+	//	41 : 红                           31 : 红
+	//	42 : 绿                           32 : 绿
+	//	43 : 黄                           33 : 黄
+	//	44 : 蓝                           34 : 蓝
+	//	45 : 紫                           35 : 紫
+	//	46 : 深绿                         36 : 深绿
+	//	47 : 白色                         37 : 白色
+	void ToString(MEGAWSTR &string, int method = 0, int color = 32);
 };
 //==============================================================================
 ///</class_info>
@@ -108,6 +124,7 @@ public:
 public:
 	void Task(void);
 	virtual void ServerProcess(int msgLen)=0;
+
 public:
 	//调试函数,显示对象信息
 	//method=0 xml 完整格式输出, 带换行
@@ -122,7 +139,7 @@ public:
 	//	45 : 紫                           35 : 紫
 	//	46 : 深绿                         36 : 深绿
 	//	47 : 白色                         37 : 白色
-	void ToString(HUGESTR &string, int method = 0, int color = 32);
+	void ToString(MEGAWSTR &string, int method = 0, int color = 32);
 };
 //==============================================================================
 ///</class_info>

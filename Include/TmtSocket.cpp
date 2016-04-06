@@ -11,6 +11,13 @@ TmtSocket::TmtSocket()
 		sock_send = socket(AF_INET, SOCK_DGRAM, 0);
 		m_SkStatus = enNoSendOrRecv;
 		m_SKInitialOK = true;
+		m_OptionFlag=0;
+		m_RemoteRecvPort=0;
+		m_RemoteRecvIP[0]=0;
+		m_LocalSendPort = 0;
+		m_LocalSendIP[0] = 0;
+		m_LocalRecvPort = 0;
+		m_LocalRecvIP[0] = 0;
 	}
 	catch (const std::exception&)
 	{
@@ -41,6 +48,10 @@ bool TmtSocket::SetSendAddr(int remoteRecvPort, char* remoteRecvIp, int localSen
 	if (m_SKInitialOK!=true)
 	{
 		m_SkStatus = enNoSendOrRecv;
+		m_RemoteRecvPort = 0;
+		m_RemoteRecvIP[0] = 0;
+		m_LocalSendPort = 0;
+		m_LocalSendIP[0] = 0;
 		return false;
 	}
 	Sd_DstAddr.sin_addr.s_addr = inet_addr(remoteRecvIp);
@@ -62,11 +73,23 @@ bool TmtSocket::SetSendAddr(int remoteRecvPort, char* remoteRecvIp, int localSen
 		if (INVALID_SOCKET != err)
 		{
 			m_SkStatus |= enSendOK;
+
+			m_RemoteRecvPort= remoteRecvPort;
+			strcpy_s(m_RemoteRecvIP, TMTV_IPSTRLEN, remoteRecvIp);
+			m_LocalSendPort = localSendPort;
+			strcpy_s(m_LocalSendIP, TMTV_IPSTRLEN, localSendIP);
+
 			return true;
 		}
 		else
 		{
 			m_SkStatus &= ~enSendOK;
+
+			m_RemoteRecvPort = 0;
+			m_RemoteRecvIP[0]=0;
+			m_LocalSendPort = 0;
+			m_LocalSendIP[0] = 0;
+
 			return false;
 		}
 	}
@@ -78,6 +101,8 @@ bool TmtSocket::SetRecvAddr(int localRecvPort, char* localRecvIP)
 	if (m_SKInitialOK != true)
 	{
 		m_SkStatus = enNoSendOrRecv;
+		m_LocalRecvPort = 0;
+		m_LocalRecvIP[0] = 0;
 		return false;
 	}
 	if (localRecvIP==NULL)
@@ -94,11 +119,15 @@ bool TmtSocket::SetRecvAddr(int localRecvPort, char* localRecvIP)
 	if (INVALID_SOCKET != err)
 	{
 		m_SkStatus |= enRecvOK;
+		m_LocalRecvPort = localRecvPort;
+		strcpy_s(m_LocalRecvIP, TMTV_IPSTRLEN, localRecvIP);
 		return true;
 	}
 	else
 	{
 		m_SkStatus &= ~enRecvOK;
+		m_LocalRecvPort = 0;
+		m_LocalRecvIP[0] = 0;
 		return false;
 	}
 }
@@ -180,7 +209,54 @@ int TmtSocket::ReleaseSocket()
 	closesocket(sock_send);
 	closesocket(sock_recv);
 	m_SkStatus = enNoSendOrRecv;
+
+	m_LocalRecvPort = 0;
+	m_LocalRecvIP[0] = 0;
+	m_RemoteRecvPort = 0;
+	m_RemoteRecvIP[0] = 0;
+	m_LocalSendPort = 0;
+	m_LocalSendIP[0] = 0;
+
 	return 1;
+}
+
+void TmtSocket::ToString(MEGAWSTR & string, int method, int color)
+{
+	NetIPW m_RemoteRecvIPW;
+	NetIPW m_LocalSendIPW;
+	NetIPW m_LocalRecvIPW;
+	CCommonFunc::AnsiToUnicode(m_RemoteRecvIP, m_RemoteRecvIPW, TMTV_IPSTRLEN);
+	CCommonFunc::AnsiToUnicode(m_LocalSendIP, m_LocalSendIPW, TMTV_IPSTRLEN);
+	CCommonFunc::AnsiToUnicode(m_LocalRecvIP, m_LocalRecvIPW, TMTV_IPSTRLEN);
+
+	string[0] = 0;
+	if (1)
+	{
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<TmtSocket>\n");
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<m_RemoteRecvIP=\"%s\" m_RemoteRecvPort=%d>\n",
+			string, m_RemoteRecvIPW, m_RemoteRecvPort);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<m_LocalSendIP=\"%s\" m_LocalSendPort=%d>\n",
+			string, m_LocalSendIPW, m_LocalSendPort);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<m_LocalRecvIP=\"%s\" m_LocalRecvPort=%d>\n",
+			string, m_LocalRecvIPW, m_LocalRecvPort);
+		//CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<pBuffer>\n\"%s\"\n</pBuffer>\n", string, pBuffer);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</TmtSocket>\n", string);
+	}
+	//#define COL(x)  L"\033[;" #x L"m"  
+	//#define RED     COL(31)  
+	//#define GREEN   COL(32)  
+	//#define YELLOW  COL(33)  
+	//#define BLUE    COL(34)  
+	//#define MAGENTA COL(35)  
+	//#define CYAN    COL(36)  
+	//#define WHITE   COL(0)
+	//#define GRAY    L"\033[0m" 
+	if (color >= 30 && color <= 39)
+	{
+		MEGAWSTR testString = { 0 };
+		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
+		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
+	}
 }
 
 
@@ -214,6 +290,7 @@ bool TmtSocketServer::Initial(int remoteRecvPort, char * remoteRecvIp, int local
 	{
 		bool isOK = SetSendAddr(remoteRecvPort, remoteRecvIp, localSendPort, localSendIP);
 		isOK &= SetRecvAddr(localRecvPort, localRecvIP);
+
 		return isOK;
 	}
 }
@@ -233,42 +310,31 @@ void TmtSocketServer::Task(void)
 	}
 }
 
-void TmtSocketServer::ToString(HUGESTR & string, int method, int color)
+void TmtSocketServer::ToString(MEGAWSTR & string, int method, int color)
 {
 	string[0] = 0;
+	MEGAWSTR tmpStr = {0};
+	TmtSocket::ToString(tmpStr, 0, 0);
 	if (method == 0)
 	{
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "<TmtSocketServer>\n");
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "%s<m_RemoteRecvIp=\"%s\" m_RemoteRecvPort=%d>\n",
-			string, m_RemoteRecvIp, m_RemoteRecvPort);
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "%s<m_LocalSendIP=\"%s\" m_LocalSendPort=%d>\n",
-			string, m_LocalSendIP, m_LocalSendPort);
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "%s<m_LocalRecvIP=\"%s\" m_LocalRecvPort=%d>\n",
-			string, m_LocalRecvIP, m_LocalRecvPort);
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "%s<pBuffer>\n\"%s\"\n</pBuffer>\n", string, pBuffer);
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "%s</TmtSocketServer>\n", string);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<TmtSocketServer>\n");
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpStr);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<pBuffer>\n\"%s\"\n</pBuffer>\n", string, pBuffer);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</TmtSocketServer>\n", string);
 	}
 	else if (method == 1)
 	{
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "<TmtSocketServer>\n");
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "%s<m_RemoteRecvIp=\"%s\" m_RemoteRecvPort=%d>\n",
-			string, m_RemoteRecvIp, m_RemoteRecvPort);
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "%s<m_LocalSendIP=\"%s\" m_LocalSendPort=%d>\n",
-			string, m_LocalSendIP, m_LocalSendPort);
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "%s<m_LocalRecvIP=\"%s\" m_LocalRecvPort=%d>\n",
-			string, m_LocalRecvIP, m_LocalRecvPort);
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "%s</TmtSocketServer>\n", string);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<TmtSocketServer>\n");
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpStr);
+		//CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<pBuffer>\n\"%s\"\n</pBuffer>\n", string, pBuffer);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</TmtSocketServer>\n", string);
 	}
 	else if (method == 2)
 	{
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "<TmtSocketServer>\n");
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "%s<m_RemoteRecvIp=\"%s\" m_RemoteRecvPort=%d>\n",
-			string, m_RemoteRecvIp, m_RemoteRecvPort);
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "%s<m_LocalSendIP=\"%s\" m_LocalSendPort=%d>\n",
-			string, m_LocalSendIP, m_LocalSendPort);
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "%s<m_LocalRecvIP=\"%s\" m_LocalRecvPort=%d>\n",
-			string, m_LocalRecvIP, m_LocalRecvPort);
-		CCommonFunc::SafeStringPrintf(string, TMTV_HUGESTRLEN, "%s</TmtSocketServer>\n", string);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<TmtSocketServer>\n");
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpStr);
+		//CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<pBuffer>\n\"%s\"\n</pBuffer>\n", string, pBuffer);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</TmtSocketServer>\n", string);
 	}
 	//#define COL(x)  L"\033[;" #x L"m"  
 	//#define RED     COL(31)  
@@ -281,8 +347,8 @@ void TmtSocketServer::ToString(HUGESTR & string, int method, int color)
 	//#define GRAY    L"\033[0m" 
 	if (color >= 30 && color <= 39)
 	{
-		HUGESTR testString = { 0 };
-		CCommonFunc::SafeStringPrintf(testString, TMTV_HUGESTRLEN, "\033[;%dm%s\033[0m\n", color, string);
-		CCommonFunc::SafeStringCpy(string, TMTV_HUGESTRLEN, testString);
+		MEGAWSTR testString = { 0 };
+		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
+		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
 	}
 }
