@@ -3,17 +3,11 @@
 #include "CameraServer.h"
 MessageServer::MessageServer(int bufferSize)
 {
-	pCameraInfo=0;
-	cameraNum=0;
+	m_CameraServerVector.clear();
 }
 
 MessageServer::~MessageServer()
 {
-	if (pCameraInfo!=0)
-	{
-		delete[]pCameraInfo;
-	}
-	cameraNum = 0;
 }
 
 bool MessageServer::LoadSetting(LONGWSTR xmlFilePath)
@@ -28,46 +22,129 @@ bool MessageServer::SaveSetting(LONGWSTR xmlFilePath)
 
 bool MessageServer::AddCamera(Tmtv_CameraInfo& cameraInfo)
 {
+	CameraServer *newCameraServer = new CameraServer(this->m_hThread);
+	newCameraServer->AddCamera(cameraInfo);
+	newCameraServer->StartAlgorithm(cameraInfo.AlgorithmInfo);
+	newCameraServer->StartCamera();
+	m_CameraServerVector.push_back(newCameraServer);
 	return false;
 }
 
 bool MessageServer::DelCamera(Tmtv_CameraInfo& cameraInfo)
 {
+	vector<CameraServer*>::iterator it;
+	for (it = m_CameraServerVector.begin(); it != m_CameraServerVector.end();it++)
+	{
+		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		{
+			(*it)->DelCamera();
+			m_CameraServerVector.erase(it);
+			return true;
+		}
+	}
 	return false;
 }
 
 bool MessageServer::StartCamera(Tmtv_CameraInfo& cameraInfo)
 {
+	vector<CameraServer*>::iterator it;
+	for (it = m_CameraServerVector.begin(); it != m_CameraServerVector.end(); it++)
+	{
+		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		{
+			(*it)->StartCamera();
+			return true;
+		}
+	}
 	return false;
 }
 
 bool MessageServer::StopCamera(Tmtv_CameraInfo& cameraInfo)
 {
+	vector<CameraServer*>::iterator it;
+	for (it = m_CameraServerVector.begin(); it != m_CameraServerVector.end(); it++)
+	{
+		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		{
+			(*it)->StopCamera();
+			return true;
+		}
+	}
 	return false;
 }
 
 bool MessageServer::SetCamera(Tmtv_CameraInfo& cameraInfo)
 {
+	vector<CameraServer*>::iterator it;
+	for (it = m_CameraServerVector.begin(); it != m_CameraServerVector.end(); it++)
+	{
+		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		{
+			(*it)->SetCamera(cameraInfo);
+			if (cameraInfo.Status==Tmtv_CameraInfo::TMTV_NOCAM)
+			{
+				m_CameraServerVector.erase(it);
+			}
+			return true;
+		}
+	}
 	return false;
 }
 
 bool MessageServer::GetCamera(Tmtv_CameraInfo & cameraInfo)
 {
+	vector<CameraServer*>::iterator it;
+	for (it = m_CameraServerVector.begin(); it != m_CameraServerVector.end(); it++)
+	{
+		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		{
+			memcpy((void*)&cameraInfo, (void*)&(*it)->m_ImageInfo.mCameraInfo,
+				sizeof(Tmtv_CameraInfo));
+			return true;
+		}
+	}
 	return false;
 }
 
 bool MessageServer::StopAlgorithm(Tmtv_CameraInfo& cameraInfo)
 {
+	vector<CameraServer*>::iterator it;
+	for (it = m_CameraServerVector.begin(); it != m_CameraServerVector.end(); it++)
+	{
+		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		{
+			(*it)->StopAlgorithm();
+			return true;
+		}
+	}
 	return false;
 }
 
 bool MessageServer::SetAlgorithm(Tmtv_CameraInfo& cameraInfo)
 {
+	vector<CameraServer*>::iterator it;
+	for (it = m_CameraServerVector.begin(); it != m_CameraServerVector.end(); it++)
+	{
+		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		{
+			(*it)->SetAlgorithm(cameraInfo.AlgorithmInfo);
+			return true;
+		}
+	}
 	return false;
 }
 
 bool MessageServer::StartAlgorithm(Tmtv_CameraInfo& cameraInfo)
 {
+	vector<CameraServer*>::iterator it;
+	for (it = m_CameraServerVector.begin(); it != m_CameraServerVector.end(); it++)
+	{
+		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		{
+			(*it)->StartAlgorithm(cameraInfo.AlgorithmInfo);
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -78,7 +155,6 @@ bool MessageServer::SendMsgInfo(Tmtv_MsgInfo& msgInfo)
 
 bool MessageServer::SendImage(Tmtv_ImageInfo& imgInfo)
 {
-
 	return false;
 }
 
@@ -204,18 +280,6 @@ void MessageServer::ServerProcess(int revLen)
 					SendMsgInfo(msgData);
 				}
 				break;
-			case Tmtv_AskInfo::TMTV_SETALGO:
-				if (SetAlgorithm(pAskData->CameraInfo))
-				{
-					msgData.MsgType == Tmtv_MsgInfo::TMTV_SETALGO_OK;
-					SendMsgInfo(msgData);
-				}
-				else
-				{
-					msgData.MsgType == Tmtv_MsgInfo::TMTV_SETALGO_FAIL;
-					SendMsgInfo(msgData);
-				}
-				break;
 			default:
 				break;
 			}
@@ -236,13 +300,23 @@ void MessageServer::ServerProcess(int revLen)
 void MessageServer::ToString(MEGAWSTR & string, int method, int color)
 {
 	string[0] = 0;
-	MEGAWSTR tmpWStr = {0};
-	TmtSocketServer::ToString(tmpWStr, method, 0);
+	MEGAWSTR tmpWStr1 = {0};
+	TmtSocketServer::ToString(tmpWStr1, method, 0);
+	MEGAWSTR tmpWStr2 = { 0 };
 	if (method >= 0 && method <=2)
 	{
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<MessageServer cameraNum=%d>\n", cameraNum);
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpWStr);
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</MessageServer>\n", string);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<MessageServer cameraNum=%d>\n", 
+			m_CameraServerVector.size());
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpWStr1);
+
+		vector<CameraServer*>::iterator it;
+		for (it = m_CameraServerVector.begin(); it != m_CameraServerVector.end(); it++)
+		{
+			(*it)->ToString(tmpWStr2,1,31);
+			CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpWStr2);
+			break;
+		}
+		//CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</MessageServer>\n", string);
 	}
 	if (color >= 30 && color <= 39)
 	{

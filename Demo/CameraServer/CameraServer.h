@@ -40,7 +40,7 @@ public:
 	DirWatchServer *pDirWatchServer;
 	//Tmtv_CameraInfo m_ImageInfo.mCameraInfo;
 	BackgroundDetector m_Detector;
-	static int m_CameraServerID;
+	//static int m_CameraServerID;
 	Tmtv_ImageInfo m_ImageInfo;//仅保存短算法结构
 //线程功能,内部调用,禁止外部调用
 public:

@@ -6,8 +6,8 @@ CameraServer::CameraServer(HANDLE hParent)
 {
 	pDirWatchServer = 0;
 	pDirWatchServer = new DirWatchServer();
-	m_CameraServerID++;
-	m_ImageInfo.mCameraInfo.Indexnum = m_CameraServerID;
+	//m_CameraServerID++;
+	//m_ImageInfo.mCameraInfo.Indexnum = /*m_CameraServerID*/;
 	m_ImageInfo.mCameraInfo.CameraPath[0] = 0;
 	m_ImageInfo.mCameraInfo.Status = Tmtv_CameraInfo::TMTV_NOCAM;
 	m_ImageInfo.mCameraInfo.AlgorithmInfo.DstImgPath[0] = 0;
@@ -102,7 +102,7 @@ void CameraServer::Task()
 				case Tmtv_AlgorithmInfo::TMTV_NOWARN://仅返回图像
 					m_ImageInfo.IsWarnning = 0;
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
-					//MessageServer::GetState().SendImage(m_ImageInfo,m_hThread);
+					MessageServer::GetState().SendImage(m_ImageInfo);
 					break;
 				case Tmtv_AlgorithmInfo::TMTV_PREWARN://预执行算法并返回图像
 					m_ImageInfo.IsWarnning = 0;
@@ -116,7 +116,7 @@ void CameraServer::Task()
 							m_ImageInfo.mDefectInfo);
 					}
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
-					//MessageServer::GetState().SendImage(m_ImageInfo, m_hThread);
+					MessageServer::GetState().SendImage(m_ImageInfo);
 					break;
 				case Tmtv_AlgorithmInfo::TMTV_STARTWARN://执行算法并返回图像和缺陷
 					m_ImageInfo.IsWarnning = 1;
@@ -129,7 +129,7 @@ void CameraServer::Task()
 							m_ImageInfo.mCameraInfo.AlgorithmInfo.DstImgPath,
 							m_ImageInfo.mDefectInfo);
 					}
-					//MessageServer::GetState().SendImage(m_ImageInfo, m_hThread);
+					MessageServer::GetState().SendImage(m_ImageInfo);
 					break;
 				default:
 					break;
@@ -320,7 +320,7 @@ bool CameraServer::SetAlgorithm(Tmtv_AlgorithmInfo& algorithmInfo)
 	OutputDebugString(L"<CameraServer::SetAlgorithm() failed.>\n");
 	return false;
 }
-int CameraServer::m_CameraServerID = 0;
+//int CameraServer::m_CameraServerID = 0;
 
 void CameraServer::ToString(MEGAWSTR & string, int method, int color)
 {
@@ -334,7 +334,7 @@ void CameraServer::ToString(MEGAWSTR & string, int method, int color)
 	ObjToString::ToString(tmpStr2, m_ImageInfo, method, 0);
 	if (method >= 0 && method <= 2)
 	{
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<CameraServer m_CameraServerID=%d>\n", m_CameraServerID);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<CameraServer>\n");
 		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpStr1);
 		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpStr2);
 		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</CameraServer>\n", string);

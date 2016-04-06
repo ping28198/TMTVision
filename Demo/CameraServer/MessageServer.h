@@ -73,9 +73,7 @@ public:
 		return obj;
 	}
 public://相机、算法操作命令
-	Tmtv_CameraInfo *pCameraInfo;
-	CameraServer *pCameraServer;
-	int cameraNum;
+	vector<CameraServer*> m_CameraServerVector;
 	//载入参数
 	bool LoadSetting(LONGWSTR xmlFilePath);
 	//保存参数
