@@ -2,7 +2,7 @@
 //
 #include "CommonInclude.h"
 #include "MessageServer.h"
-#include "CameraServer.h"
+//#include "CameraServer.h"
 #include "stdafx.h"
 int main(int argc, char *argv[])
 {
@@ -24,18 +24,18 @@ int main(int argc, char *argv[])
 	messageServer.Resume();
 
 
-	Tmtv_AskInfo msgInfo;
-	msgInfo.Asktype = Tmtv_AskInfo::TMTV_ADDCAM;
-	//messageServer.SendMsgInfo(askInfo);
-	TmtSocket tmtSocket;
-	tmtSocket.SetSendAddr(5003, "127.0.0.1", 5006, NULL);
+	//Tmtv_AskInfo msgInfo;
+	//msgInfo.Asktype = Tmtv_AskInfo::TMTV_ADDCAM;
+	////messageServer.SendMsgInfo(askInfo);
+	//TmtSocket tmtSocket;
+	//tmtSocket.SetSendAddr(5003, "127.0.0.1", 5006, NULL);
 
 	MEGAWSTR  wstring;
 	MEGASTR  string;
 	while (1)
 	{
 	/*	messageServer.SendMsgInfo(msgInfo);*/
-		tmtSocket.SendMsg((void *)& msgInfo, msgInfo.structSize);
+		//tmtSocket.SendMsg((void *)& msgInfo, msgInfo.structSize);
 		system("cls");
 		wstring[0] = 0;	
 		string[0] = 0;
