@@ -50,19 +50,22 @@
 ///<header_info>
 //==============================================================================
 #pragma once
-#include "VisionStruct.h"
-#include "CameraServer.h"
-#include "TmtSocket.h"
+//#include "TmtSocket.h"
+//#include "VisionStruct.h"
+//#include "CameraServer.h"
+#include "CommonInclude.h"
 //==============================================================================
 ///</header_info>
 
 ///<class_info>
 //==============================================================================
 //程序管理类
+class CameraServer;
 class MessageServer :public TmtSocketServer
 {
 public:
-	MessageServer();
+	enum {MAXCAMNUM = 128 };
+	MessageServer(int bufferSize = MAXBUFFERSIZE);
 	~MessageServer();
 	static MessageServer& GetState()
 	{
@@ -94,8 +97,8 @@ public://相机、算法操作命令
 	//停止相机算法
 	bool SetAlgorithm(Tmtv_CameraInfo cameraInfo);
 public://返回消息
-	bool RevMsg(Tmtv_MsgInfo msgInfo);
-	bool RevImage(Tmtv_ImageInfo imgInfo, HANDLE hAnswerHandle);
+	bool SendMsg(Tmtv_MsgInfo msgInfo);
+	bool SendImage(Tmtv_ImageInfo imgInfo, HANDLE hAnswerHandle);
 	
 	void ServerProcess(int revLen);
 };

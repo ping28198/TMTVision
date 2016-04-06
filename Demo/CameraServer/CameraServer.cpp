@@ -1,9 +1,8 @@
-#include "stdafx.h"
+#pragma once
 #include "CameraServer.h"
-#include "CommonFunc.h"
 #include "MessageServer.h"
 
-CameraServer::CameraServer(HANDLE hParent)
+CameraServer::CameraServer(HANDLE hParent, void* hParentObj)
 {
 	pDirWatchServer = 0;
 	pDirWatchServer = new DirWatchServer();
@@ -17,6 +16,7 @@ CameraServer::CameraServer(HANDLE hParent)
 	m_Detector.m_imageWidth = 0;
 	m_Detector.m_imageHeight = 0;
 	m_ImageInfo.ImagePath[0] = 0;
+	m_hParentObj = hParentObj;
 }
 
 CameraServer::~CameraServer()
@@ -102,7 +102,7 @@ void CameraServer::Task()
 				case Tmtv_AlgorithmInfo::TMTV_NOWARN://仅返回图像
 					m_ImageInfo.IsWarnning = 0;
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
-					MessageServer::GetState().RevImage(m_ImageInfo,m_hThread);
+					//MessageServer::GetState().SendImage(m_ImageInfo,m_hThread);
 					break;
 				case Tmtv_AlgorithmInfo::TMTV_PREWARN://预执行算法并返回图像
 					m_ImageInfo.IsWarnning = 0;
@@ -116,7 +116,7 @@ void CameraServer::Task()
 							m_ImageInfo.mDefectInfo);
 					}
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
-					MessageServer::GetState().RevImage(m_ImageInfo, m_hThread);
+					//MessageServer::GetState().SendImage(m_ImageInfo, m_hThread);
 					break;
 				case Tmtv_AlgorithmInfo::TMTV_STARTWARN://执行算法并返回图像和缺陷
 					m_ImageInfo.IsWarnning = 1;
@@ -129,7 +129,7 @@ void CameraServer::Task()
 							m_ImageInfo.mCameraInfo.AlgorithmInfo.DstImgPath,
 							m_ImageInfo.mDefectInfo);
 					}
-					MessageServer::GetState().RevImage(m_ImageInfo, m_hThread);
+					//MessageServer::GetState().SendImage(m_ImageInfo, m_hThread);
 					break;
 				default:
 					break;
@@ -324,3 +324,4 @@ bool CameraServer::SetAlgorithm(Tmtv_CameraInfo cameraInfo)
 	OutputDebugString(L"<CameraServer::SetAlgorithm() failed.>\n");
 	return false;
 }
+int CameraServer::m_CameraServerID = 0;

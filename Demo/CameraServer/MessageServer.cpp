@@ -1,7 +1,7 @@
-#include "stdafx.h"
+#pragma once
 #include "MessageServer.h"
-
-MessageServer::MessageServer()
+#include "CameraServer.h"
+MessageServer::MessageServer(int bufferSize)
 {
 	pCameraInfo=0;
 	cameraNum=0;
@@ -66,12 +66,12 @@ bool MessageServer::StartAlgorithm(Tmtv_CameraInfo cameraInfo)
 	return false;
 }
 
-bool MessageServer::RevMsg(Tmtv_MsgInfo msgInfo)
+bool MessageServer::SendMsg(Tmtv_MsgInfo msgInfo)
 {
 	return false;
 }
 
-bool MessageServer::RevImage(Tmtv_ImageInfo imgInfo, HANDLE hAnswerHandle)
+bool MessageServer::SendImage(Tmtv_ImageInfo imgInfo, HANDLE hAnswerHandle)
 {
 
 	return false;

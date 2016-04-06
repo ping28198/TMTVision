@@ -21,11 +21,7 @@
 //==============================================================================
 //添加所需的头文件
 #pragma once
-#include "DirWatcher.h"
-#include "Thread.h"
-#include "CommonDefine.h"
-#include "VisionStruct.h"
-#include "Detector.h"
+#include"CommonInclude.h"
 //==============================================================================
 ///</header_info>
 
@@ -37,7 +33,7 @@ class CameraServer:public Thread
 {
 //类功能
 public:
-	CameraServer(HANDLE  hParent = 0);
+	CameraServer(HANDLE  hParent = 0,void* hParentObj=0);
 	~CameraServer();
 //文件监控
 public:
@@ -46,6 +42,7 @@ public:
 	BackgroundDetector m_Detector;
 	static int m_CameraServerID;
 	Tmtv_ImageInfo m_ImageInfo;//仅保存短算法结构
+	void* m_hParentObj;
 //线程功能,内部调用,禁止外部调用
 public:
     //创建线程
@@ -81,7 +78,7 @@ public:
 	//停止相机算法,操作m_Detector对象
 	bool SetAlgorithm(Tmtv_CameraInfo cameraInfo);
 };
-int CameraServer::m_CameraServerID=0;
+
 //==============================================================================
 ///</class_info>
 
