@@ -26,52 +26,57 @@ bool MessageServer::SaveSetting(LONGWSTR xmlFilePath)
 	return false;
 }
 
-bool MessageServer::AddCamera(Tmtv_CameraInfo cameraInfo)
+bool MessageServer::AddCamera(Tmtv_CameraInfo& cameraInfo)
 {
 	return false;
 }
 
-bool MessageServer::DelCamera(Tmtv_CameraInfo cameraInfo)
+bool MessageServer::DelCamera(Tmtv_CameraInfo& cameraInfo)
 {
 	return false;
 }
 
-bool MessageServer::StartCamera(Tmtv_CameraInfo cameraInfo)
+bool MessageServer::StartCamera(Tmtv_CameraInfo& cameraInfo)
 {
 	return false;
 }
 
-bool MessageServer::StopCamera(Tmtv_CameraInfo cameraInfo)
+bool MessageServer::StopCamera(Tmtv_CameraInfo& cameraInfo)
 {
 	return false;
 }
 
-bool MessageServer::SetCamera(Tmtv_CameraInfo cameraInfo)
+bool MessageServer::SetCamera(Tmtv_CameraInfo& cameraInfo)
 {
 	return false;
 }
 
-bool MessageServer::StopAlgorithm(Tmtv_CameraInfo cameraInfo)
+bool MessageServer::GetCamera(Tmtv_CameraInfo & cameraInfo)
 {
 	return false;
 }
 
-bool MessageServer::SetAlgorithm(Tmtv_CameraInfo cameraInfo)
+bool MessageServer::StopAlgorithm(Tmtv_CameraInfo& cameraInfo)
 {
 	return false;
 }
 
-bool MessageServer::StartAlgorithm(Tmtv_CameraInfo cameraInfo)
+bool MessageServer::SetAlgorithm(Tmtv_CameraInfo& cameraInfo)
 {
 	return false;
 }
 
-bool MessageServer::SendMsgInfo(Tmtv_MsgInfo msgInfo)
+bool MessageServer::StartAlgorithm(Tmtv_CameraInfo& cameraInfo)
+{
+	return false;
+}
+
+bool MessageServer::SendMsgInfo(Tmtv_MsgInfo& msgInfo)
 {
 	return SendMsg((void *)& msgInfo, msgInfo.structSize);
 }
 
-bool MessageServer::SendImage(Tmtv_ImageInfo imgInfo, HANDLE hAnswerHandle)
+bool MessageServer::SendImage(Tmtv_ImageInfo& imgInfo)
 {
 
 	return false;
@@ -85,28 +90,131 @@ void MessageServer::ServerProcess(int revLen)
 		//Tmtv_AskInfo msgData;
 		//::EnterCriticalSection(&m_section);
 		//::LeaveCriticalSection(&m_section);
-		Tmtv_AskInfo* pMsgData = (Tmtv_AskInfo*)pBuffer;
-		if (pMsgData->CheckCode == TMTV_CHECKCODE)
+		Tmtv_AskInfo* pAskData = (Tmtv_AskInfo*)pBuffer;
+		Tmtv_MsgInfo msgData;
+		if (pAskData->CheckCode == TMTV_CHECKCODE)
 		{
-			switch (pMsgData->Asktype)
+			switch (pAskData->Asktype)
 			{
 			case Tmtv_AskInfo::TMTV_ADDCAM:
+				if (AddCamera(pAskData->CameraInfo))
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_ADDCAM_OK;
+					SendMsgInfo(msgData);
+				}
+				else
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_ADDCAM_FAIL;
+					SendMsgInfo(msgData);
+				}
 				break;
 			case Tmtv_AskInfo::TMTV_DELCAM:
+				if (DelCamera(pAskData->CameraInfo))
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_DELCAM_OK;
+					SendMsgInfo(msgData);
+				}
+				else
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_DELCAM_FAIL;
+					SendMsgInfo(msgData);
+				}
 				break;
 			case Tmtv_AskInfo::TMTV_STARTCAM:
+				if (StartCamera(pAskData->CameraInfo))
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_STARTCAM_OK;
+					SendMsgInfo(msgData);
+				}
+				else
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_STARTCAM_FAIL;
+					SendMsgInfo(msgData);
+				}
 				break;
 			case Tmtv_AskInfo::TMTV_STOPCAM:
+				if (StopCamera(pAskData->CameraInfo))
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_STOPCAM_OK;
+					SendMsgInfo(msgData);
+				}
+				else
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_STOPCAM_FAIL;
+					SendMsgInfo(msgData);
+				}
 				break;
 			case Tmtv_AskInfo::TMTV_GETCAM:
+				if (GetCamera(pAskData->CameraInfo))
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_GETCAM_OK;
+					SendMsgInfo(msgData);
+				}
+				else
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_GETCAM_FAIL;
+					SendMsgInfo(msgData);
+				}
 				break;
 			case Tmtv_AskInfo::TMTV_SETCAM:
+				if (SetCamera(pAskData->CameraInfo))
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_SETCAM_OK;
+					SendMsgInfo(msgData);
+				}
+				else
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_SETCAM_FAIL;
+					SendMsgInfo(msgData);
+				}
 				break;
 			case Tmtv_AskInfo::TMTV_STARTALGO:
+				if (StartAlgorithm(pAskData->CameraInfo))
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_STARTALGO_OK;
+					SendMsgInfo(msgData);
+				}
+				else
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_STARTALGO_FAIL;
+					SendMsgInfo(msgData);
+				}
 				break;
 			case Tmtv_AskInfo::TMTV_STOPCALGO:
+				if (StopAlgorithm(pAskData->CameraInfo))
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_STOPCAM_OK;
+					SendMsgInfo(msgData);
+				}
+				else
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_STOPCAM_FAIL;
+					SendMsgInfo(msgData);
+				}
 				break;
 			case Tmtv_AskInfo::TMTV_SETALGO:
+				if (SetAlgorithm(pAskData->CameraInfo))
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_SETALGO_OK;
+					SendMsgInfo(msgData);
+				}
+				else
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_SETALGO_FAIL;
+					SendMsgInfo(msgData);
+				}
+				break;
+			case Tmtv_AskInfo::TMTV_SETALGO:
+				if (SetAlgorithm(pAskData->CameraInfo))
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_SETALGO_OK;
+					SendMsgInfo(msgData);
+				}
+				else
+				{
+					msgData.MsgType == Tmtv_MsgInfo::TMTV_SETALGO_FAIL;
+					SendMsgInfo(msgData);
+				}
 				break;
 			default:
 				break;

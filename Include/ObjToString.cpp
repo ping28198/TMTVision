@@ -244,11 +244,11 @@ int ObjToString::ToString(MEGAWSTR wstring, void * pBuffer, long bufferSize, int
 	Tmtv_MsgInfo tmpMsgInfo;
 	switch (infoType)
 	{
-	case 1:
+	case 0:
 		memcpy((void*)&tmpAskInfo, pBuffer, sizeof(Tmtv_AskInfo));
 		ObjToString::ToString(wstring, tmpAskInfo, method, 0);
 		break;
-	case 2:
+	case 1:
 		memcpy((void*)&tmpMsgInfo, pBuffer, sizeof(Tmtv_MsgInfo));
 		ObjToString::ToString(wstring, tmpMsgInfo, method, 0);
 		break;

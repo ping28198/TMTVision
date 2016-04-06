@@ -81,24 +81,26 @@ public://相机、算法操作命令
 	//保存参数
 	bool SaveSetting(LONGWSTR xmlFilePath);
 	//添加相机
-	bool AddCamera(Tmtv_CameraInfo cameraInfo);
+	bool AddCamera(Tmtv_CameraInfo& cameraInfo);
 	//删除相机
-	bool DelCamera(Tmtv_CameraInfo cameraInfo);
+	bool DelCamera(Tmtv_CameraInfo& cameraInfo);
 	//打开相机
-	bool StartCamera(Tmtv_CameraInfo cameraInfo);
+	bool StartCamera(Tmtv_CameraInfo& cameraInfo);
 	//停止相机
-	bool StopCamera(Tmtv_CameraInfo cameraInfo);
+	bool StopCamera(Tmtv_CameraInfo& cameraInfo);
 	//停止相机
-	bool SetCamera(Tmtv_CameraInfo cameraInfo);
+	bool SetCamera(Tmtv_CameraInfo& cameraInfo);
+	//停止相机
+	bool GetCamera(Tmtv_CameraInfo& cameraInfo);
 	//打开相机算法
-	bool StartAlgorithm(Tmtv_CameraInfo cameraInfo);
+	bool StartAlgorithm(Tmtv_CameraInfo& cameraInfo);
 	//停止相机算法
-	bool StopAlgorithm(Tmtv_CameraInfo cameraInfo);
+	bool StopAlgorithm(Tmtv_CameraInfo& cameraInfo);
 	//停止相机算法
-	bool SetAlgorithm(Tmtv_CameraInfo cameraInfo);
+	bool SetAlgorithm(Tmtv_CameraInfo& cameraInfo);
 public://返回消息
-	bool SendMsgInfo(Tmtv_MsgInfo msgInfo);
-	bool SendImage(Tmtv_ImageInfo imgInfo, HANDLE hAnswerHandle);
+	bool SendMsgInfo(Tmtv_MsgInfo& msgInfo);
+	bool SendImage(Tmtv_ImageInfo& imgInfo);
 	
 	void ServerProcess(int revLen);
 

@@ -245,16 +245,7 @@ void TmtSocket::ToString(MEGAWSTR & string, int method, int color)
 			string, m_LocalRecvIPW, m_LocalRecvPort);
 		//CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<pBuffer>\n\"%s\"\n</pBuffer>\n", string, pBuffer);
 		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</TmtSocket>\n", string);
-	}
-	//#define COL(x)  L"\033[;" #x L"m"  
-	//#define RED     COL(31)  
-	//#define GREEN   COL(32)  
-	//#define YELLOW  COL(33)  
-	//#define BLUE    COL(34)  
-	//#define MAGENTA COL(35)  
-	//#define CYAN    COL(36)  
-	//#define WHITE   COL(0)
-	//#define GRAY    L"\033[0m" 
+	} 
 	if (color >= 30 && color <= 39)
 	{
 		MEGAWSTR testString = { 0 };
@@ -330,15 +321,6 @@ void TmtSocketServer::ToString(MEGAWSTR & string, int method, int color)
 		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpStr2);
 		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</TmtSocketServer>\n", string);
 	}
-	//#define COL(x)  L"\033[;" #x L"m"  
-	//#define RED     COL(31)  
-	//#define GREEN   COL(32)  
-	//#define YELLOW  COL(33)  
-	//#define BLUE    COL(34)  
-	//#define MAGENTA COL(35)  
-	//#define CYAN    COL(36)  
-	//#define WHITE   COL(0)
-	//#define GRAY    L"\033[0m" 
 	if (color >= 30 && color <= 39)
 	{
 		MEGAWSTR testString = { 0 };

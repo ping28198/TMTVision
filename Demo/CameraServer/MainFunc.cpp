@@ -24,8 +24,8 @@ int main(int argc, char *argv[])
 	messageServer.Resume();
 
 
-	Tmtv_MsgInfo msgInfo;
-	msgInfo.MsgType = Tmtv_MsgInfo::TMTV_ADDCAM_OK;
+	Tmtv_AskInfo msgInfo;
+	msgInfo.Asktype = Tmtv_AskInfo::TMTV_ADDCAM;
 	//messageServer.SendMsgInfo(askInfo);
 	TmtSocket tmtSocket;
 	tmtSocket.SetSendAddr(5003, "127.0.0.1", 5006, NULL);
