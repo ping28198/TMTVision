@@ -72,6 +72,7 @@ bool Detector::Detect(LONGSTR srcImagePath, LONGSTR rectImagePath,
 	Tmtv_DefectInfo & defects,
 	void* paras, long paraSize)
 {
+	if (p_AlgorithmInfo == 0) return false;
 	Mat srcImageData = cv::imread(srcImagePath);
 	Mat rectImageData;
 	srcImageData.copyTo(rectImageData);
@@ -142,6 +143,7 @@ void BackgroundDetector::Reset(Tmtv_AlgorithmInfo *pAlgorithmInfo)
 //识别当前图像队列
 bool BackgroundDetector::Detect(Mat & srcImageData, Mat & rectImageData, Tmtv_DefectInfo & defects, void * paras, long paraSize)
 {
+	if (p_AlgorithmInfo == 0) return false;
 	m_DetectedNum++;
 	if (m_DetectedNum < PERDETECTNUM)
 	{
