@@ -232,27 +232,11 @@ public:
 	///</func_info>
 
 	///<func_info>
-	//描述: 安全的宽字符串格式化函数
-	//参数: wchar_t* strDest 需要格式化的宽字节缓冲
-	//      size_t iStrLen  宽字节缓冲的最大尺寸(以字符的个数为单位, 不是字节大小,可用STR_LEN宏获取)
-	//      int strMutiByteLen 多字节缓冲区的最大尺寸
-	static void  SafeStringPrintf(char* strDest, size_t iStrLen, char* strFormat, ...);
-	///</func_info>
-
-	///<func_info>
 	//描述: 安全的宽字符串拷贝函数
 	//参数: wchar_t* strDest 需要拷贝的目的宽字节缓冲
 	//      size_t iStrLen  宽字节缓冲的最大尺寸(以字符的个数为单位, 不是字节大小,可用STR_LEN宏获取)
 	//      wchar_t* strSource 需要拷贝的源宽字节缓冲
 	static void  SafeWStringCpy(wchar_t* strDest, size_t iStrLen, wchar_t* strSource);
-	///</func_info>
-
-	///<func_info>
-	//描述: 安全的宽字符串拷贝函数
-	//参数: wchar_t* strDest 需要拷贝的目的宽字节缓冲
-	//      size_t iStrLen  宽字节缓冲的最大尺寸(以字符的个数为单位, 不是字节大小,可用STR_LEN宏获取)
-	//      wchar_t* strSource 需要拷贝的源宽字节缓冲
-	static void  SafeStringCpy(char* strDest, size_t iStrLen, char* strSource);
 	///</func_info>
 
 	///<func_info>

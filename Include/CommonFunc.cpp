@@ -618,26 +618,12 @@ void  CCommonFunc::SafeWStringPrintf(wchar_t* strDest, size_t iStrLen, wchar_t* 
 	StringCchVPrintfW(strDest, iStrLen, strFormat, argList);
 	va_end(argList);
 }
-//------------------------------------------------------------
-//描述:安全的字符串格式化函数
-void CCommonFunc::SafeStringPrintf(char * strDest, size_t iStrLen, char * strFormat, ...)
-{
-	va_list argList;
-	va_start(argList, strFormat);
-	StringCchVPrintfA(strDest, iStrLen, strFormat, argList);
-	va_end(argList);
-}
+
 //------------------------------------------------------------
 //描述:
 void  CCommonFunc::SafeWStringCpy(wchar_t* strDest, size_t iStrLen, wchar_t* strSource)
 {
 	StringCchCopyW(strDest, iStrLen, strSource);
-}
-//------------------------------------------------------------
-//描述:
-void CCommonFunc::SafeStringCpy(char * strDest, size_t iStrLen, char * strSource)
-{
-	StringCchCopyA(strDest, iStrLen, strSource);
 }
 
 

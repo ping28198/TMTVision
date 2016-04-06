@@ -25,6 +25,7 @@
 #define TMTV_SHORTSTRLEN	128//字符串最大长度
 #define TMTV_LONGSTRLEN	    256//字符串最大长度
 #define TMTV_HUGESTRLEN	    1024//字符串最大长度
+#define TMTV_MEGASTRLEN	    4096//字符串最大长度
 #define TMTV_IPSTRLEN	    16//字符串最大长度
 #define TMTV_MAXDEFECTNUM   16//单个图像中最大缺陷数量
 #define TMTV_MAXCAMERANUM   256//最大相机数量
@@ -37,6 +38,7 @@ typedef wchar_t				TINYWSTR[TMTV_TINYSTRLEN];
 typedef wchar_t				SHORTWSTR[TMTV_SHORTSTRLEN];
 typedef wchar_t				LONGWSTR[TMTV_LONGSTRLEN];
 typedef wchar_t				HUGEWSTR[TMTV_HUGESTRLEN];
+typedef wchar_t				MEGAWSTR[TMTV_MEGASTRLEN];
 typedef wchar_t				NetIPW[TMTV_IPSTRLEN];
 typedef wchar_t*			WStrPointer;
 typedef wchar_t				WStrChar;
@@ -45,6 +47,7 @@ typedef char				TINYSTR[TMTV_TINYSTRLEN];
 typedef char				SHORTSTR[TMTV_SHORTSTRLEN];
 typedef char				LONGSTR[TMTV_LONGSTRLEN];
 typedef char				HUGESTR[TMTV_HUGESTRLEN];
+typedef char				MEGASTR[TMTV_MEGASTRLEN];
 typedef char				NetIP[TMTV_IPSTRLEN];
 typedef char*			    StrPointer;
 typedef char				StrChar;
