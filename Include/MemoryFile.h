@@ -18,12 +18,21 @@
 
 //==============================================================================
 ///</ver_info>
+//
+//#ifndef _FILE_DEFINED
+//#define _FILE_DEFINED
+//typedef struct _iobuf
+//{
+//	void* _Placeholder;
+//} FILE;
+//#endif
 
-
-
-
-
-
+///<header_info>
+//==============================================================================
+#pragma once
+#include <stdio.h>
+//==============================================================================
+///</header_info>
 
 
 class CMemoryFile
