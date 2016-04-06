@@ -107,10 +107,12 @@ bool TmtSocket::SetRecvAddr(int localRecvPort, char* localRecvIP)
 	}
 	if (localRecvIP==NULL)
 	{
+		m_LocalRecvIP[0] = 0;
 		Rc_MyAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	}
 	else
 	{
+		strcpy_s(m_LocalRecvIP, TMTV_IPSTRLEN, localRecvIP);
 		Rc_MyAddr.sin_addr.s_addr = inet_addr(localRecvIP);
 	}
 	Rc_MyAddr.sin_family = AF_INET;
@@ -120,7 +122,6 @@ bool TmtSocket::SetRecvAddr(int localRecvPort, char* localRecvIP)
 	{
 		m_SkStatus |= enRecvOK;
 		m_LocalRecvPort = localRecvPort;
-		strcpy_s(m_LocalRecvIP, TMTV_IPSTRLEN, localRecvIP);
 		return true;
 	}
 	else
