@@ -33,7 +33,7 @@ class CameraServer:public Thread
 {
 //类功能
 public:
-	CameraServer(HANDLE  hParent = 0,void* hParentObj=0);
+	CameraServer(HANDLE  hParent = 0);
 	~CameraServer();
 //文件监控
 public:
@@ -42,7 +42,6 @@ public:
 	BackgroundDetector m_Detector;
 	static int m_CameraServerID;
 	Tmtv_ImageInfo m_ImageInfo;//仅保存短算法结构
-	void* m_hParentObj;
 //线程功能,内部调用,禁止外部调用
 public:
     //创建线程
@@ -64,19 +63,35 @@ public:
 	//添加相机,操作CameraServer对象, 准备pDirWatchServer对象
 	bool AddCamera(Tmtv_CameraInfo cameraInfo);
 	//删除相机,操作CameraServer对象, 准备pDirWatchServer对象
-	bool DelCamera(Tmtv_CameraInfo cameraInfo);
+	bool DelCamera();
 	//打开相机,操作pDirWatchServer对象
-	bool StartCamera(Tmtv_CameraInfo cameraInfo);
+	bool StartCamera();
 	//停止相机,操作pDirWatchServer对象
-	bool StopCamera(Tmtv_CameraInfo cameraInfo);
+	bool StopCamera();
 	//设置相机,操作pDirWatchServer对象
 	bool SetCamera(Tmtv_CameraInfo cameraInfo);
 	//打开相机算法,操作m_Detector对象
-	bool StartAlgorithm(Tmtv_CameraInfo cameraInfo);
+	bool StartAlgorithm(Tmtv_AlgorithmInfo algorithmInfo);
 	//停止相机算法,操作m_Detector对象
-	bool StopAlgorithm(Tmtv_CameraInfo cameraInfo);
+	bool StopAlgorithm();
 	//停止相机算法,操作m_Detector对象
-	bool SetAlgorithm(Tmtv_CameraInfo cameraInfo);
+	bool SetAlgorithm(Tmtv_AlgorithmInfo algorithmInfo);
+
+public:
+	//调试函数,显示对象信息
+	//method=0 xml 完整格式输出, 带换行
+	//1 最短格式输出,只输出队列数量
+	//2 更新格式输出,输出队列最新元素
+	//字背景颜色范围: 40--49        字颜色: 30--39
+	//	40 : 黑                           30 : 黑
+	//	41 : 红                           31 : 红
+	//	42 : 绿                           32 : 绿
+	//	43 : 黄                           33 : 黄
+	//	44 : 蓝                           34 : 蓝
+	//	45 : 紫                           35 : 紫
+	//	46 : 深绿                         36 : 深绿
+	//	47 : 白色                         37 : 白色
+	void ToString(MEGAWSTR &string, int method = 0, int color = 32);
 };
 
 //==============================================================================

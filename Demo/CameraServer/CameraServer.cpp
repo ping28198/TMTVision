@@ -2,7 +2,7 @@
 #include "CameraServer.h"
 #include "MessageServer.h"
 
-CameraServer::CameraServer(HANDLE hParent, void* hParentObj)
+CameraServer::CameraServer(HANDLE hParent)
 {
 	pDirWatchServer = 0;
 	pDirWatchServer = new DirWatchServer();
@@ -16,7 +16,7 @@ CameraServer::CameraServer(HANDLE hParent, void* hParentObj)
 	m_Detector.m_imageWidth = 0;
 	m_Detector.m_imageHeight = 0;
 	m_ImageInfo.ImagePath[0] = 0;
-	m_hParentObj = hParentObj;
+	m_ImageInfo.GrabTime[0] = 0;
 }
 
 CameraServer::~CameraServer()
@@ -162,6 +162,7 @@ bool CameraServer::AddCamera(Tmtv_CameraInfo cameraInfo)
 			{
 				OutputDebugString(L"<CameraServer::AddCamera() failed.>\n");
 			}
+			m_Detector.Reset(&cameraInfo.AlgorithmInfo);
 			m_ImageInfo.mCameraInfo = cameraInfo;
 			m_ImageInfo.mCameraInfo.Status = Tmtv_CameraInfo::TMTV_STOPEDCAM;
 			m_ImageInfo.ImagePath[0] = 0;
@@ -172,21 +173,20 @@ bool CameraServer::AddCamera(Tmtv_CameraInfo cameraInfo)
 	return false;
 }
 //删除相机,操作CameraServer对象
-bool CameraServer::DelCamera(Tmtv_CameraInfo cameraInfo)
+bool CameraServer::DelCamera()
 {
 	if (m_ImageInfo.mCameraInfo.CameraPath[0] == 0 &&
 		m_ImageInfo.mCameraInfo.Status != Tmtv_CameraInfo::TMTV_NOCAM)
 	{
-		if (cameraInfo.CameraPath[0] != 0 &&
-			cameraInfo.CameraName[0] != 0)
+		if (1)
 		{
-			if (strcmp(cameraInfo.CameraName, m_ImageInfo.mCameraInfo.CameraName))
+			if (1)
 			{
 				if (m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
 				{   
 					Tmtv_CameraInfo tmpCameraInfo;
 					tmpCameraInfo.Status = Tmtv_CameraInfo::TMTV_STOPEDCAM;
-					StopCamera(tmpCameraInfo);
+					StopCamera();
 				}
 				ForceEnd();
 				if (pDirWatchServer != 0)
@@ -197,7 +197,7 @@ bool CameraServer::DelCamera(Tmtv_CameraInfo cameraInfo)
 				{
 					OutputDebugString(L"<CameraServer::DelCamera() failed.>\n");
 				}
-				m_ImageInfo.mCameraInfo = cameraInfo;
+				m_Detector.Unitial();
 				m_ImageInfo.mCameraInfo.CameraPath[0] = 0;
 				m_ImageInfo.mCameraInfo.Status = Tmtv_CameraInfo::TMTV_NOCAM;
 				m_ImageInfo.ImagePath[0] = 0;
@@ -209,13 +209,12 @@ bool CameraServer::DelCamera(Tmtv_CameraInfo cameraInfo)
 	return false;
 }
 //打开相机,操作pDirWatchServer对象
-bool CameraServer::StartCamera(Tmtv_CameraInfo cameraInfo)
+bool CameraServer::StartCamera()
 {
 	if (m_ImageInfo.mCameraInfo.CameraPath[0] != 0 &&
-		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_STOPEDCAM &&
-		cameraInfo.Status== Tmtv_CameraInfo::TMTV_RUNNINGCAM)
+		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_STOPEDCAM)
 	{
-		if (strcmp(cameraInfo.CameraName, m_ImageInfo.mCameraInfo.CameraName))
+		if (1)
 		{
 			if (pDirWatchServer != 0)
 			{
@@ -234,13 +233,12 @@ bool CameraServer::StartCamera(Tmtv_CameraInfo cameraInfo)
 	return false;
 }
 //停止相机,操作pDirWatchServer对象
-bool CameraServer::StopCamera(Tmtv_CameraInfo cameraInfo)
+bool CameraServer::StopCamera()
 {
 	if (m_ImageInfo.mCameraInfo.CameraPath[0] != 0 &&
-		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM &&
-		cameraInfo.Status == Tmtv_CameraInfo::TMTV_STOPEDCAM)
+		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
 	{
-		if (strcmp(cameraInfo.CameraName, m_ImageInfo.mCameraInfo.CameraName))
+		if (1)
 		{
 			pDirWatchServer->Suspend();
 			m_ImageInfo.mCameraInfo.Status = Tmtv_CameraInfo::TMTV_STOPEDCAM;
@@ -256,12 +254,14 @@ bool CameraServer::SetCamera(Tmtv_CameraInfo cameraInfo)
 	switch (cameraInfo.Status)
 	{
 	case Tmtv_CameraInfo::TMTV_STOPEDCAM:
-		return StopCamera(cameraInfo);
+		return StopCamera();
 		break;
 	case Tmtv_CameraInfo::TMTV_RUNNINGCAM:
-		return StartCamera(cameraInfo);
+		return StartCamera();
 		break;
 	case Tmtv_CameraInfo::TMTV_NOCAM:
+		StopCamera();
+		return DelCamera();
 		break;
 	default:
 		break;
@@ -270,16 +270,14 @@ bool CameraServer::SetCamera(Tmtv_CameraInfo cameraInfo)
 	return false;
 }
 //打开相机算法,操作m_Detector对象
-bool CameraServer::StartAlgorithm(Tmtv_CameraInfo cameraInfo)
+bool CameraServer::StartAlgorithm(Tmtv_AlgorithmInfo algorithmInfo)
 {
 	if (m_ImageInfo.mCameraInfo.CameraPath[0] != 0 &&
-		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM &&
-		cameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
+		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
 	{
-		if (strcmp(cameraInfo.CameraName,m_ImageInfo.mCameraInfo.CameraName) &&
-			cameraInfo.AlgorithmInfo.WarnningLevel== Tmtv_AlgorithmInfo::TMTV_STARTWARN)
+		if (algorithmInfo.WarnningLevel== Tmtv_AlgorithmInfo::TMTV_STARTWARN)
 		{
-			m_Detector.Reset(&cameraInfo.AlgorithmInfo);
+			m_Detector.Reset(&algorithmInfo);
 			m_ImageInfo.mCameraInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_PREWARN;
 			return true;
 		}
@@ -288,16 +286,14 @@ bool CameraServer::StartAlgorithm(Tmtv_CameraInfo cameraInfo)
 	return false;
 }
 //停止相机算法,操作m_Detector对象
-bool CameraServer::StopAlgorithm(Tmtv_CameraInfo cameraInfo)
+bool CameraServer::StopAlgorithm()
 {
 	if (m_ImageInfo.mCameraInfo.CameraPath[0] != 0 &&
-		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM &&
-		cameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
+		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
 	{
-		if (strcmp(cameraInfo.CameraName, m_ImageInfo.mCameraInfo.CameraName) &&
-			cameraInfo.AlgorithmInfo.WarnningLevel == Tmtv_AlgorithmInfo::TMTV_NOWARN)
+		if (1)
 		{
-			m_Detector.Reset(&cameraInfo.AlgorithmInfo);
+			m_Detector.Unitial();
 			m_ImageInfo.mCameraInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_NOWARN;
 			return true;
 		}
@@ -306,17 +302,17 @@ bool CameraServer::StopAlgorithm(Tmtv_CameraInfo cameraInfo)
 	return false;
 }
 //停止相机算法,操作m_Detector对象
-bool CameraServer::SetAlgorithm(Tmtv_CameraInfo cameraInfo)
+bool CameraServer::SetAlgorithm(Tmtv_AlgorithmInfo algorithmInfo)
 {
-	switch (cameraInfo.AlgorithmInfo.WarnningLevel)
+	switch (algorithmInfo.WarnningLevel)
 	{
-	case Tmtv_AlgorithmInfo::TMTV_NOWARN:
-		return StartAlgorithm(cameraInfo);
+	case Tmtv_AlgorithmInfo::TMTV_STARTWARN:
+		return StartAlgorithm(algorithmInfo);
 		break;
 	case Tmtv_AlgorithmInfo::TMTV_PREWARN:
 		break;
-	case Tmtv_AlgorithmInfo::TMTV_STARTWARN:
-		return StopAlgorithm(cameraInfo);
+	case Tmtv_AlgorithmInfo::TMTV_NOWARN:
+		return StopAlgorithm();
 		break;
 	default:
 		break;
@@ -325,3 +321,28 @@ bool CameraServer::SetAlgorithm(Tmtv_CameraInfo cameraInfo)
 	return false;
 }
 int CameraServer::m_CameraServerID = 0;
+
+void CameraServer::ToString(MEGAWSTR & string, int method, int color)
+{
+	string[0] = 0;
+	MEGAWSTR tmpStr1 = { 0 };
+	if (pDirWatchServer!=0)
+	{
+		pDirWatchServer->ToString(tmpStr1, method, 0);
+	}
+	MEGAWSTR tmpStr2 = { 0 };
+	ObjToString::ToString(tmpStr2, m_ImageInfo, method, 0);
+	if (method >= 0 && method <= 2)
+	{
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<CameraServer m_CameraServerID=%d>\n", m_CameraServerID);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpStr1);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpStr2);
+		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</CameraServer>\n", string);
+	}
+	if (color >= 30 && color <= 39)
+	{
+		MEGAWSTR testString = { 0 };
+		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
+		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
+	}
+}

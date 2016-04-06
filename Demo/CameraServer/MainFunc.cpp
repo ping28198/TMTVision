@@ -1,41 +1,45 @@
 // MainFunc.cpp : 定义控制台应用程序的入口点. 
 //
-//#include "MessageServer.h"
-//#include "VisionStruct.h"
-
-//#include "CommonFunc.h"
 #include "CommonInclude.h"
-
-#include "DirWatcher.h"
+#include "MessageServer.h"
+#include "CameraServer.h"
 #include "stdafx.h"
 int main(int argc, char *argv[])
 {
-	DirWatchServer dirWatchServer;
-	dirWatchServer.RegPath(L"D:\\TST\\");
-	dirWatchServer.Create();
-	dirWatchServer.Resume();
+	Tmtv_CameraInfo cameraInfo;
+	strcpy_s(cameraInfo.CameraName, TMTV_LONGSTRLEN, "TestCamera");
+	strcpy_s(cameraInfo.CameraPath, TMTV_LONGSTRLEN, "D:\\TST\\");
+	cameraInfo.Status = Tmtv_CameraInfo::TMTV_RUNNINGCAM;
+	strcpy_s(cameraInfo.AlgorithmInfo.DstImgPath, TMTV_LONGSTRLEN, "TestCamera");
+	strcpy_s(cameraInfo.AlgorithmInfo.DstImgPath, TMTV_LONGSTRLEN, "TestCamera");
+	cameraInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_STARTWARN;
+	CameraServer cameraServer;
+	cameraServer.AddCamera(cameraInfo);
+	cameraServer.StartAlgorithm(cameraInfo.AlgorithmInfo);
+	cameraServer.StartCamera();
+	
+	MessageServer messageServer;
+	messageServer.Initial(103, "127.0.0.1", 105, "127.0.0.1", 106, "127.0.0.1");
+	messageServer.Create();
+	messageServer.Resume();
 
 
-	//MessageServer messageServer;
-	//messageServer.Initial(103, "127.0.0.1", 105, "127.0.0.1", 106, "127.0.0.1");
-	//messageServer.Create();
-	//messageServer.Resume();
 
-
-
-	HUGEWSTR  wstring;
-	HUGESTR  string;
+	MEGAWSTR  wstring;
+	MEGASTR  string;
 	while (1)
 	{
-		wstring[0] = 0;
-		dirWatchServer.ToString(wstring, 2, 33);
-		/*CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"\033[;32m%s\033[0m\n", wstring2);*/
-		CCommonFunc::UnicodeToAnsi(wstring, string, TMTV_HUGESTRLEN);
 		system("cls");
-		printf(string);
+		wstring[0] = 0;	
 		string[0] = 0;
-		//messageServer.ToString(string, 2, 33);
-		//printf(string);
+		messageServer.ToString(wstring, 2, 33);
+		CCommonFunc::UnicodeToAnsi(wstring, string, TMTV_MEGASTRLEN);
+		printf(string);	
+		wstring[0] = 0;
+		string[0] = 0;
+		cameraServer.ToString(wstring, 2, 32);
+		CCommonFunc::UnicodeToAnsi(wstring, string, TMTV_MEGASTRLEN);
+		printf(string);
 		Sleep(1000);
 	}
 	return 0;
