@@ -97,7 +97,7 @@ public://相机、算法操作命令
 	//停止相机算法
 	bool SetAlgorithm(Tmtv_CameraInfo& cameraInfo);
 public://返回消息
-	bool SendMsgInfo(Tmtv_MsgInfo& msgInfo);
+	int SendMsgInfo(Tmtv_MsgInfo& msgInfo);
 	bool SendImage(Tmtv_ImageInfo& imgInfo);
 	
 	void ServerProcess(int revLen);

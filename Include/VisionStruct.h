@@ -113,7 +113,8 @@ struct Tmtv_CameraInfo //相机信息
 		TMTV_STOPEDCAM = 301,  //已加载的暂停相机
 		TMTV_RUNNINGCAM = 302, //已加载的运行相机
 	};
-	int Status;//1.2//相机状态
+	int Status;//1.2//相机状态	
+	int WaiteTime=1000;//1.2//相机状态
 	Tmtv_AlgorithmInfo AlgorithmInfo;
 };
 //==============================================================================

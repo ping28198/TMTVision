@@ -20,7 +20,7 @@ bool Detector::Initial(Tmtv_AlgorithmInfo *pAlgorithmInfo)
 	if (pAlgorithmInfo->structSize < algorithmInfoSize) return false;
 	p_AlgorithmInfo = (Tmtv_AlgorithmInfo*)malloc(pAlgorithmInfo->structSize);
 	memcpy(p_AlgorithmInfo, pAlgorithmInfo, pAlgorithmInfo->structSize);
-	p_AlgorithmInfo->WarnningLevel == Tmtv_AlgorithmInfo::TMTV_PREWARN;
+	p_AlgorithmInfo->WarnningLevel = Tmtv_AlgorithmInfo::TMTV_PREWARN;
 	Mat tmpMat = cv::imread(p_AlgorithmInfo->MaskImgPath);
 	if (tmpMat.empty()) return false;
 	Size mskSize = tmpMat.size();
@@ -118,7 +118,7 @@ bool BackgroundDetector::Initial(Tmtv_AlgorithmInfo *pAlgorithmInfo)
 
 
 	///</BackgroundSubtractorMOG2初始化>
-	p_AlgorithmInfo->WarnningLevel == Tmtv_AlgorithmInfo::TMTV_STARTWARN;
+	p_AlgorithmInfo->WarnningLevel = Tmtv_AlgorithmInfo::TMTV_STARTWARN;
 	return false;
 }
 //卸载资源和掩码图像
@@ -147,11 +147,11 @@ bool BackgroundDetector::Detect(Mat & srcImageData, Mat & rectImageData, Tmtv_De
 	m_DetectedNum++;
 	if (m_DetectedNum < PERDETECTNUM)
 	{
-		p_AlgorithmInfo->WarnningLevel == Tmtv_AlgorithmInfo::TMTV_PREWARN;
+		p_AlgorithmInfo->WarnningLevel = Tmtv_AlgorithmInfo::TMTV_PREWARN;
 	}
 	else
 	{
-		p_AlgorithmInfo->WarnningLevel == Tmtv_AlgorithmInfo::TMTV_STARTWARN;
+		p_AlgorithmInfo->WarnningLevel = Tmtv_AlgorithmInfo::TMTV_STARTWARN;
 	}
 	return false;
 }

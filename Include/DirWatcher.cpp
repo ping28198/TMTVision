@@ -168,6 +168,10 @@ void DirWatchServer::Destroy()
 //供重载的操作函数,主函数会重复执行该函数,内部调用Watch()函数,具有线程保护
 void DirWatchServer::Task()
 {	
+	if (m_path[0] == 0 || m_hDir == 0)
+	{
+		return;
+	}
 	FileItem tmpFileItem, tmpFileItem2;
 	tmpFileItem.m_fileName[0] = 0;
 	tmpFileItem.m_fileAction = 0;

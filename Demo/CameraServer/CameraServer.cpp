@@ -32,13 +32,27 @@ CameraServer::~CameraServer()
 		m_Detector.Unitial();
 	}
 }
+
+//创建文件夹读取句柄, 初始化ReadDirectoryChangesW相关参数
+//执行前强制停止线程, 需要用Create()再次启动
+bool CameraServer::RegPath(LONGWSTR path, DWORD action)
+{
+	if (pDirWatchServer != 0)
+	{
+		pDirWatchServer->RegPath(path, action);
+		pDirWatchServer->m_hParent = this->m_hThread;
+		return true;
+	}
+	return false;
+}
+
 //创建线程
 void CameraServer::Create(int times, long waiteTime, bool includeTaskTime)
 {
 	Thread::Create(-1, waiteTime, includeTaskTime);
 	if (pDirWatchServer != 0)
 	{
-		pDirWatchServer->Create();
+		pDirWatchServer->Create(-1,MAX(0, waiteTime*2),true);
 		pDirWatchServer->m_hParent = this->m_hThread;
 	}
 }
@@ -102,34 +116,46 @@ void CameraServer::Task()
 				case Tmtv_AlgorithmInfo::TMTV_NOWARN://仅返回图像
 					m_ImageInfo.IsWarnning = 0;
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
-					MessageServer::GetState().SendImage(m_ImageInfo);
+					if (!MessageServer::GetState().SendImage(m_ImageInfo))
+					{
+						OutputDebugString(L"<CameraServer::Task() SendImage failed.>\n");
+					}
+					pDirWatchServer->m_fileNameQueue.DelHead();
 					break;
 				case Tmtv_AlgorithmInfo::TMTV_PREWARN://预执行算法并返回图像
 					m_ImageInfo.IsWarnning = 0;
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
 					if (!tmpFileItem.m_fileProcessed &&
-						(tmpFileItem.m_fileAction & FILE_ACTION_ADDED == FILE_ACTION_ADDED ||
-							tmpFileItem.m_fileAction & FILE_ACTION_MODIFIED == FILE_ACTION_MODIFIED))
+						((tmpFileItem.m_fileAction & FILE_ACTION_ADDED) == FILE_ACTION_ADDED ||
+							(tmpFileItem.m_fileAction & FILE_ACTION_MODIFIED) == FILE_ACTION_MODIFIED))
 					{
 						m_Detector.Detect(m_ImageInfo.ImagePath,
 							m_ImageInfo.mCameraInfo.AlgorithmInfo.DstImgPath,
 							m_ImageInfo.mDefectInfo);
 					}
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
-					MessageServer::GetState().SendImage(m_ImageInfo);
+					if (!MessageServer::GetState().SendImage(m_ImageInfo))
+					{
+						OutputDebugString(L"<CameraServer::Task() SendImage failed.>\n");
+					}
+					pDirWatchServer->m_fileNameQueue.DelHead();
 					break;
 				case Tmtv_AlgorithmInfo::TMTV_STARTWARN://执行算法并返回图像和缺陷
 					m_ImageInfo.IsWarnning = 1;
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
 					if (!tmpFileItem.m_fileProcessed &&
-						(tmpFileItem.m_fileAction & FILE_ACTION_ADDED == FILE_ACTION_ADDED ||
-							tmpFileItem.m_fileAction & FILE_ACTION_MODIFIED == FILE_ACTION_MODIFIED))
+						((tmpFileItem.m_fileAction & FILE_ACTION_ADDED) == FILE_ACTION_ADDED ||
+							(tmpFileItem.m_fileAction & FILE_ACTION_MODIFIED) == FILE_ACTION_MODIFIED))
 					{
 						m_Detector.Detect(m_ImageInfo.ImagePath,
 							m_ImageInfo.mCameraInfo.AlgorithmInfo.DstImgPath,
 							m_ImageInfo.mDefectInfo);
 					}
-					MessageServer::GetState().SendImage(m_ImageInfo);
+					if (!MessageServer::GetState().SendImage(m_ImageInfo))
+					{
+						OutputDebugString(L"<CameraServer::Task() SendImage failed.>\n");
+					}
+					pDirWatchServer->m_fileNameQueue.DelHead();
 					break;
 				default:
 					break;
@@ -151,21 +177,23 @@ bool CameraServer::AddCamera(Tmtv_CameraInfo& cameraInfo)
 		if (cameraInfo.CameraPath[0]!=0 && 
 			cameraInfo.CameraName[0]!=0)
 		{
-			Create();
 			if (pDirWatchServer != 0)
 			{
 				LONGWSTR cameraPathW = { 0 };
 				CCommonFunc::AnsiToUnicode(cameraInfo.CameraPath, cameraPathW, TMTV_LONGSTRLEN);
-				pDirWatchServer->RegPath(cameraPathW,FILE_NOTIFY_CHANGE_LAST_WRITE);
+				//pDirWatchServer->RegPath(cameraPathW,FILE_NOTIFY_CHANGE_LAST_WRITE);
+				RegPath(cameraPathW, FILE_NOTIFY_CHANGE_LAST_WRITE);
+				Create(-1, MAX(0,cameraInfo.WaiteTime),true);
 			}
 			else
 			{
 				OutputDebugString(L"<CameraServer::AddCamera() failed.>\n");
 			}
-			m_Detector.Reset(&cameraInfo.AlgorithmInfo);
+
 			m_ImageInfo.mCameraInfo = cameraInfo;
 			m_ImageInfo.mCameraInfo.Status = Tmtv_CameraInfo::TMTV_STOPEDCAM;
 			m_ImageInfo.ImagePath[0] = 0;
+			SetAlgorithm(cameraInfo.AlgorithmInfo);
 			return true;
 		}
 	}
@@ -281,6 +309,7 @@ bool CameraServer::StartAlgorithm(Tmtv_AlgorithmInfo& algorithmInfo)
 			m_ImageInfo.mCameraInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_PREWARN;
 			return true;
 		}
+		return true;
 	}
 	OutputDebugString(L"<CameraServer::StartAlgorithm() failed.>\n");
 	return false;

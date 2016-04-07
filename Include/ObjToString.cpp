@@ -235,6 +235,7 @@ int ObjToString::InfoCheck(void* pBuffer, long  bufferSize)
 	{
 		return 1;
 	}
+	return -1;
 }
 
 int ObjToString::ToString(MEGAWSTR wstring, void * pBuffer, long bufferSize, int method, int color)
