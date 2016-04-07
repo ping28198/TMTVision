@@ -110,7 +110,7 @@ void CameraServer::Task()
 				{
 					break;
 				}
-				CCommonFunc::UnicodeToAnsi(tmpFileItem.m_fileName,m_ImageInfo.ImagePath,TMTV_LONGSTRLEN);
+				CCommonFunc::UnicodeToAnsi(tmpFileItem.m_fileName,m_ImageInfo.ImagePath, TMTV_PATHSTRLEN);
 				switch (m_ImageInfo.mCameraInfo.AlgorithmInfo.WarnningLevel)
 				{
 				case Tmtv_AlgorithmInfo::TMTV_NOWARN://½ö·µ»ØÍ¼Ïñ
@@ -179,8 +179,8 @@ bool CameraServer::AddCamera(Tmtv_CameraInfo& cameraInfo)
 		{
 			if (pDirWatchServer != 0)
 			{
-				LONGWSTR cameraPathW = { 0 };
-				CCommonFunc::AnsiToUnicode(cameraInfo.CameraPath, cameraPathW, TMTV_LONGSTRLEN);
+				PATHWSTR cameraPathW = { 0 };
+				CCommonFunc::AnsiToUnicode(cameraInfo.CameraPath, cameraPathW, TMTV_PATHSTRLEN);
 				//pDirWatchServer->RegPath(cameraPathW,FILE_NOTIFY_CHANGE_LAST_WRITE);
 				RegPath(cameraPathW, FILE_NOTIFY_CHANGE_LAST_WRITE);
 				Create(-1, MAX(0,cameraInfo.WaiteTime),true);

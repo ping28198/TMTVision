@@ -86,8 +86,8 @@ struct Tmtv_AlgorithmInfo	//算法信息
 {
 public:
 	long structSize = sizeof(Tmtv_AlgorithmInfo);//若含有较大数据, 修改此大小
-	LONGSTR MaskImgPath = "";//掩码图像位置
-	LONGSTR DstImgPath = "";//目标图像位置
+	PATHSTR MaskImgPath = "";//掩码图像位置
+	PATHSTR DstImgPath = "";//目标图像位置
 	enum {//2.0
 		TMTV_NOWARN = 0,     //不启动算法
 		TMTV_PREWARN = 1,    //启动算法过程中
@@ -103,8 +103,8 @@ public:
 struct Tmtv_CameraInfo //相机信息
 {
 	int Indexnum = 0; //相机序号
-	LONGSTR CameraName = "";//相机名称等信息
-	LONGSTR CameraPath = "";//相机根目录路径
+	PATHSTR CameraName = "";//相机名称等信息
+	PATHSTR CameraPath = "";//相机根目录路径
 	int CameraPos[8];//x,y,z坐标, 方向
 	int CameraWidth = 1920;//1.1 //相机图片宽度
 	int CameraHeight = 1080;//1.1 //相机图片高度	
@@ -138,7 +138,7 @@ struct Tmtv_ImageInfo	//图像信息, 相机服务端发往主程序端
 {
 	Tmtv_CameraInfo mCameraInfo;
 	Tmtv_DefectInfo mDefectInfo;
-	LONGSTR ImagePath = "";//文件路径
+	PATHSTR ImagePath = "";//文件路径
 	TINYSTR GrabTime = "";//采集时间 格式: 年-月-日-时:分: 秒. 例: 2016-03-22-12:00:00
 	int IsWarnning = 0;//是否有警告
 	int IsVIP = 0;//设置是否是重点

@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
 	//msgInfo.CameraInfo.Status = Tmtv_CameraInfo::TMTV_RUNNINGCAM;
 	//msgInfo.CameraInfo.WaiteTime = 2000;
 	//msgInfo.CameraInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_NOWARN;
-	//strcpy_s(msgInfo.CameraInfo.CameraName, TMTV_LONGSTRLEN, "TestCamera");
-	//strcpy_s(msgInfo.CameraInfo.CameraPath, TMTV_LONGSTRLEN, "D:\\TST\\");
-	//strcpy_s(msgInfo.CameraInfo.AlgorithmInfo.DstImgPath, TMTV_LONGSTRLEN, "D:\\TST2\\");
+	//strcpy_s(msgInfo.CameraInfo.CameraName, TMTV_PATHSTRLEN, "TestCamera");
+	//strcpy_s(msgInfo.CameraInfo.CameraPath, TMTV_PATHSTRLEN, "D:\\TST\\");
+	//strcpy_s(msgInfo.CameraInfo.AlgorithmInfo.DstImgPath, TMTV_PATHSTRLEN, "D:\\TST2\\");
 	////messageServer.SendMsgInfo(askInfo);
 	//TmtSocket tmtSocket;
 	//tmtSocket.SetSendAddr(5003, "127.0.0.1", 5006, NULL);
@@ -42,9 +42,9 @@ int main(int argc, char *argv[])
 	//msgInfo.CameraInfo.Status = Tmtv_CameraInfo::TMTV_RUNNINGCAM;
 	//msgInfo.CameraInfo.WaiteTime = 2000;
 	//msgInfo.CameraInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_NOWARN;
-	//strcpy_s(msgInfo.CameraInfo.CameraName, TMTV_LONGSTRLEN, "TestCamera2");
-	//strcpy_s(msgInfo.CameraInfo.CameraPath, TMTV_LONGSTRLEN, "D:\\TST\\");
-	//strcpy_s(msgInfo.CameraInfo.AlgorithmInfo.DstImgPath, TMTV_LONGSTRLEN, "D:\\TST2\\");
+	//strcpy_s(msgInfo.CameraInfo.CameraName, TMTV_PATHSTRLEN, "TestCamera2");
+	//strcpy_s(msgInfo.CameraInfo.CameraPath, TMTV_PATHSTRLEN, "D:\\TST\\");
+	//strcpy_s(msgInfo.CameraInfo.AlgorithmInfo.DstImgPath, TMTV_PATHSTRLEN, "D:\\TST2\\");
 	////messageServer.SendMsgInfo(askInfo);
 	//tmtSocket.SetSendAddr(5003, "127.0.0.1", 5006, NULL);
 	//Sleep(1000);

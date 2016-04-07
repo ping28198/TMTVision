@@ -23,9 +23,9 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_AlgorithmInfo& algorithmInfo, 
 	if (method == 0)
 	{
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"<Tmtv_AlgorithmInfo structSize =%d>\n", algorithmInfo.structSize);
-		CCommonFunc::AnsiToUnicode(algorithmInfo.MaskImgPath, tmpWStr, TMTV_LONGSTRLEN);
+		CCommonFunc::AnsiToUnicode(algorithmInfo.MaskImgPath, tmpWStr, TMTV_PATHSTRLEN);
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s  <MaskImgPath=\"%s\">\n", wstring, tmpWStr);
-		CCommonFunc::AnsiToUnicode(algorithmInfo.DstImgPath, tmpWStr, TMTV_LONGSTRLEN);
+		CCommonFunc::AnsiToUnicode(algorithmInfo.DstImgPath, tmpWStr, TMTV_PATHSTRLEN);
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s  <DstImgPath=\"%s\">\n", wstring, tmpWStr);
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s  <WarnningLevel=%d >\n", wstring, algorithmInfo.WarnningLevel);
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s</Tmtv_AlgorithmInfo>\n", wstring);
@@ -50,22 +50,22 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_CameraInfo& camraInfo, int met
 	wstring[0] = 0;
 	MEGAWSTR tmpWStrMega = { 0 };
 	ObjToString::ToString(tmpWStrMega, camraInfo.AlgorithmInfo, method, 0);
-	LONGWSTR tmpWStr = { 0 };
+	PATHWSTR tmpWStr = { 0 };
 	if (method == 0)
 	{
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"<Tmtv_CameraInfo Indexnum=%d>\n", camraInfo.Indexnum);
 		tmpWStr[0] = 0;
-		CCommonFunc::SafeWStringCpy(tmpWStr, TMTV_LONGSTRLEN, L"");
+		CCommonFunc::SafeWStringCpy(tmpWStr, TMTV_PATHSTRLEN, L"");
 		if (camraInfo.CameraPath[0] != 0)
 		{
-			CCommonFunc::AnsiToUnicode(camraInfo.CameraName, tmpWStr, TMTV_LONGSTRLEN);
+			CCommonFunc::AnsiToUnicode(camraInfo.CameraName, tmpWStr, TMTV_PATHSTRLEN);
 		}
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s  <CameraName=\"%s\">\n", wstring, tmpWStr);
 		tmpWStr[0] = 0;
-		CCommonFunc::SafeWStringCpy(tmpWStr, TMTV_LONGSTRLEN, L"");
+		CCommonFunc::SafeWStringCpy(tmpWStr, TMTV_PATHSTRLEN, L"");
 		if (camraInfo.CameraPath[0] != 0)
 		{
-			CCommonFunc::AnsiToUnicode(camraInfo.CameraPath, tmpWStr, TMTV_LONGSTRLEN);
+			CCommonFunc::AnsiToUnicode(camraInfo.CameraPath, tmpWStr, TMTV_PATHSTRLEN);
 		}
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s  <CameraPath=\"%s\">\n", wstring, tmpWStr);
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s  <CameraPos=[%d %d %d %d %d %d %d %d]>\n", wstring,
@@ -79,7 +79,7 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_CameraInfo& camraInfo, int met
 	}
 	else if (method == 1)
 	{
-		CCommonFunc::AnsiToUnicode(camraInfo.CameraName, tmpWStr, TMTV_LONGSTRLEN);
+		CCommonFunc::AnsiToUnicode(camraInfo.CameraName, tmpWStr, TMTV_PATHSTRLEN);
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"<Tmtv_CameraInfo Indexnum=%d CameraName=\"%s\" Status=%d>\n",
 			camraInfo.Indexnum, tmpWStr, camraInfo.Status);
 	}
@@ -88,17 +88,17 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_CameraInfo& camraInfo, int met
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"<Tmtv_CameraInfo Indexnum=%d Status=%d",
 			camraInfo.Indexnum, camraInfo.Status);
 		tmpWStr[0] = 0;
-		CCommonFunc::SafeWStringCpy(tmpWStr, TMTV_LONGSTRLEN, L"");
+		CCommonFunc::SafeWStringCpy(tmpWStr, TMTV_PATHSTRLEN, L"");
 		if (camraInfo.CameraPath[0] != 0)
 		{
-			CCommonFunc::AnsiToUnicode(camraInfo.CameraName, tmpWStr, TMTV_LONGSTRLEN);
+			CCommonFunc::AnsiToUnicode(camraInfo.CameraName, tmpWStr, TMTV_PATHSTRLEN);
 		}
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s CameraName=\"%s\" ", wstring, tmpWStr);
 		tmpWStr[0] = 0;
-		CCommonFunc::SafeWStringCpy(tmpWStr, TMTV_LONGSTRLEN, L"");
+		CCommonFunc::SafeWStringCpy(tmpWStr, TMTV_PATHSTRLEN, L"");
 		if (camraInfo.CameraPath[0] != 0)
 		{
-			CCommonFunc::AnsiToUnicode(camraInfo.CameraPath, tmpWStr, TMTV_LONGSTRLEN);
+			CCommonFunc::AnsiToUnicode(camraInfo.CameraPath, tmpWStr, TMTV_PATHSTRLEN);
 		}
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s CameraPath=\"%s\">\n", wstring, tmpWStr);
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s%s", wstring, tmpWStrMega);
@@ -151,7 +151,7 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_ImageInfo& imageInfo, int meth
 	MEGAWSTR tmpWStrMega2 = { 0 };
 	ObjToString::ToString(tmpWStrMega2, imageInfo.mDefectInfo, method, 0);
 	LONGWSTR tmpWStr1 = { 0 };
-	CCommonFunc::AnsiToUnicode(imageInfo.ImagePath, tmpWStr1, TMTV_LONGSTRLEN);
+	CCommonFunc::AnsiToUnicode(imageInfo.ImagePath, tmpWStr1, TMTV_PATHSTRLEN);
 	TINYWSTR tmpWStr2 = { 0 };
 	CCommonFunc::AnsiToUnicode(imageInfo.GrabTime, tmpWStr2, TMTV_TINYSTRLEN);
 

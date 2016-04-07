@@ -97,8 +97,8 @@ void CAddCamDlg::OnBnClickedAddFinishBt()
 	mCamInfo.CameraPos[0] = mCamPos_X;
 	mCamInfo.CameraPos[1] = m_CamPos_Y;
 	mCamInfo.CameraPos[2] = mCamPos_Z;
-	strcpy_s(mCamInfo.CameraName, Camname);
-	strcpy_s(mCamInfo.CameraPath, Campath);
+	strcpy_s(mCamInfo.CameraName, TMTV_PATHSTRLEN, Camname);
+	strcpy_s(mCamInfo.CameraPath, TMTV_PATHSTRLEN, Campath);
 	int warnindex = m_WarningLevel.GetCurSel();
 	if (warnindex>=0&&warnindex<=4)
 	{
@@ -144,7 +144,7 @@ void CAddCamDlg::OnBnClickedAddFinishBt()
 	CCommonFunc::GetAppPath(wchar,TMTV_LONGSTRLEN);
 	mstr =_T("\\") + mstr;
 	mstr = wchar + mstr;
-	CCommonFunc::UnicodeToAnsi(mstr.GetBuffer(), mCamInfo.AlgorithmInfo.MaskImgPath, TMTV_LONGSTRLEN);
+	CCommonFunc::UnicodeToAnsi(mstr.GetBuffer(), mCamInfo.AlgorithmInfo.MaskImgPath, TMTV_PATHSTRLEN);
 	pParent->AddCam(&mCamInfo);
 	MessageBox(_T("Ìí¼Ó³É¹¦£¡"));
 	mRangeIndex = 0;

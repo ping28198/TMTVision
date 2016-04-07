@@ -219,8 +219,8 @@ HCURSOR CVisionClientDlg::OnQueryDragIcon()
 void CVisionClientDlg::DrawImage(Tmtv_ImageInfo& ImgInfo, CRect mRect,CDC* pDC)
 {
 	CImage img;
-	wchar_t imgpath[TMTV_LONGSTRLEN];
-	CCommonFunc::AnsiToUnicode(ImgInfo.ImagePath,imgpath,TMTV_LONGSTRLEN);
+	wchar_t imgpath[TMTV_PATHSTRLEN];
+	CCommonFunc::AnsiToUnicode(ImgInfo.ImagePath,imgpath, TMTV_PATHSTRLEN);
 	//if (!CCommonFunc::FileExist(imgpath)) return;
 	Mat mt;
 	mt = imread(ImgInfo.ImagePath);
@@ -501,10 +501,10 @@ void CVisionClientDlg::ShowCamInfoToList()
 	vector<Tmtv_CameraInfo>::iterator it;
 	int i = 0;
 	CString camIndexStr;
-	wchar_t camNameStr[TMTV_LONGSTRLEN];
+	wchar_t camNameStr[TMTV_PATHSTRLEN];
 	for (it = mCamInfoVec.begin(); it != mCamInfoVec.end();it++)
 	{
-		CCommonFunc::AnsiToUnicode(it->CameraName, camNameStr, TMTV_LONGSTRLEN);
+		CCommonFunc::AnsiToUnicode(it->CameraName, camNameStr, TMTV_PATHSTRLEN);
 		camIndexStr.Format(_T("%d"), it->Indexnum);
 		mListCamera.InsertItem(i, _T(""));//添加项（即行标题） 
 		mListCamera.SetItemText(i, 1, camIndexStr);
@@ -515,10 +515,10 @@ void CVisionClientDlg::ShowCamInfoToList()
 
 void CVisionClientDlg::ShowZoomImg(Tmtv_ImageInfo& imgInfo)
 {
-	wchar_t mwchar[TMTV_LONGSTRLEN];
-	wchar_t mwtime[TMTV_LONGSTRLEN];
-	CCommonFunc::AnsiToUnicode(imgInfo.mCameraInfo.CameraName, mwchar, TMTV_LONGSTRLEN);
-	CCommonFunc::AnsiToUnicode(imgInfo.GrabTime, mwtime, TMTV_LONGSTRLEN);
+	wchar_t mwchar[TMTV_PATHSTRLEN];
+	wchar_t mwtime[TMTV_PATHSTRLEN];
+	CCommonFunc::AnsiToUnicode(imgInfo.mCameraInfo.CameraName, mwchar, TMTV_PATHSTRLEN);
+	CCommonFunc::AnsiToUnicode(imgInfo.GrabTime, mwtime, TMTV_PATHSTRLEN);
 	CString mstr;
 	mstr.Format(_T("%d号相机: %s 时间：%s"),imgInfo.mCameraInfo.Indexnum,mwchar,mwtime);
 	pZoomImgDlg->SetWindowTextW(mstr);

@@ -18,8 +18,8 @@ public:
 	CAddCamDlg(CWnd* pParent = NULL);   // 标准构造函数
 	virtual ~CAddCamDlg();
 	CVisionClientDlg* pParent;
-	char Campath[256];
-	char Camname[256];
+	char Campath[TMTV_PATHSTRLEN];
+	char Camname[TMTV_PATHSTRLEN];
 	Tmtv_CameraInfo mCamInfo;
 	vector<CPoint> mWarnRange[MAX_RANGE_NUM];
 	int mRangeIndex;
