@@ -118,6 +118,13 @@ BOOL CVisionClientDlg::OnInitDialog()
 	ShowWindow(SW_MAXIMIZE);
 	VisionPublicSet::mLogger.TraceInfo("----------------------------------------初始化");
 
+	if (CipherCode::CheckRegistrInfo() != true)
+	{
+		MessageBox(L"软件未注册！");
+		CDialog::OnCancel();
+	}
+
+
 	// TODO: 在此添加额外的初始化代码
 	if (pImgBmp == NULL) pImgBmp = new CBitmap;
 	pBmpDC = new CDC;
@@ -594,9 +601,9 @@ void CVisionClientDlg::OnBnClickedButton1()
 	mImg.IsWarnning = 1;
 	mImg.mDefectInfo.DefectNum = 1;
 	mImg.mDefectInfo.DefectPos[0][0] = 100;
-	mImg.mDefectInfo.DefectPos[0][1] = 100;
-	mImg.mDefectInfo.DefectPos[0][2] = 150;
-	mImg.mDefectInfo.DefectPos[0][3] = 200;
+	mImg.mDefectInfo.DefectPos[0][1] = 180;
+	mImg.mDefectInfo.DefectPos[0][2] = 200;
+	mImg.mDefectInfo.DefectPos[0][3] = 240;
 	mImg.mDefectInfo.ImgWidth = 352;
 	mImg.mDefectInfo.ImgHeight = 288;
 	sprintf(mImg.mCameraInfo.CameraName , "沙特阿拉伯、地中海，1街");

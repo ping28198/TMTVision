@@ -9,8 +9,8 @@ CNetWorkServer::CNetWorkServer(void* pParam)
 	pRcData = new char[40960];
 	pSdData = new char[40960];
 
-	mNetWork.SetSendAddr(3307,"127.0.0.1");
-	mNetWork.SetRecvAddr(3308);
+	bool a = mNetWork.SetSendAddr(3307, "127.0.0.1");
+	bool b = mNetWork.SetRecvAddr(3308);
 
 	InitializeCriticalSection(&cs);
 	//创建时启动进程

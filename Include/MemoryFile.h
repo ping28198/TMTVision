@@ -57,7 +57,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//从文件读取内存，
 	//首个元素指针，单个元素长度，元素个数，文件位置
-	static int ReadMemoryFromFile(void *pMem, size_t elementSize, size_t  elementCount, wchar_t *strFilePath);
+	static int ReadMemoryFromFile(void *pMem, size_t buffersize, size_t elementSize, size_t  elementCount, wchar_t *strFilePath);
 protected:
 private:
 	FILE* pFile;

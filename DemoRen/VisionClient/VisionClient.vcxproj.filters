@@ -96,7 +96,7 @@
     <ClInclude Include="..\..\Include\CfgFileOp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CipherCode.h">
+    <ClInclude Include="..\..\Include\CipherCode.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -161,7 +161,7 @@
     <ClCompile Include="..\..\Include\CfgFileOp.cpp">
       <Filter>头文件</Filter>
     </ClCompile>
-    <ClCompile Include="CipherCode.cpp">
+    <ClCompile Include="..\..\Include\CipherCode.cpp">
       <Filter>头文件</Filter>
     </ClCompile>
   </ItemGroup>

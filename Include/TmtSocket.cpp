@@ -74,7 +74,7 @@ bool TmtSocket::SetSendAddr(int remoteRecvPort, char* remoteRecvIp, int localSen
 		{
 			m_SkStatus |= enSendOK;
 
-			m_RemoteRecvPort= remoteRecvPort;
+			m_RemoteRecvPort = remoteRecvPort;
 			strcpy_s(m_RemoteRecvIP, TMTV_IPSTRLEN, remoteRecvIp);
 			m_LocalSendPort = localSendPort;
 			strcpy_s(m_LocalSendIP, TMTV_IPSTRLEN, localSendIP);
@@ -86,14 +86,15 @@ bool TmtSocket::SetSendAddr(int remoteRecvPort, char* remoteRecvIp, int localSen
 			m_SkStatus &= ~enSendOK;
 
 			m_RemoteRecvPort = 0;
-			m_RemoteRecvIP[0]=0;
+			m_RemoteRecvIP[0] = 0;
 			m_LocalSendPort = 0;
 			m_LocalSendIP[0] = 0;
 
 			return false;
 		}
 	}
-	return false;
+
+	return true;
 }
 
 bool TmtSocket::SetRecvAddr(int localRecvPort, char* localRecvIP)

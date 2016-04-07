@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5B51BD46-D57B-4617-8F9B-BFB5651CE50D}</ProjectGuid>
-    <RootNamespace>VisionClient</RootNamespace>
+    <ProjectGuid>{6D8F2562-4EDD-4366-A8E6-80E119662E2A}</ProjectGuid>
+    <RootNamespace>SoftwareRegister</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
     <Keyword>MFCProj</Keyword>
   </PropertyGroup>
@@ -78,9 +78,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
-    <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(ProjectDir)..\..\Lib\CryptLib\x64</LibraryPath>
+    <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
     <OutDir>$(ProjectDir)..\..\Bin\$(PlatformName)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -88,9 +88,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
-    <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -126,7 +123,6 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_world310d.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -173,7 +169,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -181,7 +177,6 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_world310.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -198,79 +193,45 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Include\ArWatch.h" />
-    <ClInclude Include="..\..\Include\CfgFileOp.h" />
-    <ClInclude Include="..\..\Include\CImageView.h" />
-    <ClInclude Include="..\..\Include\CImageWnd.h" />
     <ClInclude Include="..\..\Include\CipherCode.h" />
-    <ClInclude Include="..\..\Include\CommonDefine.h" />
     <ClInclude Include="..\..\Include\CommonFunc.h" />
-    <ClInclude Include="..\..\Include\CommonInclude.h" />
-    <ClInclude Include="..\..\Include\CvImage.h" />
-    <ClInclude Include="..\..\Include\Err_seq.h" />
-    <ClInclude Include="..\..\Include\logger.h" />
     <ClInclude Include="..\..\Include\MemoryFile.h" />
-    <ClInclude Include="..\..\Include\Thread.h" />
     <ClInclude Include="..\..\Include\TmtCrypt.h" />
-    <ClInclude Include="..\..\Include\TmtSocket.h" />
-    <ClInclude Include="..\..\Include\VisionStruct.h" />
-    <ClInclude Include="AddCamDlg.h" />
-    <ClInclude Include="AskHistDlg.h" />
-    <ClInclude Include="LoginDlg.h" />
-    <ClInclude Include="NetWorkServer.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SoftwareRegister.h" />
+    <ClInclude Include="SoftwareRegisterDlg.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="VisionClient.h" />
-    <ClInclude Include="VisionClientDlg.h" />
-    <ClInclude Include="VisionRunState.h" />
-    <ClInclude Include="ZoomImgDlg.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Include\ArWatch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\Include\CfgFileOp.cpp" />
-    <ClCompile Include="..\..\Include\CImageView.cpp" />
-    <ClCompile Include="..\..\Include\CImageWnd.cpp" />
     <ClCompile Include="..\..\Include\CipherCode.cpp" />
     <ClCompile Include="..\..\Include\CommonFunc.cpp" />
-    <ClCompile Include="..\..\Include\CvImage.cpp" />
-    <ClCompile Include="..\..\Include\logger.cpp" />
     <ClCompile Include="..\..\Include\MemoryFile.cpp" />
-    <ClCompile Include="..\..\Include\Thread.cpp" />
     <ClCompile Include="..\..\Include\TmtCrypt.cpp" />
-    <ClCompile Include="..\..\Include\TmtSocket.cpp" />
-    <ClCompile Include="AddCamDlg.cpp" />
-    <ClCompile Include="AskHistDlg.cpp" />
-    <ClCompile Include="LoginDlg.cpp" />
-    <ClCompile Include="NetWorkServer.cpp" />
+    <ClCompile Include="SoftwareRegister.cpp" />
+    <ClCompile Include="SoftwareRegisterDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="VisionClient.cpp" />
-    <ClCompile Include="VisionClientDlg.cpp" />
-    <ClCompile Include="VisionRunState.cpp" />
-    <ClCompile Include="ZoomImgDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="VisionClient.rc" />
+    <ResourceCompile Include="SoftwareRegister.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\VisionClient.rc2" />
+    <None Include="res\SoftwareRegister.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\VisionClient.ico" />
+    <Image Include="res\SoftwareRegister.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties RESOURCE_FILE="VisionClient.rc" />
+      <UserProperties RESOURCE_FILE="SoftwareRegister.rc" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

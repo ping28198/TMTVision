@@ -77,11 +77,13 @@ std::string CipherCode::GetAvailableNetMac()
 std::string CipherCode::Chars2Hex(string CharStr)
 {
 	string mstr;
-	char a[32] = {0};
+	unsigned char a[1024] = {0};
+	unsigned char b;
 	for (int i = 0; i < CharStr.length();i++)
 	{
-		sprintf_s(a, 32, "%02x", CharStr[i]);
-		mstr.append(a);
+		b = CharStr[i];
+		sprintf_s((char*)a, 32, "%02x", (int)b);
+		mstr.append((char*)a);
 	}
 	return mstr;
 }
@@ -90,7 +92,7 @@ std::string CipherCode::Hex2Chars(string HexStr)
 {
 	BYTE high, low;
 	int idx, ii = 0;
-	char cbuf[TMTV_LONGSTRLEN] = {0};
+	unsigned char cbuf[TMTV_LONGSTRLEN] = {0};
 	for (idx = 0; idx < HexStr.length(); idx += 2)
 	{
 		high = HexStr[idx];
@@ -114,7 +116,26 @@ std::string CipherCode::Hex2Chars(string HexStr)
 			break;
 		cbuf[ii++] = high << 4 | low;
 	}
-	return string(cbuf);
+	return string((char*)cbuf);
+}
+
+bool CipherCode::CheckRegistrInfo()
+{
+	HUGESTR tmpstr = {0};
+	int mcount = CMemoryFile::ReadMemoryFromFile(tmpstr, TMTV_HUGESTRLEN, 1, TMTV_HUGESTRLEN, L"setting\\registerinfo.data");
+	tmpstr[mcount] = '\0';
+	TmtCrypter mCrypt;
+	string mMacstr;
+	try
+	{
+		mMacstr = mCrypt.AESDecrypt(string(tmpstr));
+	}
+	catch (...)
+	{
+		return false;
+	}
+	bool backcode = CipherCode::CompareNetMac(mMacstr);
+	return backcode;
 }
 
 bool CipherCode::CompareNetMac(string mMac)

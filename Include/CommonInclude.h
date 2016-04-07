@@ -5,7 +5,9 @@
 
 
 //自定义头文件
+
 #include "TmtSocket.h"//socket包含需要放在最前面
+#include "CipherCode.h"//软件注册常用函数
 #include "CommonDefine.h"
 #include "VisionStruct.h"
 #include "CommonFunc.h"
