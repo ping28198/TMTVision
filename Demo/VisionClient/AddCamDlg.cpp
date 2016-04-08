@@ -92,7 +92,7 @@ void CAddCamDlg::OnBnClickedAddFinishBt()
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(TRUE);
 
-	CCommonFunc::UnicodeToAnsi(m_CamName.GetBuffer(), Camname, TMTV_LONGSTRLEN);
+	CCommonFunc::UnicodeToAnsi(m_CamName.GetBuffer(), Camname, TMTV_PATHSTRLEN);
 	mCamInfo.Indexnum = m_CamIndex;
 	mCamInfo.CameraPos[0] = mCamPos_X;
 	mCamInfo.CameraPos[1] = m_CamPos_Y;
@@ -140,8 +140,8 @@ void CAddCamDlg::OnBnClickedAddFinishBt()
 		return;
 	}
 	//保存掩码图像地址
-	wchar_t wchar[TMTV_LONGSTRLEN] = { 0 };
-	CCommonFunc::GetAppPath(wchar,TMTV_LONGSTRLEN);
+	wchar_t wchar[TMTV_PATHSTRLEN] = { 0 };
+	CCommonFunc::GetAppPath(wchar, TMTV_PATHSTRLEN);
 	mstr =_T("\\") + mstr;
 	mstr = wchar + mstr;
 	CCommonFunc::UnicodeToAnsi(mstr.GetBuffer(), mCamInfo.AlgorithmInfo.MaskImgPath, TMTV_PATHSTRLEN);

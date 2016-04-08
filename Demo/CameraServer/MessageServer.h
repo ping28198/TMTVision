@@ -75,9 +75,9 @@ public:
 public://相机、算法操作命令
 	vector<CameraServer*> m_CameraServerVector;
 	//载入参数
-	bool LoadSetting(LONGWSTR xmlFilePath);
+	bool LoadSetting(PATHWSTR xmlFilePath);
 	//保存参数
-	bool SaveSetting(LONGWSTR xmlFilePath);
+	bool SaveSetting(PATHWSTR xmlFilePath);
 	//添加相机
 	bool AddCamera(Tmtv_CameraInfo& cameraInfo);
 	//删除相机

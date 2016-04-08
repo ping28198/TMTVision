@@ -60,7 +60,7 @@ public:
 		Tmtv_DefectInfo & defects,
 		void* paras=0, long paraSize=0)=0;
 	//识别当前图像队列
-	bool Detect(LONGSTR srcImagePath, LONGSTR rectImagePath,
+	bool Detect(PATHSTR srcImagePath, PATHSTR rectImagePath,
 		Tmtv_DefectInfo & defects,
 		void* paras = 0, long paraSize = 0);
 };
@@ -121,7 +121,7 @@ public:
 		Tmtv_DefectInfo & defects,
 		void* paras = 0, long paraSize = 0);
 	//识别当前图像队列
-	bool Detect(LONGSTR srcImagePath, LONGSTR rectImagePath,
+	bool Detect(PATHSTR srcImagePath, PATHSTR rectImagePath,
 		Tmtv_DefectInfo & defects,
 		void* paras = 0, long paraSize = 0);
 };

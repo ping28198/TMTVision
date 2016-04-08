@@ -39,7 +39,7 @@ class DirWatcher
 {
 public:
 	//监控的路径
-	LONGWSTR m_path;
+	PATHWSTR m_path;
 	//监控的路径句柄
 	HANDLE m_hDir;
 	DWORD m_action;
@@ -70,11 +70,11 @@ public:
 	//#define FILE_ACTION_MODIFIED                0x00000003   
 	//#define FILE_ACTION_RENAMED_OLD_NAME        0x00000004   
 	//#define FILE_ACTION_RENAMED_NEW_NAME        0x00000005 
-	virtual bool RegPath(LONGWSTR path,DWORD action= FILE_NOTIFY_CHANGE_LAST_WRITE);
+	virtual bool RegPath(PATHWSTR path,DWORD action= FILE_NOTIFY_CHANGE_LAST_WRITE);
 	//执行前强制停止线程, 停止监控文件夹
 	virtual void FreePath();
 	//调用ReadDirectoryChangesW用于等待监控消息
-	bool Watch(LONGWSTR& fileName,DWORD& action);
+	bool Watch(PATHWSTR& fileName, TINYWSTR& fileTime,DWORD& action);
 
 public:
 	//调试函数,显示对象信息
@@ -121,7 +121,8 @@ public:
 //==============================================================================
 struct FileItem
 {
-	LONGWSTR m_fileName;
+	PATHWSTR m_fileName;
+	TINYWSTR m_fileTime;
 	DWORD m_fileAction;
 	bool m_fileProcessed;
 };
@@ -155,7 +156,7 @@ public:
 	}
 	//创建文件夹读取句柄, 初始化ReadDirectoryChangesW相关参数
 	//执行前强制停止线程, 需要用Create()再次启动,具有线程保护
-	bool RegPath(LONGWSTR path, DWORD action = FILE_NOTIFY_CHANGE_LAST_WRITE);
+	bool RegPath(PATHWSTR path, DWORD action = FILE_NOTIFY_CHANGE_LAST_WRITE);
 	//执行前强制停止线程, 停止监控文件夹,具有线程保护
 	void FreePath();
 	//先扫描注册文件夹所有文件, 文件名推入队列中保留最近的文件

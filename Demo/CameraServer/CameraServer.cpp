@@ -35,7 +35,7 @@ CameraServer::~CameraServer()
 
 //创建文件夹读取句柄, 初始化ReadDirectoryChangesW相关参数
 //执行前强制停止线程, 需要用Create()再次启动
-bool CameraServer::RegPath(LONGWSTR path, DWORD action)
+bool CameraServer::RegPath(PATHWSTR path, DWORD action)
 {
 	if (pDirWatchServer != 0)
 	{

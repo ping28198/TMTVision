@@ -68,7 +68,7 @@ void Detector::Reset(Tmtv_AlgorithmInfo *pAlgorithmInfo)
 	Initial(pAlgorithmInfo);
 }
 //识别当前图像队列
-bool Detector::Detect(LONGSTR srcImagePath, LONGSTR rectImagePath,
+bool Detector::Detect(PATHSTR srcImagePath, PATHSTR rectImagePath,
 	Tmtv_DefectInfo & defects,
 	void* paras, long paraSize)
 {
@@ -157,7 +157,7 @@ bool BackgroundDetector::Detect(Mat & srcImageData, Mat & rectImageData, Tmtv_De
 }
 
 //识别当前图像队列
-bool BackgroundDetector::Detect(LONGSTR srcImagePath, LONGSTR rectImagePath,
+bool BackgroundDetector::Detect(PATHSTR srcImagePath, PATHSTR rectImagePath,
 	Tmtv_DefectInfo & defects,
 	void* paras, long paraSize)
 {
@@ -197,7 +197,7 @@ bool BackgroundDetector::Detect(LONGSTR srcImagePath, LONGSTR rectImagePath,
 //	return Detector::Initial(imageWidth, imageHeight, pMaskImageData);
 //}
 ////初始化掩码图像
-//bool BackgroundDetector::Initial(LONGSTR maskImagePath)
+//bool BackgroundDetector::Initial(PATHSTR maskImagePath)
 //{
 //	return Detector::Initial(maskImagePath);
 //}

@@ -19,7 +19,7 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_AlgorithmInfo& algorithmInfo, 
 {
 	wstring[0] = 0;
 	MEGAWSTR tmpStr = { 0 };
-	LONGWSTR tmpWStr = { 0 };
+	PATHWSTR tmpWStr = { 0 };
 	if (method == 0)
 	{
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"<Tmtv_AlgorithmInfo structSize =%d>\n", algorithmInfo.structSize);
@@ -114,7 +114,7 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_CameraInfo& camraInfo, int met
 void ObjToString::ToString(MEGAWSTR wstring, Tmtv_DefectInfo& defectInfo, int method, int color)
 {
 	wstring[0] = 0;
-	LONGWSTR tmpWStr = { 0 };
+	PATHWSTR tmpWStr = { 0 };
 	if (method == 0)
 	{
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"<Tmtv_DefectInfo DefectNum=%d>\n", defectInfo.DefectNum);
@@ -150,7 +150,7 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_ImageInfo& imageInfo, int meth
 	ObjToString::ToString(tmpWStrMega1, imageInfo.mCameraInfo, method, 0);
 	MEGAWSTR tmpWStrMega2 = { 0 };
 	ObjToString::ToString(tmpWStrMega2, imageInfo.mDefectInfo, method, 0);
-	LONGWSTR tmpWStr1 = { 0 };
+	PATHWSTR tmpWStr1 = { 0 };
 	CCommonFunc::AnsiToUnicode(imageInfo.ImagePath, tmpWStr1, TMTV_PATHSTRLEN);
 	TINYWSTR tmpWStr2 = { 0 };
 	CCommonFunc::AnsiToUnicode(imageInfo.GrabTime, tmpWStr2, TMTV_TINYSTRLEN);
@@ -175,7 +175,7 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_AskInfo& askInfo, int method, 
 	wstring[0] = 0;
 	MEGAWSTR tmpWStrMega1 = { 0 };
 	ObjToString::ToString(tmpWStrMega1, askInfo.CameraInfo, 1, 0);
-	LONGWSTR tmpWStr = { 0 };
+	PATHWSTR tmpWStr = { 0 };
 	if (method >= 0 && method <= 2)
 	{
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"<Tmtv_AskInfo structSize=%d CheckCode=%d Asktype=%d>\n",
@@ -197,7 +197,7 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_MsgInfo& msgInfo, int method, 
 	wstring[0] = 0;
 	MEGAWSTR tmpWStrMega1 = { 0 };
 	ObjToString::ToString(tmpWStrMega1, msgInfo.ImgInfo, method, 0);
-	LONGWSTR tmpWStr = { 0 };
+	PATHWSTR tmpWStr = { 0 };
 	if (method >= 0 && method <= 2)
 	{
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"<Tmtv_MsgInfo structSize=%d CheckCode=%d MsgType=%d>\n",

@@ -10,12 +10,12 @@ MessageServer::~MessageServer()
 {
 }
 
-bool MessageServer::LoadSetting(LONGWSTR xmlFilePath)
+bool MessageServer::LoadSetting(PATHWSTR xmlFilePath)
 {
 	return false;
 }
 
-bool MessageServer::SaveSetting(LONGWSTR xmlFilePath)
+bool MessageServer::SaveSetting(PATHWSTR xmlFilePath)
 {
 	return false;
 }
