@@ -2,8 +2,19 @@
 #include "CommonFunc.h"
 
 //创建文件夹读取句柄, 初始化ReadDirectoryChangesW相关参数
-bool DirWatcher::RegPath(LONGWSTR path, DWORD action)
+bool DirWatcher::RegPath(PATHWSTR path, DWORD action)
 {
+	int pathLen = CCommonFunc::GetStringLen(path, TMTV_PATHSTRLEN);
+	if (pathLen < 1) return false;
+	if (path[pathLen-1] != L'\\')
+	{
+		path[pathLen] = L'\\';
+		if(pathLen+1<TMTV_PATHSTRLEN) path[pathLen + 1] = 0;
+	}
+	if (!CCommonFunc::DirExist(path))
+	{
+		return false;
+	}
 	HANDLE hDir = ::CreateFileW(path,
 		GENERIC_READ | FILE_LIST_DIRECTORY,
 		FILE_SHARE_READ,
@@ -32,7 +43,7 @@ void DirWatcher::FreePath()
 	m_path[0] = 0;
 }
 //供重载的操作函数,主函数会重复执行该函数
-bool DirWatcher::Watch(LONGWSTR& fileName, DWORD& action)
+bool DirWatcher::Watch(PATHWSTR& fileName, TINYWSTR& fileTime, DWORD& action)
 {
 	if (m_hDir == 0)
 	{
@@ -55,36 +66,43 @@ bool DirWatcher::Watch(LONGWSTR& fileName, DWORD& action)
 			OutputDebugString(L"<DirWatcher::Watch() Buffer overflow.>\n");
 			return true;
 		}
+		fileName[0] = 0;
 		//设置类型过滤器,监听文件创建、更改、删除、重命名等
 		switch (pnotify->Action)
 		{
 		case FILE_ACTION_ADDED:
-			CCommonFunc::SafeWStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
+			CCommonFunc::SafeWStringPrintf(fileName, STR_LEN(fileName),L"%s%s",m_path,pnotify->FileName);
 			action = FILE_ACTION_ADDED;
+			CCommonFunc::GetFileTime(fileName, fileTime, TMTV_TINYSTRLEN, 0,0,0,0, false);
 			OutputDebugString(L"<DirWatcher::Watch() FILE_ACTION_ADDED.>\n");
 			return true;
 			break;
 		case FILE_ACTION_REMOVED:
-			CCommonFunc::SafeWStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
+			CCommonFunc::SafeWStringPrintf(fileName, STR_LEN(fileName), L"%s%s", m_path, pnotify->FileName);
 			action = FILE_ACTION_REMOVED;
+			CCommonFunc::GetFileTime(fileName, fileTime, TMTV_TINYSTRLEN, 0, 0, 0, 0, false);
 			OutputDebugString(L"<DirWatcher::Watch() FILE_ACTION_REMOVED.>\n");
 			return true;
 			break;
 		case FILE_ACTION_MODIFIED:
-			CCommonFunc::SafeWStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
+			CCommonFunc::SafeWStringPrintf(fileName, STR_LEN(fileName), L"%s%s", m_path, pnotify->FileName);
 			action = FILE_ACTION_MODIFIED;
+			CCommonFunc::GetFileTime(fileName, fileTime, TMTV_TINYSTRLEN, 0, 0, 0, 0, false);
 			OutputDebugString(L"<DirWatcher::Watch() FILE_ACTION_MODIFIED.>\n");
 			return true;
 			break;	
 		case FILE_ACTION_RENAMED_OLD_NAME:
-			CCommonFunc::SafeWStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
+			CCommonFunc::SafeWStringPrintf(fileName, STR_LEN(fileName), L"%s%s", m_path, pnotify->FileName);
 			action = FILE_ACTION_RENAMED_OLD_NAME;
+			CCommonFunc::GetFileTime(fileName, fileTime, TMTV_TINYSTRLEN, 0, 0, 0, 0, false);
 			OutputDebugString(L"<DirWatcher::Watch() FILE_ACTION_RENAMED_OLD_NAME.>\n");
 			return true;
 			break;
 		case FILE_ACTION_RENAMED_NEW_NAME:
-			CCommonFunc::SafeWStringCpy(fileName, STR_LEN(fileName), pnotify->FileName);
+			CCommonFunc::SafeWStringPrintf(fileName, STR_LEN(fileName), L"%s%s", m_path, pnotify->FileName);
 			action = FILE_ACTION_RENAMED_NEW_NAME;
+			CCommonFunc::GetFileTime(fileName, fileTime, TMTV_TINYSTRLEN, 0, 0, 0, 0, false);
+			OutputDebugString(L"<DirWatcher::Watch() FILE_ACTION_RENAMED_NEW_NAME.>\n");
 			return true;
 			break;
 		default:
@@ -131,7 +149,7 @@ void DirWatcher::ToString(MEGAWSTR & string, int method, int color)
 
 //创建文件夹读取句柄, 初始化ReadDirectoryChangesW相关参数
 //执行前强制停止线程, 需要用Create()再次启动
-bool DirWatchServer::RegPath(LONGWSTR path, DWORD action)
+bool DirWatchServer::RegPath(PATHWSTR path, DWORD action)
 {
 	EnterCriticalSection(&m_section);
 	m_fileNameQueue.Clear();
@@ -168,12 +186,17 @@ void DirWatchServer::Destroy()
 //供重载的操作函数,主函数会重复执行该函数,内部调用Watch()函数,具有线程保护
 void DirWatchServer::Task()
 {	
+	if (m_path[0] == 0 || m_hDir == 0)
+	{
+		return;
+	}
 	FileItem tmpFileItem, tmpFileItem2;
 	tmpFileItem.m_fileName[0] = 0;
 	tmpFileItem.m_fileAction = 0;
 	tmpFileItem.m_fileProcessed = false;
 	EnterCriticalSection(&m_section);
-	if (DirWatcher::Watch(tmpFileItem.m_fileName, tmpFileItem.m_fileAction))
+	if (DirWatcher::Watch(tmpFileItem.m_fileName, 
+		tmpFileItem.m_fileTime, tmpFileItem.m_fileAction))
 	{
 		if (m_fileNameQueue.GetLength() > 0)
 		{

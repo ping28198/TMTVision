@@ -8,6 +8,8 @@
 #define STR_LEN(x)  (sizeof(x)/sizeof(x[0]))
 #endif
 
+
+
 CCommonFunc::CCommonFunc(void)
 {
 	
@@ -661,6 +663,7 @@ void  CCommonFunc::GetNowTime(wchar_t*  strNowTime, int iDestLen, bool bHigh)
 
 	}
 }
+
 //------------------------------------------------------------
 //描述:2012.4.13王磊 以方便应用到文件名中
 void  CCommonFunc::GetNowDate(wchar_t*  strNowTime, int iDestLen)
@@ -674,32 +677,90 @@ void  CCommonFunc::GetNowDate(wchar_t*  strNowTime, int iDestLen)
 			NowTime.wYear, 
 			NowTime.wMonth, 
 			NowTime.wDay);
-
 	}
 }
 
 //------------------------------------------------------------
 //描述:
-//bool   CCommonFunc::GetFileTimes(wchar_t* strFileName, SYSTEMTIME& tmCreate, SYSTEMTIME& tmAccess, SYSTEMTIME&  tmWrite)
-//{
-//	HANDLE hFile = ::CreateFile(strFileName, 0, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-//	if(INVALID_HANDLE_VALUE == hFile) return false;
-//	FILETIME ftCreate, ftAccess, ftWrite;
-//	::GetFileTime(hFile, &ftCreate, &ftAccess, &ftWrite);
-//
-//	FILETIME ftLocalCreate, ftLocalAccess, ftLocalWrite;
-//	::FileTimeToLocalFileTime(&ftCreate, &ftLocalCreate);
-//	::FileTimeToLocalFileTime(&ftAccess, &ftLocalAccess);
-//	::FileTimeToLocalFileTime(&ftWrite, &ftLocalWrite);
-//
-//
-//	::FileTimeToSystemTime(&ftLocalCreate, &tmCreate);
-//	::FileTimeToSystemTime(&ftLocalAccess, &tmAccess);
-//	::FileTimeToSystemTime(&ftLocalWrite, &tmWrite);
-//
-//	::CloseHandle(hFile);
-//	return true;
-//}
+bool   CCommonFunc::GetFileTimes(wchar_t* strFileName, 
+	SYSTEMTIME& tmCreate, SYSTEMTIME& tmAccess, SYSTEMTIME&  tmWrite)
+{
+	HANDLE hFile = ::CreateFile(strFileName, 0, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(INVALID_HANDLE_VALUE == hFile) return false;
+	FILETIME ftCreate, ftAccess, ftWrite;
+	::GetFileTime(hFile, &ftCreate, &ftAccess, &ftWrite);
+
+	FILETIME ftLocalCreate, ftLocalAccess, ftLocalWrite;
+	::FileTimeToLocalFileTime(&ftCreate, &ftLocalCreate);
+	::FileTimeToLocalFileTime(&ftAccess, &ftLocalAccess);
+	::FileTimeToLocalFileTime(&ftWrite, &ftLocalWrite);
+
+
+	::FileTimeToSystemTime(&ftLocalCreate, &tmCreate);
+	::FileTimeToSystemTime(&ftLocalAccess, &tmAccess);
+	::FileTimeToSystemTime(&ftLocalWrite, &tmWrite);
+
+	::CloseHandle(hFile);
+	return true;
+}
+//------------------------------------------------------------
+//描述:2012.4.13王磊修改分隔符:改为. -改为_以方便应用到文件名中
+bool  CCommonFunc::GetFileTime(wchar_t*  filePathStr,
+	wchar_t*  createTimeStr, int createTimeLen,
+	wchar_t*  accessTimeStr, int accessTimeen,
+	wchar_t*  writeTimeStr, int writeTimeLen, bool bHigh)
+{
+	SYSTEMTIME tmCreate,tmAccess,tmWrite;
+	if (!GetFileTimes(filePathStr, tmCreate, tmAccess, tmWrite))
+	{
+		return false;
+	}
+	if (bHigh)
+	{
+		if (createTimeStr != 0)
+		{
+			SafeWStringPrintf(createTimeStr, createTimeLen, L"%d_%d_%d %d.%d.%d.%d",
+				tmCreate.wYear, tmCreate.wMonth, tmCreate.wDay, tmCreate.wHour, tmCreate.wMinute,
+				tmCreate.wSecond, tmCreate.wMilliseconds);
+		}
+		if (accessTimeStr!=0)
+		{
+			SafeWStringPrintf(accessTimeStr, accessTimeen, L"%d_%d_%d %d.%d.%d.%d",
+				tmAccess.wYear, tmAccess.wMonth, tmAccess.wDay, tmAccess.wHour, tmAccess.wMinute,
+				tmAccess.wSecond, tmAccess.wMilliseconds);
+		}
+		if (writeTimeStr != 0)
+		{
+			SafeWStringPrintf(writeTimeStr, writeTimeLen, L"%d_%d_%d %d.%d.%d.%d",
+				tmWrite.wYear, tmWrite.wMonth, tmWrite.wDay, tmWrite.wHour, tmWrite.wMinute,
+				tmWrite.wSecond, tmWrite.wMilliseconds);
+		}
+	}
+	else
+	{
+		if (createTimeStr != 0)
+		{
+			SafeWStringPrintf(createTimeStr, createTimeLen, L"%d_%d_%d %d.%d.%d",
+				tmCreate.wYear, tmCreate.wMonth, tmCreate.wDay, tmCreate.wHour, tmCreate.wMinute,
+				tmCreate.wSecond);
+		}
+		if (accessTimeStr != 0)
+		{
+			SafeWStringPrintf(accessTimeStr, accessTimeen, L"%d_%d_%d %d.%d.%d",
+				tmAccess.wYear, tmAccess.wMonth, tmAccess.wDay, tmAccess.wHour, tmAccess.wMinute,
+				tmAccess.wSecond);
+		}
+		if (writeTimeStr != 0)
+		{
+			SafeWStringPrintf(writeTimeStr, writeTimeLen, L"%d_%d_%d %d.%d.%d",
+				tmWrite.wYear, tmWrite.wMonth, tmWrite.wDay, tmWrite.wHour, tmWrite.wMinute,
+				tmWrite.wSecond);
+		}
+	}
+}
+
+
+
 //------------------------------------------------------------
 //描述:
 bool   CCommonFunc::RunApp(wchar_t* strAppName)
@@ -927,5 +988,23 @@ bool  CCommonFunc::StringToInts(wchar_t* srcString,  int strLen,int* pData, int&
 	}
 	dataLen=0;
 	return false;
+}
+///</func_info>
+
+
+//描述: 计算字符串长度
+//参数:
+//	wchar_t* strAppName 需要运行的程序, 可以带有命令行参数
+long CCommonFunc::GetStringLen(wchar_t * srcString, int strMaxLen)
+{
+	int i = 0;
+	for (; i < strMaxLen;i++)
+	{
+		if (srcString[i]==0)
+		{
+			break;
+		}
+	}
+	return i;
 }
 ///</func_info>

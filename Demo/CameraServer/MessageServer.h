@@ -73,34 +73,50 @@ public:
 		return obj;
 	}
 public://相机、算法操作命令
-	Tmtv_CameraInfo *pCameraInfo;
-	CameraServer *pCameraServer;
-	int cameraNum;
+	vector<CameraServer*> m_CameraServerVector;
 	//载入参数
-	bool LoadSetting(LONGWSTR xmlFilePath);
+	bool LoadSetting(PATHWSTR xmlFilePath);
 	//保存参数
-	bool SaveSetting(LONGWSTR xmlFilePath);
+	bool SaveSetting(PATHWSTR xmlFilePath);
 	//添加相机
-	bool AddCamera(Tmtv_CameraInfo cameraInfo);
+	bool AddCamera(Tmtv_CameraInfo& cameraInfo);
 	//删除相机
-	bool DelCamera(Tmtv_CameraInfo cameraInfo);
+	bool DelCamera(Tmtv_CameraInfo& cameraInfo);
 	//打开相机
-	bool StartCamera(Tmtv_CameraInfo cameraInfo);
+	bool StartCamera(Tmtv_CameraInfo& cameraInfo);
 	//停止相机
-	bool StopCamera(Tmtv_CameraInfo cameraInfo);
+	bool StopCamera(Tmtv_CameraInfo& cameraInfo);
 	//停止相机
-	bool SetCamera(Tmtv_CameraInfo cameraInfo);
+	bool SetCamera(Tmtv_CameraInfo& cameraInfo);
+	//停止相机
+	bool GetCamera(Tmtv_CameraInfo& cameraInfo);
 	//打开相机算法
-	bool StartAlgorithm(Tmtv_CameraInfo cameraInfo);
+	bool StartAlgorithm(Tmtv_CameraInfo& cameraInfo);
 	//停止相机算法
-	bool StopAlgorithm(Tmtv_CameraInfo cameraInfo);
+	bool StopAlgorithm(Tmtv_CameraInfo& cameraInfo);
 	//停止相机算法
-	bool SetAlgorithm(Tmtv_CameraInfo cameraInfo);
+	bool SetAlgorithm(Tmtv_CameraInfo& cameraInfo);
 public://返回消息
-	bool SendMsg(Tmtv_MsgInfo msgInfo);
-	bool SendImage(Tmtv_ImageInfo imgInfo, HANDLE hAnswerHandle);
+	int SendMsgInfo(Tmtv_MsgInfo& msgInfo);
+	bool SendImage(Tmtv_ImageInfo& imgInfo);
 	
 	void ServerProcess(int revLen);
+
+public:
+	//调试函数,显示对象信息
+	//method=0 xml 完整格式输出, 带换行
+	//1 最短格式输出,只输出队列数量
+	//2 更新格式输出,输出队列最新元素
+	//字背景颜色范围: 40--49        字颜色: 30--39
+	//	40 : 黑                           30 : 黑
+	//	41 : 红                           31 : 红
+	//	42 : 绿                           32 : 绿
+	//	43 : 黄                           33 : 黄
+	//	44 : 蓝                           34 : 蓝
+	//	45 : 紫                           35 : 紫
+	//	46 : 深绿                         36 : 深绿
+	//	47 : 白色                         37 : 白色
+	void ToString(MEGAWSTR &string, int method = 0, int color = 32);
 };
 //==============================================================================
 ///</class_info>

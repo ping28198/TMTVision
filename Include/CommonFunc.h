@@ -30,7 +30,7 @@
 ///<header_info>
 //添加所需的头文件
 //#include "MCSISysDataStruct.h"
-//#include "windows.h"
+#include "windows.h"
 ///</header_info>
 
 ///<datastruct_info>
@@ -260,7 +260,20 @@ public:
 	//	SYSTEMTIME& tmCreate 文件的创建时间
 	//   SYSTEMTIME& tmAccess 文件的访问时间
 	//	SYSTEMTIME&  tmWrite 文件的修改时间
-	//static bool   GetFileTimes(wchar_t* strFileName, SYSTEMTIME& tmCreate, SYSTEMTIME& tmAccess, SYSTEMTIME&  tmWrite);
+	static bool   GetFileTimes(wchar_t* strFileName, 
+		SYSTEMTIME& tmCreate, SYSTEMTIME& tmAccess, SYSTEMTIME&  tmWrite);
+	///</func_info>
+
+	///<func_info>
+	//描述: 获取当前时间, 并格式化为字符串
+	//参数: wchar_t*  strNowTime 当前时间的字符串
+	//      int iDestLen  时间字符串的最大尺寸(以字符的个数为单位, 不是字节大小,可用STR_LEN宏获取)
+	//     bool bHigh 是否支持高精度的时间信息, true表示支持
+	static bool  GetFileTime(wchar_t*  filePathStr,
+		wchar_t*  createTimeStr, int createTimeLen,
+		wchar_t*  accessTimeStr, int accessTimeen,
+		wchar_t*  writeTimeStr, int writeTimeLen,
+		bool bHigh = false);
 	///</func_info>
 
 	///<func_info>
@@ -289,7 +302,7 @@ public:
 	//	wchar_t* strAppName 需要运行的程序, 可以带有命令行参数
 	static bool  WriteBufferToText(wchar_t* strFileName, unsigned char* pData, int iDatalen, int iColNum = 20);
 	///</func_info>
-	///</func_info>
+
 	///<func_info>
 	//描述: 输出数据到指定文本中
 	//参数:
@@ -297,16 +310,25 @@ public:
 	static bool  WriteWStrToText(wchar_t* strFileName, wchar_t* pData, int strLen);
 	///</func_info>
 
+	///<func_info>
 	//描述: 将字符串{1,1,1}转换为double型数组
 	//参数:以字符的个数为单位, 不是字节大小,可用STR_LEN宏获取
 	//	wchar_t* strAppName 需要运行的程序, 可以带有命令行参数
 	static bool  StringToDoubles(wchar_t* srcString,  int strLen,double* pData, int& dataLen);
 	///</func_info>
 
+	///<func_info>
 	//描述: 将字符串{1,1,1}转换为int型数组
 	//参数:以字符的个数为单位, 不是字节大小,可用STR_LEN宏获取
 	//	wchar_t* strAppName 需要运行的程序, 可以带有命令行参数
 	static bool  StringToInts(wchar_t* srcString,  int strLen,int* pData, int& dataLen);
+	///</func_info>
+
+	///<func_info>
+	//描述: 计算字符串长度
+	//参数:以字符的个数为单位, 不是字节大小,可用STR_LEN宏获取
+	//	wchar_t* strAppName 需要运行的程序, 可以带有命令行参数
+	static long GetStringLen(wchar_t* srcString, int strMaxLen);
 	///</func_info>
 private:
 	CCommonFunc(void);

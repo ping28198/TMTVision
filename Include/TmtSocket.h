@@ -118,7 +118,9 @@ public:
 public:
 	TmtSocketServer(int bufferSize = MAXBUFFERSIZE);
 	~TmtSocketServer();
-	bool Initial(int remotePort, char* remoteIp, int localRecvPort, char* localRecvIP = NULL,int localPort = 0, char* localIP = NULL, DWORD optionFlag = 1);
+	bool Initial(int remoteRecvPort, char * remoteRecvIp, 
+		         int localRecvPort, char* localRecvIP, 
+		         int localSendPort = 0, char * localSendIP = NULL, DWORD optionFlag = 1);
 	bool Unitial();
 	//Socket¹¦ÄÜ
 public:

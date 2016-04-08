@@ -86,8 +86,8 @@ struct Tmtv_AlgorithmInfo	//算法信息
 {
 public:
 	long structSize = sizeof(Tmtv_AlgorithmInfo);//若含有较大数据, 修改此大小
-	LONGSTR MaskImgPath;//掩码图像位置
-	LONGSTR DstImgPath;//目标图像位置
+	PATHSTR MaskImgPath = "";//掩码图像位置
+	PATHSTR DstImgPath = "";//目标图像位置
 	enum {//2.0
 		TMTV_NOWARN = 0,     //不启动算法
 		TMTV_PREWARN = 1,    //启动算法过程中
@@ -103,8 +103,8 @@ public:
 struct Tmtv_CameraInfo //相机信息
 {
 	int Indexnum = 0; //相机序号
-	LONGSTR CameraName;//相机名称等信息
-	LONGSTR CameraPath;//相机根目录路径
+	PATHSTR CameraName = "";//相机名称等信息
+	PATHSTR CameraPath = "";//相机根目录路径
 	int CameraPos[8];//x,y,z坐标, 方向
 	int CameraWidth = 1920;//1.1 //相机图片宽度
 	int CameraHeight = 1080;//1.1 //相机图片高度	
@@ -113,7 +113,8 @@ struct Tmtv_CameraInfo //相机信息
 		TMTV_STOPEDCAM = 301,  //已加载的暂停相机
 		TMTV_RUNNINGCAM = 302, //已加载的运行相机
 	};
-	int Status;//1.2//相机状态
+	int Status;//1.2//相机状态	
+	int WaiteTime=1000;//1.2//相机状态
 	Tmtv_AlgorithmInfo AlgorithmInfo;
 };
 //==============================================================================
@@ -137,8 +138,8 @@ struct Tmtv_ImageInfo	//图像信息, 相机服务端发往主程序端
 {
 	Tmtv_CameraInfo mCameraInfo;
 	Tmtv_DefectInfo mDefectInfo;
-	LONGSTR ImagePath;//文件路径
-	TINYSTR GrabTime;//采集时间 格式: 年-月-日-时:分: 秒. 例: 2016-03-22-12:00:00
+	PATHSTR ImagePath = "";//文件路径
+	TINYSTR GrabTime = "";//采集时间 格式: 年-月-日-时:分: 秒. 例: 2016-03-22-12:00:00
 	int IsWarnning = 0;//是否有警告
 	int IsVIP = 0;//设置是否是重点
 	LONGSTR Reservechar;//保留
@@ -165,7 +166,7 @@ struct Tmtv_AskInfo//指令信息, 主程序端发往相机服务端
 		TMTV_STOPCALGO = 107,      //暂定CameraInfo指定的算法
 		TMTV_SETALGO = 108      //暂定CameraInfo指定的算法
 	};
-	int Asktype;
+	int Asktype=0;
 	HANDLE hAskHandle;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
 	HANDLE hAnswerHandle;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用	
 	Tmtv_CameraInfo CameraInfo;
@@ -204,7 +205,7 @@ struct Tmtv_MsgInfo//指令信息, 相机服务端发往主程序端
 		TMTV_SNAPED = 298,           //推送实时mImgInfo图片
 		TMTV_DETECTED = 299,         //推送检测到的的mImgInfo图片+缺陷
 	};
-	int MsgType;
+	int MsgType=0;
 	HANDLE hAskHandle;            //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
 	HANDLE hAnswerHandle;         //1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用
 	//Tmtv_CameraInfo CameraInfo;//1.1//冗余的数据

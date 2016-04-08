@@ -1,4 +1,4 @@
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "CImageWnd.h"
 #include "CommonFunc.h"
 CImageWnd::CImageWnd(void)
