@@ -99,6 +99,9 @@
     <ClInclude Include="..\..\Include\CipherCode.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Include\ObjToString.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VisionClient.cpp">
@@ -163,6 +166,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Include\CipherCode.cpp">
       <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Include\ObjToString.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
