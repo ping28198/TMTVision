@@ -2,7 +2,7 @@
 #include "CameraServer.h"
 #include "MessageServer.h"
 
-CameraServer::CameraServer(HANDLE hParent)
+CameraServer::CameraServer(void *pParam/* = NULL*/, HANDLE hParent)
 {
 	pDirWatchServer = 0;
 	pDirWatchServer = new DirWatchServer();
@@ -17,6 +17,7 @@ CameraServer::CameraServer(HANDLE hParent)
 	m_Detector.m_imageHeight = 0;
 	m_ImageInfo.ImagePath[0] = 0;
 	m_ImageInfo.GrabTime[0] = 0;
+	pParent = pParam;
 }
 
 CameraServer::~CameraServer()
@@ -116,7 +117,7 @@ void CameraServer::Task()
 				case Tmtv_AlgorithmInfo::TMTV_NOWARN://½ö·µ»ØÍ¼Ïñ
 					m_ImageInfo.IsWarnning = 0;
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
-					if (!MessageServer::GetState().SendImage(m_ImageInfo))
+					if (!((MessageServer*)pParent)->SendImage(m_ImageInfo))
 					{
 						OutputDebugString(L"<CameraServer::Task() SendImage failed.>\n");
 					}
@@ -134,7 +135,7 @@ void CameraServer::Task()
 							m_ImageInfo.mDefectInfo);
 					}
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
-					if (!MessageServer::GetState().SendImage(m_ImageInfo))
+					if (!((MessageServer*)pParent)->SendImage(m_ImageInfo))
 					{
 						OutputDebugString(L"<CameraServer::Task() SendImage failed.>\n");
 					}
@@ -151,7 +152,7 @@ void CameraServer::Task()
 							m_ImageInfo.mCameraInfo.AlgorithmInfo.DstImgPath,
 							m_ImageInfo.mDefectInfo);
 					}
-					if (!MessageServer::GetState().SendImage(m_ImageInfo))
+					if (!((MessageServer*)pParent)->SendImage(m_ImageInfo))
 					{
 						OutputDebugString(L"<CameraServer::Task() SendImage failed.>\n");
 					}

@@ -23,7 +23,7 @@ bool MessageServer::SaveSetting(PATHWSTR xmlFilePath)
 bool MessageServer::AddCamera(Tmtv_CameraInfo& cameraInfo)
 {
 	bool addedOK = true;
-	CameraServer *newCameraServer = new CameraServer(this->m_hThread);
+	CameraServer *newCameraServer = new CameraServer(this,this->m_hThread);
 	addedOK &= newCameraServer->AddCamera(cameraInfo);
 	newCameraServer->Resume();
 	/*addedOK &=*/ newCameraServer->StartAlgorithm(cameraInfo.AlgorithmInfo);

@@ -8,18 +8,19 @@ CNetWorkServer::CNetWorkServer(void* pParam)
 {
 	pRcData = new char[40960];
 	pSdData = new char[40960];
-
+	pParent = pParam;
 	mNetWork.SetOption(TmtSocket::ADDR_REUSE);
-	
-	bool a = mNetWork.SetSendAddr(5620, "222.28.39.16",5007,NULL);//5610 127.0.0.1 5620 222.28.39.16 5621 222.28.39.16
+	NetIP mIp;
+	TmtSocket::GetAvailableNetIP(mIp);
+	bool a = mNetWork.SetSendAddr(5620, mIp,5007,NULL);//5610 127.0.0.1 5620 222.28.39.16 5621 222.28.39.16
 	if (a==true)
 	{
-		VisionPublicSet::mLogger.TraceInfo("发送socket地址设置成功");
+		VisionPublicSet::mLogger.TraceInfo("发送socket地址设置成功,ip地址为：%s",mIp);
 	}
-	bool b = mNetWork.SetRecvAddr(5610, "222.28.39.16");
+	bool b = mNetWork.SetRecvAddr(5610, mIp);
 	if (b == true)
 	{
-		VisionPublicSet::mLogger.TraceInfo("接收socket地址设置成功");
+		VisionPublicSet::mLogger.TraceInfo("接收socket地址设置成功,ip地址为：%s", mIp);
 	}
 	
 	InitializeCriticalSection(&cs);
@@ -45,7 +46,7 @@ bool CNetWorkServer::WatchingNetwork()
 	int recvnum = mNetWork.RecvMsg(pRcData, 40960);
 	VisionPublicSet::mLogger.TraceInfo("收到消息");
 	CVisionClientDlg *pDlg = (CVisionClientDlg*)pParent;
-	if (recvnum >= sizeof(Tmtv_MsgInfo))
+	if (recvnum == sizeof(Tmtv_MsgInfo))
 	{
 		Tmtv_MsgInfo* pInfo = (Tmtv_MsgInfo*)pRcData;
 		if (pInfo->CheckCode != TMTV_CHECKCODE) return false;
@@ -53,6 +54,13 @@ bool CNetWorkServer::WatchingNetwork()
 		{
 			VisionPublicSet::mLogger.TraceInfo("添加了新的图片");
 			pDlg->pRunState->AddNewImg(&(pInfo->ImgInfo));
+		}
+		else
+		{
+			Tmtv_MsgInfo* pPstMsg = new Tmtv_MsgInfo;
+			memcpy(pPstMsg, pInfo, sizeof(Tmtv_MsgInfo));
+			HWND hParent = ((CVisionClientDlg*)pParent)->GetSafeHwnd();
+			::PostMessage(hParent, WM_ASK_RESULT, 0, (LPARAM)pPstMsg);
 		}
 	}
 	else

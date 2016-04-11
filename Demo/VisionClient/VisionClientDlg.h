@@ -119,4 +119,6 @@ public:
 	afx_msg void OnBnClickedUserLoginBt();
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnBnClickedButton3();
+	//自定义消息函数
+	afx_msg LRESULT OnAskResult(WPARAM wParam, LPARAM lParam);
 };

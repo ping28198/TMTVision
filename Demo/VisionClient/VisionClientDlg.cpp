@@ -82,6 +82,9 @@ BEGIN_MESSAGE_MAP(CVisionClientDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_USER_LOGIN_BT, &CVisionClientDlg::OnBnClickedUserLoginBt)
 	ON_WM_RBUTTONDOWN()
 	ON_BN_CLICKED(IDC_BUTTON3, &CVisionClientDlg::OnBnClickedButton3)
+
+	ON_MESSAGE(WM_ASK_RESULT, OnAskResult)
+
 END_MESSAGE_MAP()
 
 
@@ -838,4 +841,67 @@ void CVisionClientDlg::OnBnClickedButton3()
 	Tmtv_CameraInfo mcam;
 	mcam.Indexnum = 0;
 	AddCam(&mcam);
+}
+
+LRESULT CVisionClientDlg::OnAskResult(WPARAM wParam, LPARAM lParam)
+{
+
+	switch (((Tmtv_MsgInfo*)lParam)->MsgType)
+	{
+	case Tmtv_MsgInfo::TMTV_ADDCAM_OK:
+	{
+		MessageBox(L"添加相机成功！");
+		break;
+	}
+	case Tmtv_MsgInfo::TMTV_ADDCAM_FAIL:
+	{
+		MessageBox(L"添加相机失败！");
+		break;
+	}
+	case Tmtv_MsgInfo::TMTV_DELCAM_OK:
+	{
+		MessageBox(L"删除相机成功！");
+		break;
+	}
+	case Tmtv_MsgInfo::TMTV_DELCAM_FAIL:
+	{
+		MessageBox(L"删除相机失败！");
+		break;
+	}
+	case Tmtv_MsgInfo::TMTV_STARTALGO_FAIL:
+	{
+		MessageBox(L"运行算法失败！");
+		break;
+	}
+	case Tmtv_MsgInfo::TMTV_STARTALGO_OK:
+	{
+		MessageBox(L"运行算法成功！");
+		break;
+	}
+	case Tmtv_MsgInfo::TMTV_STARTCAM_OK:
+	{
+		MessageBox(L"打开相机成功！");
+		break;
+	}
+	case Tmtv_MsgInfo::TMTV_STARTCAM_FAIL:
+	{
+		MessageBox(L"打开相机失败！");
+		break;
+	}
+	case Tmtv_MsgInfo::TMTV_STOPCAM_OK:
+	{
+		MessageBox(L"停止相机成功！");
+		break;
+	}
+	case Tmtv_MsgInfo::TMTV_STOPCAM_FAIL:
+	{
+		MessageBox(L"停止相机失败！");
+		break;
+	}
+
+	default:
+		break;
+	}
+	delete (Tmtv_MsgInfo*)lParam;
+	return 0;
 }

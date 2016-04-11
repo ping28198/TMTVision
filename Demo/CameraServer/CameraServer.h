@@ -33,7 +33,7 @@ class CameraServer:public Thread
 {
 //类功能
 public:
-	CameraServer(HANDLE  hParent = 0);
+	CameraServer(void *pParam=NULL,HANDLE  hParent = 0);
 	~CameraServer();
 //文件监控
 public:
@@ -42,6 +42,9 @@ public:
 	BackgroundDetector m_Detector;
 	//static int m_CameraServerID;
 	Tmtv_ImageInfo m_ImageInfo;//仅保存短算法结构
+
+	void *pParent;//父类指针
+
 //线程功能,内部调用,禁止外部调用
 public:
 	//创建文件夹读取句柄, 初始化ReadDirectoryChangesW相关参数
