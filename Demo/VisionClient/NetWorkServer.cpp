@@ -9,9 +9,19 @@ CNetWorkServer::CNetWorkServer(void* pParam)
 	pRcData = new char[40960];
 	pSdData = new char[40960];
 
-	bool a = mNetWork.SetSendAddr(3307, "127.0.0.1");
-	bool b = mNetWork.SetRecvAddr(3308);
-
+	mNetWork.SetOption(TmtSocket::ADDR_REUSE);
+	
+	bool a = mNetWork.SetSendAddr(5620, "222.28.39.16",5007,NULL);//5610 127.0.0.1 5620 222.28.39.16 5621 222.28.39.16
+	if (a==true)
+	{
+		VisionPublicSet::mLogger.TraceInfo("发送socket地址设置成功");
+	}
+	bool b = mNetWork.SetRecvAddr(5610, "222.28.39.16");
+	if (b == true)
+	{
+		VisionPublicSet::mLogger.TraceInfo("接收socket地址设置成功");
+	}
+	
 	InitializeCriticalSection(&cs);
 	//创建时启动进程
 
@@ -35,13 +45,13 @@ bool CNetWorkServer::WatchingNetwork()
 	int recvnum = mNetWork.RecvMsg(pRcData, 40960);
 	VisionPublicSet::mLogger.TraceInfo("收到消息");
 	CVisionClientDlg *pDlg = (CVisionClientDlg*)pParent;
-	if (recvnum>=sizeof(Tmtv_MsgInfo))
+	if (recvnum >= sizeof(Tmtv_MsgInfo))
 	{
 		Tmtv_MsgInfo* pInfo = (Tmtv_MsgInfo*)pRcData;
 		if (pInfo->CheckCode != TMTV_CHECKCODE) return false;
 		if (pInfo->MsgType == Tmtv_MsgInfo::TMTV_SNAPED)
 		{
-			VisionPublicSet::mLogger.TraceInfo("添加新的图片");
+			VisionPublicSet::mLogger.TraceInfo("添加了新的图片");
 			pDlg->pRunState->AddNewImg(&(pInfo->ImgInfo));
 		}
 	}
@@ -58,8 +68,14 @@ bool CNetWorkServer::AddNewCam(Tmtv_CameraInfo *camInfo)
 	Tmtv_AskInfo AskInfo;
 	AskInfo.Asktype = Tmtv_AskInfo::TMTV_ADDCAM;
 	AskInfo.CameraInfo = *camInfo;
-	this->SendMsg(sizeof(Tmtv_AskInfo));
-	return true;
+	memcpy_s(pSdData, 40960, (void *)&AskInfo, sizeof(Tmtv_AskInfo));
+	bool b = this->SendMsg(sizeof(Tmtv_AskInfo));
+
+	AskInfo.Asktype = Tmtv_AskInfo::TMTV_STARTCAM;
+	memcpy_s(pSdData, 40960, (void *)&AskInfo, sizeof(Tmtv_AskInfo));
+	b = this->SendMsg(sizeof(Tmtv_AskInfo));
+
+	return b;
 }
 
 bool CNetWorkServer::CloseCam(int CamIndex)
@@ -87,8 +103,8 @@ void CNetWorkServer::Task(void)
 
 bool CNetWorkServer::SendMsg(size_t msglength)
 {
-	int sendcount = mNetWork.SendMsg(pSdData, 40960);//sendto(sock_send, (char*)pSdData, msglength, 0, (SOCKADDR*)&recvaddr, sizeof(recvaddr));
-	if (sendcount>=msglength)
+	int sendcount = mNetWork.SendMsg(pSdData, msglength);//sendto(sock_send, (char*)pSdData, msglength, 0, (SOCKADDR*)&recvaddr, sizeof(recvaddr));
+	if (sendcount == msglength)
 	{
 		VisionPublicSet::mLogger.TraceInfo("发送请求消息成功！");
 		return true;

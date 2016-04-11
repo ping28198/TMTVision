@@ -81,6 +81,7 @@ BEGIN_MESSAGE_MAP(CVisionClientDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON2, &CVisionClientDlg::OnBnClickedButton2)
 	ON_BN_CLICKED(IDC_USER_LOGIN_BT, &CVisionClientDlg::OnBnClickedUserLoginBt)
 	ON_WM_RBUTTONDOWN()
+	ON_BN_CLICKED(IDC_BUTTON3, &CVisionClientDlg::OnBnClickedButton3)
 END_MESSAGE_MAP()
 
 
@@ -118,7 +119,7 @@ BOOL CVisionClientDlg::OnInitDialog()
 	ShowWindow(SW_MAXIMIZE);
 	VisionPublicSet::mLogger.TraceInfo("----------------------------------------初始化");
 
-	if (CipherCode::CheckRegistrInfo() != true)
+	if (CipherCode::CheckRegistrInfo(L"setting\\registerinfo.data") != true)
 	{
 		MessageBox(L"软件未注册！");
 		CDialog::OnCancel();
@@ -408,12 +409,12 @@ void CVisionClientDlg::ShowMemBmpToScreen()
 	pDC->BitBlt(mImgRect.left, mImgRect.top, mImgRect.Width(), mImgRect.Height(), pBmpDC,0,0,SRCCOPY);
 }
 
-void CVisionClientDlg::AddCam(Tmtv_CameraInfo *camInfo)
+int CVisionClientDlg::AddCam(Tmtv_CameraInfo *camInfo)
 {
 	mCamInfoVec.push_back(*camInfo);
 	SaveCamInfo();
 	ShowCamInfoToList();
-	pNetWorkServer->AddNewCam(camInfo);
+	return pNetWorkServer->AddNewCam(camInfo);
 }
 
 void CVisionClientDlg::ModifyCam(Tmtv_CameraInfo *camInfo)
@@ -828,4 +829,13 @@ void CVisionClientDlg::OnRButtonDown(UINT nFlags, CPoint point)
 	}
 
 	CDialogEx::OnRButtonDown(nFlags, point);
+}
+
+
+void CVisionClientDlg::OnBnClickedButton3()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	Tmtv_CameraInfo mcam;
+	mcam.Indexnum = 0;
+	AddCam(&mcam);
 }

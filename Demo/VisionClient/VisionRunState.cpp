@@ -87,7 +87,7 @@ void CVisionRunState::Timmer()
 	mtick++;
 	if (mtick>= CycleTick)
 	{
-		VisionPublicSet::mLogger.TraceInfo("VisionRunState线程运行一次");
+		//VisionPublicSet::mLogger.TraceInfo("VisionRunState线程运行一次");
 		mRunState = ShowState;
 		mtick = 0;
 	}

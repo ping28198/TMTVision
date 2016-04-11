@@ -71,7 +71,7 @@ public:
 	void ShowMemBmpToScreen();//显示函数
 
 	//相机信息相关函数
-	void AddCam(Tmtv_CameraInfo *camInfo);
+	int AddCam(Tmtv_CameraInfo *camInfo);
 	void ModifyCam(Tmtv_CameraInfo *camInfo);
 	void DelCam(int camIndex);
 	//////////////////////////////////////////////////////////////////////////
@@ -118,4 +118,5 @@ public:
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedUserLoginBt();
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnBnClickedButton3();
 };

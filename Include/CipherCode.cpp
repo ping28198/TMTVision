@@ -119,10 +119,14 @@ std::string CipherCode::Hex2Chars(string HexStr)
 	return string((char*)cbuf);
 }
 
-bool CipherCode::CheckRegistrInfo()
+bool CipherCode::CheckRegistrInfo(const WStrPointer mFilePath)
 {
 	HUGESTR tmpstr = {0};
-	int mcount = CMemoryFile::ReadMemoryFromFile(tmpstr, TMTV_HUGESTRLEN, 1, TMTV_HUGESTRLEN, L"setting\\registerinfo.data");
+	int mcount = CMemoryFile::ReadMemoryFromFile(tmpstr, TMTV_HUGESTRLEN, 1, TMTV_HUGESTRLEN, mFilePath);
+	if (mcount<=0)
+	{
+		return false;
+	}
 	tmpstr[mcount] = '\0';
 	TmtCrypter mCrypt;
 	string mMacstr;
