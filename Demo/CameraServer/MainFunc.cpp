@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
 	int localSendPort = atoi(argv[5]);
 	NetIP localSendIP = { 0 };
 	strcpy_s(localSendIP, TMTV_IPSTRLEN, argv[6]);
+	TmtSocket::GetAvailableNetIP(localRecvIP);
 
 	MessageServer messageServer;
 	messageServer.Initial(remoteRecvPort, remoteRecvIp, localRecvPort, localRecvIP, localSendPort, NULL,TmtSocket::ADDR_REUSE);

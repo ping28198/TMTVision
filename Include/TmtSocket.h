@@ -40,20 +40,52 @@ class TmtSocket
 public:
 	TmtSocket();
 	~TmtSocket();
-	//////////////////////////////////////////////////////////////////////////
-	//设置目标地址
-	//目标IP, 目标端口, 我的端口, 我的IP
+
+	//************************************
+	// 作用:    获取计算机中的一个有效的网卡IP地址
+	// 名称:  TmtSocket::GetAvailableNetMac
+	// Access:    public static 
+	// 返回值:   bool \\
+	// 参数: NetIP & localIP  \\IP地址，小写（不含-号）
+	//************************************
+	static bool GetAvailableNetIP(NetIP& localIP);
+
+	//************************************
+	// 作用:    设置目标地址
+	// 名称:  TmtSocket::SetSendAddr
+	// Access:    public 
+	// 返回值:   bool \\
+	// 参数: int remoteRecvPort  \\目标IP
+	// 参数: char * remoteRecvIp  \\目标端口
+	// 参数: int localSendPort  \\我的端口
+	// 参数: char * localSendIP  \\我的IP
+	//************************************
 	bool SetSendAddr(int remoteRecvPort,char* remoteRecvIp,
 		int localSendPort=0,char* localSendIP=NULL);//如果后两个参数使用默认, 则使用系统指定的ip和随机分配port发送
-	//////////////////////////////////////////////////////////////////////////
-	//设置接收地址
-	//自己的端口,ip地址,位null时不限制网卡
+ 
+	//************************************
+	// 作用:    设置接收地址
+	// 名称:  TmtSocket::SetRecvAddr
+	// Access:    public 
+	// 返回值:   bool \\
+	// 参数: int localRecvPort  \\自己的端口
+	// 参数: char * localRecvIP  \\ip地址,位null时不限制网卡
+	//************************************
 	bool SetRecvAddr( int localRecvPort, char* localRecvIP = NULL);
-	//////////////////////////////////////////////////////////////////////////
-	//参考Tmtv_SocketOption枚举   0 0 0 0 0 0 0 0
-	//                            允许重复绑定┘└阻塞标志位
-	enum {RECV_NOWAIT = 1,ADDR_REUSE = 2};
-	bool SetOption(DWORD flag);//设置可选配置
+
+	//************************************
+	// 作用:    设置可选配置
+	// 名称:  TmtSocket::SetOption
+	// Access:    public 
+	// 返回值:   bool \\
+	// 参数: DWORD flag  \\枚举   0 0 0 0 0 0 0 0
+    //                           允许重复绑定┘└阻塞标志位
+	//************************************
+	enum { RECV_NOWAIT = 1, ADDR_REUSE = 2 };
+	bool SetOption(DWORD flag);
+
+
+
 	//////////////////////////////////////////////////////////////////////////
 	//缓冲区指针, 需要发送数据长度
 	int SendMsg(void *pBuffer,size_t MsgLength);

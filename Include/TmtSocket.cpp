@@ -44,6 +44,53 @@ TmtSocket::~TmtSocket()
 	}
 }
 
+bool TmtSocket::GetAvailableNetIP(NetIP& localIP)
+{
+	PIP_ADAPTER_INFO pAdapter;
+	PIP_ADAPTER_INFO pAdapterInfo;
+	pAdapter = NULL;
+	pAdapterInfo = NULL;
+	ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
+	pAdapterInfo = (PIP_ADAPTER_INFO)malloc(ulOutBufLen);
+	DWORD dwRetVal = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen);
+	// 第一次调用GetAdapterInfo获取ulOutBufLen大小
+	if (dwRetVal == ERROR_BUFFER_OVERFLOW)
+	{
+		free(pAdapterInfo);
+		pAdapterInfo = (IP_ADAPTER_INFO *)malloc(ulOutBufLen);
+		dwRetVal = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen);
+	}
+	char mStr[TMTV_SHORTSTRLEN] = { 0 };
+	if (dwRetVal == NO_ERROR)
+	{
+		pAdapter = pAdapterInfo;
+		while (pAdapter)
+		{
+			mStr[0]=0;
+			strcpy_s(mStr, TMTV_SHORTSTRLEN,pAdapter->IpAddressList.IpAddress.String);
+			//printf("Adapter Name: \t%s\n", pAdapter->AdapterName);
+			//printf("Adapter Desc: \t%s\n", pAdapter->Description);
+			//printf("IP Address: \t%s\n", );
+			//printf("IP Mask: \t%s\n", pAdapter->IpAddressList.IpMask.String);
+			//printf("Gateway: \t%s\n", pAdapter->GatewayList.IpAddress.String);
+			if (!(mStr[0] == '0' && mStr[1] == '.' && mStr[2] == '0' && mStr[3] == '.' && mStr[4] == '0'
+				&& mStr[5] == '.' && mStr[6] == '0'))
+			{
+				strcpy_s(localIP, TMTV_IPSTRLEN, mStr);
+				return true;
+			}
+			pAdapter = pAdapter->Next;
+		}
+	}
+	else
+	{
+		if (pAdapterInfo) free(pAdapterInfo);
+		return false;
+	}
+	if (pAdapterInfo) free(pAdapterInfo);
+	return false;
+}
+
 bool TmtSocket::SetSendAddr(int remoteRecvPort, char* remoteRecvIp, int localSendPort, char* localSendIP)
 {
 	if (m_SKInitialOK!=true)
