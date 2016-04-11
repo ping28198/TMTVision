@@ -719,19 +719,19 @@ bool  CCommonFunc::GetFileTime(wchar_t*  filePathStr,
 	{
 		if (createTimeStr != 0)
 		{
-			SafeWStringPrintf(createTimeStr, createTimeLen, L"%d_%d_%d %d.%d.%d.%d",
+			SafeWStringPrintf(createTimeStr, createTimeLen, L"%d-%d-%d-%d:%d:%d:%d",
 				tmCreate.wYear, tmCreate.wMonth, tmCreate.wDay, tmCreate.wHour, tmCreate.wMinute,
 				tmCreate.wSecond, tmCreate.wMilliseconds);
 		}
 		if (accessTimeStr!=0)
 		{
-			SafeWStringPrintf(accessTimeStr, accessTimeen, L"%d_%d_%d %d.%d.%d.%d",
+			SafeWStringPrintf(accessTimeStr, accessTimeen, L"%d-%d-%d-%d:%d:%d:%d",
 				tmAccess.wYear, tmAccess.wMonth, tmAccess.wDay, tmAccess.wHour, tmAccess.wMinute,
 				tmAccess.wSecond, tmAccess.wMilliseconds);
 		}
 		if (writeTimeStr != 0)
 		{
-			SafeWStringPrintf(writeTimeStr, writeTimeLen, L"%d_%d_%d %d.%d.%d.%d",
+			SafeWStringPrintf(writeTimeStr, writeTimeLen, L"%d-%d-%d-%d:%d:%d:%d",
 				tmWrite.wYear, tmWrite.wMonth, tmWrite.wDay, tmWrite.wHour, tmWrite.wMinute,
 				tmWrite.wSecond, tmWrite.wMilliseconds);
 		}
@@ -740,19 +740,19 @@ bool  CCommonFunc::GetFileTime(wchar_t*  filePathStr,
 	{
 		if (createTimeStr != 0)
 		{
-			SafeWStringPrintf(createTimeStr, createTimeLen, L"%d_%d_%d %d.%d.%d",
+			SafeWStringPrintf(createTimeStr, createTimeLen, L"%d-%d-%d-%d:%d:%d",
 				tmCreate.wYear, tmCreate.wMonth, tmCreate.wDay, tmCreate.wHour, tmCreate.wMinute,
 				tmCreate.wSecond);
 		}
 		if (accessTimeStr != 0)
 		{
-			SafeWStringPrintf(accessTimeStr, accessTimeen, L"%d_%d_%d %d.%d.%d",
+			SafeWStringPrintf(accessTimeStr, accessTimeen, L"%d-%d-%d-%d:%d:%d",
 				tmAccess.wYear, tmAccess.wMonth, tmAccess.wDay, tmAccess.wHour, tmAccess.wMinute,
 				tmAccess.wSecond);
 		}
 		if (writeTimeStr != 0)
 		{
-			SafeWStringPrintf(writeTimeStr, writeTimeLen, L"%d_%d_%d %d.%d.%d",
+			SafeWStringPrintf(writeTimeStr, writeTimeLen, L"%d-%d-%d-%d:%d:%d",
 				tmWrite.wYear, tmWrite.wMonth, tmWrite.wDay, tmWrite.wHour, tmWrite.wMinute,
 				tmWrite.wSecond);
 		}
