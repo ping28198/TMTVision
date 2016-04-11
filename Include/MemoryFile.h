@@ -19,12 +19,8 @@
 //==============================================================================
 ///</ver_info>
 
-
-
-
-
-
-
+#include <stdio.h>
+using namespace std;
 
 class CMemoryFile
 {
@@ -128,5 +124,4 @@ private:
 	FILE* pFile;
 	wchar_t  strFilePath[256];
 	int mode;
-	
 };
