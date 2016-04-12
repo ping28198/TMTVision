@@ -236,6 +236,7 @@ bool CVisionRunState::SelectCameraToShow()
 	int count = 0;
 	int mindex = 0;
 	CVisionClientDlg* pDlg = (CVisionClientDlg*)pParent;
+	ReadCameraInfo(HistImgCameraIndex);
 	pDlg->mImageShowVec.swap(vector<Tmtv_ImageInfo>());
 	for (it = mHistImgInfoVec.begin(); it != mHistImgInfoVec.end(); it++)//加入后面的图片
 	{
