@@ -11,7 +11,7 @@ CameraManagerApp.h、CameraManagerApp.cpp
     其中包括其他项目特定的标头（包括 Resource.h），并声明 CCameraManagerApp 应用程序类。
     这是包含应用程序类 CCameraManagerApp 的主应用程序源文件。
 
-CameraManagerDlg.h、CameraManagerDlg.cpp - 对话框
+CameraManagerDlg.h、CameraManagerDlg.cpp 对话框
     这些文件包含 CCameraManagerDlg 类。此类定义应用程序的主对话框的行为。对话框模板包含在 CameraManager.rc 中，该文件可以在 Microsoft Visual C++ 中编辑。
 
 CameraManager.h、CameraManager.cpp
