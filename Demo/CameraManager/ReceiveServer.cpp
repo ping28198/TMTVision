@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ReceiveServer.h"
 
-ReceiveServer::ReceiveServer(int queueSize /*= 64*/)
+ReceiveServer::ReceiveServer(int queueSize /*= 64*/):tmpMessageItem(MessageItem::MAXMSGSIZE)
 {
 	m_QueueSize = MIN(queueSize, MINQUEUESIZE);
 }
@@ -14,11 +14,10 @@ void ReceiveServer::Task(void)
 {
 	if (m_SkStatus == enRecvOK || m_SkStatus == enSendAndRecvOK)
 	{
+		EnterCriticalSection(&m_section);
 		tmpMessageItem.p_Buffer[0] = 0;
 		int revLen = RecvMsg((void*)tmpMessageItem.p_Buffer, tmpMessageItem.m_BufferSize,
 			&tmpMessageItem.m_SenderPort,tmpMessageItem.m_SenderIp);
-
-		EnterCriticalSection(&m_section);
 		if (revLen>0)
 		{
 			if (m_MessageItemQueue.size()>= m_QueueSize)

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SendServer.h"
 
-SendServer::SendServer(int queueSize /*= 64*/)
+SendServer::SendServer(int queueSize /*= 64*/) :tmpMessageItem(MessageItem::MAXMSGSIZE)
 {
 	m_QueueSize = MIN(queueSize, MINQUEUESIZE);
 }
@@ -14,18 +14,12 @@ void SendServer::Task(void)
 {
 	if (m_SkStatus == enRecvOK || m_SkStatus == enSendAndRecvOK)
 	{
-		tmpMessageItem.p_Buffer[0] = 0;
-		int revLen = RecvMsg((void*)tmpMessageItem.p_Buffer, tmpMessageItem.m_BufferSize,
-			&tmpMessageItem.m_SenderPort,tmpMessageItem.m_SenderIp);
 
-		EnterCriticalSection(&m_section);
-		if (revLen>0)
+		EnterCriticalSection(&m_section);	
+		if (m_MessageItemQueue.size()>0)
 		{
-			if (m_MessageItemQueue.size() >= m_QueueSize)
-			{
-				m_MessageItemQueue.pop_front();
-			}
-			m_MessageItemQueue.push_back(tmpMessageItem);
+			SendMsg(m_MessageItemQueue.front().p_Buffer, m_MessageItemQueue.front().m_BufferSize);
+			m_MessageItemQueue.pop_front();
 		}
 		LeaveCriticalSection(&m_section);
 	}

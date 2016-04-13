@@ -62,9 +62,13 @@ public:
 	}
 	MessageItem& operator=(const MessageItem& messageItem)
 	{
-		p_Buffer = new char[MAX(messageItem.m_BufferSize, DEFAULTMSGSIZE)];
-		m_BufferSize = MAX(messageItem.m_BufferSize, DEFAULTMSGSIZE);
+		if (messageItem.m_BufferSize > m_BufferSize)
+		{
+			if (p_Buffer != 0) delete[] p_Buffer;
+			p_Buffer = new char[messageItem.m_BufferSize];
+		}
 		memcpy_s(p_Buffer, m_BufferSize, messageItem.p_Buffer, messageItem.m_BufferSize);
+		m_BufferSize = messageItem.m_BufferSize;
 	}
 	~MessageItem()
 	{
