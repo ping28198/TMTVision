@@ -112,6 +112,7 @@ void CameraServer::Task()
 					break;
 				}
 				CCommonFunc::UnicodeToAnsi(tmpFileItem.m_fileName,m_ImageInfo.ImagePath, TMTV_PATHSTRLEN);
+				CCommonFunc::UnicodeToAnsi(tmpFileItem.m_fileTime, m_ImageInfo.GrabTime, TMTV_TINYSTRLEN);
 				switch (m_ImageInfo.mCameraInfo.AlgorithmInfo.WarnningLevel)
 				{
 				case Tmtv_AlgorithmInfo::TMTV_NOWARN://½ö·µ»ØÍ¼Ïñ
