@@ -78,6 +78,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
+    <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(ProjectDir)..\..\Lib\CryptLib\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -110,15 +113,16 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;_DEBUG;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opencv_world310d.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -189,15 +193,35 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Include\ArWatch.h" />
+    <ClInclude Include="..\..\Include\CommonDefine.h" />
+    <ClInclude Include="..\..\Include\CommonFunc.h" />
+    <ClInclude Include="..\..\Include\CommonInclude.h" />
+    <ClInclude Include="..\..\Include\CvImage.h" />
+    <ClInclude Include="..\..\Include\Thread.h" />
+    <ClInclude Include="AddCamDlg.h" />
+    <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CameraManagerApp.h" />
     <ClInclude Include="CameraManagerDlg.h" />
+    <ClInclude Include="CameraObject.h" />
+    <ClInclude Include="CamListDlg.h" />
+    <ClInclude Include="NetWorkDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Include\ArWatch.cpp" />
+    <ClCompile Include="..\..\Include\CommonFunc.cpp" />
+    <ClCompile Include="..\..\Include\CvImage.cpp" />
+    <ClCompile Include="..\..\Include\Thread.cpp" />
+    <ClCompile Include="AddCamDlg.cpp" />
+    <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CameraManagerApp.cpp" />
     <ClCompile Include="CameraManagerDlg.cpp" />
+    <ClCompile Include="CameraObject.cpp" />
+    <ClCompile Include="CamListDlg.cpp" />
+    <ClCompile Include="NetWorkDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

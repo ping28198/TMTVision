@@ -3,7 +3,14 @@
 //
 
 #pragma once
-#define WM_SHOWFROMTRAY (WM_USER+10)
+#include "CommonInclude.h"
+#include "AddCamDlg.h"
+#include "CamListDlg.h"
+#include "NetWorkDlg.h"
+
+
+
+
 
 // CCameraManagerDlg 对话框
 class CCameraManagerDlg : public CDialog
@@ -19,6 +26,26 @@ public:
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
+public:
+	bool AddCam(Tmtv_CameraInfo* pCamInfo);
+	int CheckCam(Tmtv_CameraInfo* pCamInfo);
+
+
+public:
+	CTabCtrl m_tab;
+	int m_CurSelTab;
+	CCamListDlg* pCamListDlg;
+	NetWorkDlg* pNetWorkDlg;
+	CAddCamDlg* pAddCamDlg;
+	CDialog* pDialog[2];
+
+
+
+
+
+
+
+
 
 
 // 实现
@@ -32,6 +59,9 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam); 
+	afx_msg void OnTcnSelchangeFunctionTab(NMHDR *pNMHDR, LRESULT *pResult);
+
+
 	void HideToTray();
 	afx_msg LRESULT OnShowFromTray(WPARAM   wParam, LPARAM   lParam);
 };
