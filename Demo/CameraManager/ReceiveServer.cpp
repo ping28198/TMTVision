@@ -1,15 +1,6 @@
 #include "stdafx.h"
 #include "ReceiveServer.h"
 
-ReceiveServer::ReceiveServer(int queueSize /*= 64*/):tmpMessageItem(MessageItem::MAXMSGSIZE)
-{
-	m_QueueSize = MIN(queueSize, MINQUEUESIZE);
-}
-
-ReceiveServer::~ReceiveServer()
-{
-}
-
 void ReceiveServer::Task(void)
 {
 	if (m_SkStatus == enRecvOK || m_SkStatus == enSendAndRecvOK)
@@ -20,11 +11,7 @@ void ReceiveServer::Task(void)
 			&tmpMessageItem.m_SenderPort,tmpMessageItem.m_SenderIp);
 		if (revLen>0)
 		{
-			if (m_MessageItemQueue.size()>= m_QueueSize)
-			{
-				m_MessageItemQueue.pop_front();
-			}
-			m_MessageItemQueue.push_back(tmpMessageItem);
+			m_MessageItemQueue.ForcTail(tmpMessageItem);
 		}
 		LeaveCriticalSection(&m_section);
 	}
@@ -34,7 +21,7 @@ bool ReceiveServer::Initial(int localRecvPort, char* localRecvIP, DWORD optionFl
 {
 	ForceEnd();
 	EnterCriticalSection(&m_section);
-	m_MessageItemQueue.clear();
+	m_MessageItemQueue.Clear();
 	LeaveCriticalSection(&m_section);
 	if (!SetOption(optionFlag))
 	{
@@ -50,5 +37,8 @@ bool ReceiveServer::Initial(int localRecvPort, char* localRecvIP, DWORD optionFl
 bool ReceiveServer::Unitial()
 {
 	ForceEnd();
+	EnterCriticalSection(&m_section);
+	m_MessageItemQueue.Unitial();
+	LeaveCriticalSection(&m_section);
 	return ReleaseSocket() != 0;
 }

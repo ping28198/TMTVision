@@ -23,7 +23,8 @@
 #pragma once
 #include "Thread.h"
 #include "TmtSocket.h"
-#include <deque>
+#include "Queue.h"
+//#include <deque>
 //#include <queue>
 #include "CommonDefine.h"
 using namespace std;
@@ -37,46 +38,11 @@ using namespace std;
 class MessageItem
 {
 public:
-	char* p_Buffer = 0;
+	enum { MAXMSGSIZE = 10240 };
+	char p_Buffer[MAXMSGSIZE];
 	long m_BufferSize = 0;
 	int m_SenderPort = 0;
     NetIP m_SenderIp;
-public:
-	enum { DEFAULTMSGSIZE = 512, MAXMSGSIZE = 10240 };
-	MessageItem(long bufferSize = DEFAULTMSGSIZE)
-	{
-		p_Buffer = new char[bufferSize];
-		m_BufferSize = bufferSize;
-	}
-	MessageItem(const void* pBuffer,long bufferSize = DEFAULTMSGSIZE)
-	{
-		p_Buffer = new char[bufferSize];
-		m_BufferSize = bufferSize;
-		memcpy_s(p_Buffer, m_BufferSize, pBuffer, bufferSize);
-	}
-	MessageItem(const MessageItem& messageItem)
-	{
-		p_Buffer = new char[MAX(messageItem.m_BufferSize, DEFAULTMSGSIZE)];
-		m_BufferSize = MAX(messageItem.m_BufferSize, DEFAULTMSGSIZE);
-		memcpy_s(p_Buffer, m_BufferSize, messageItem.p_Buffer, messageItem.m_BufferSize);
-	}
-	MessageItem& operator=(const MessageItem& messageItem)
-	{
-		if (messageItem.m_BufferSize > m_BufferSize)
-		{
-			if (p_Buffer != 0) delete[] p_Buffer;
-			p_Buffer = new char[messageItem.m_BufferSize];
-		}
-		memcpy_s(p_Buffer, m_BufferSize, messageItem.p_Buffer, messageItem.m_BufferSize);
-		m_BufferSize = messageItem.m_BufferSize;
-	}
-	~MessageItem()
-	{
-		if (p_Buffer!=0)
-		{
-			delete[] p_Buffer;
-		}
-	}
 };
 #endif
 //==============================================================================
@@ -89,15 +55,20 @@ class ReceiveServer :
 	public Thread, public TmtSocket
 {
 public:
-	enum { MINQUEUESIZE = 64 };
-	ReceiveServer(int queueSize = MINQUEUESIZE);
-	~ReceiveServer();
+	enum { QUEUESIZE = 64 };
+	ReceiveServer(HANDLE  hParent = 0)
+	{
+		m_MessageItemQueue.Initial(QUEUESIZE);
+	}
+	~ReceiveServer()
+	{
+		m_MessageItemQueue.Unitial();
+	}
 //Socket¹¦ÄÜ
 private:
 	MessageItem tmpMessageItem;
 public:
-	deque<MessageItem>  m_MessageItemQueue;
-	int m_QueueSize;
+	Queue<MessageItem>  m_MessageItemQueue;
 	bool Initial(int localRecvPort, char* localRecvIP, DWORD optionFlag = 1);
 	bool Unitial();	
 	void Task(void);

@@ -1,25 +1,16 @@
 #include "stdafx.h"
 #include "SendServer.h"
 
-SendServer::SendServer(int queueSize /*= 64*/) :tmpMessageItem(MessageItem::MAXMSGSIZE)
-{
-	m_QueueSize = MIN(queueSize, MINQUEUESIZE);
-}
-
-SendServer::~SendServer()
-{
-}
-
 void SendServer::Task(void)
 {
-	if (m_SkStatus == enRecvOK || m_SkStatus == enSendAndRecvOK)
+	if (m_SkStatus == enSendOK || m_SkStatus == enSendAndRecvOK)
 	{
-
 		EnterCriticalSection(&m_section);	
-		if (m_MessageItemQueue.size()>0)
+		if (m_MessageItemQueue.GetLength()>0)
 		{
-			SendMsg(m_MessageItemQueue.front().p_Buffer, m_MessageItemQueue.front().m_BufferSize);
-			m_MessageItemQueue.pop_front();
+			SendMsg((void*)m_MessageItemQueue.GetHead()->p_Buffer, 
+				m_MessageItemQueue.GetHead()->m_BufferSize);
+			m_MessageItemQueue.DelHead();
 		}
 		LeaveCriticalSection(&m_section);
 	}
@@ -30,7 +21,7 @@ bool SendServer::Initial(int remoteRecvPort, char * remoteRecvIp,
 {
 	ForceEnd();
 	EnterCriticalSection(&m_section);
-	m_MessageItemQueue.clear();
+	m_MessageItemQueue.Clear();
 	LeaveCriticalSection(&m_section);
 	if (!SetOption(optionFlag))
 	{

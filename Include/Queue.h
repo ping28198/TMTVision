@@ -136,11 +136,12 @@ public:
 	{
 		return p_Head-p_Tail==1||(p_Head==0&&p_Tail==m_DataNum-1);
 	}
-
 	//删除头数据
 	bool DelHead()
 	{
 		if (IsEmpty()) return false;
+		//p_Head
+		//delete p_Head;
 		p_Head++;
 		if (p_Head>=m_DataNum)
 		{
@@ -149,7 +150,7 @@ public:
 		return true;
 	}
 	//保护头数据前提下添加尾数据
-	bool AddTail(T data)
+	bool AddTail(const T& data)
 	{
 		if (IsFull()) return false;
 		memcpy((p_DataList+p_Tail),&data,sizeof(T));
@@ -162,7 +163,7 @@ public:
 		return true;
 	}
 	//强制添加尾数据
-	bool ForcTail(T data)
+	bool ForcTail(const T& data)
 	{
 		if (IsFull()) DelHead();
 		memcpy((p_DataList+p_Tail),&data,sizeof(T));
