@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="CameraServer" Collapsed="true">
+    <Position X="7.5" Y="2.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <InheritanceLine Type="Thread" ManuallyRouted="true">
+      <Path>
+        <Point X="1.25" Y="1.048" />
+        <Point X="1.25" Y="2.327" />
+        <Point X="3.167" Y="2.327" Type="JumpStart" />
+        <Point X="3.333" Y="2.327" Type="JumpEnd" />
+        <Point X="5.167" Y="2.327" Type="JumpStart" />
+        <Point X="5.333" Y="2.327" Type="JumpEnd" />
+        <Point X="6.885" Y="2.327" Type="JumpStart" />
+        <Point X="7.052" Y="2.327" Type="JumpEnd" />
+        <Point X="8.25" Y="2.327" />
+        <Point X="8.25" Y="2.75" />
+      </Path>
+    </InheritanceLine>
+    <AssociationLine Name="pDirWatchServer" Type="DirWatchServer" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.5" Y="2.938" />
+        <Point X="7.052" Y="2.937" Type="JumpStart" />
+        <Point X="6.885" Y="2.938" Type="JumpEnd" />
+        <Point X="6" Y="2.938" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.136" Y="0.055" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAgAAAgAAAAAAAEAAACBAAAAABAAGBoAFAAEBoAgQA=</HashCode>
+      <FileName>CameraServer.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="pDirWatchServer" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="DirWatcher" Collapsed="true">
+    <Position X="4.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQCAgAAJAACAEAACAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\DirWatcher.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DirWatchServer" Collapsed="true">
+    <Position X="4.5" Y="2.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <InheritanceLine Type="Thread" ManuallyRouted="true">
+      <Path>
+        <Point X="1.25" Y="1.048" />
+        <Point X="1.25" Y="1.868" />
+        <Point X="3.167" Y="1.868" Type="JumpStart" />
+        <Point X="3.333" Y="1.868" Type="JumpEnd" />
+        <Point X="5.25" Y="1.868" />
+        <Point X="5.25" Y="2.75" />
+      </Path>
+    </InheritanceLine>
+    <AssociationLine Name="m_fileNameQueue" Type="Queue&lt;T&gt;" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="6" Y="3.375" />
+        <Point X="6.969" Y="3.375" />
+        <Point X="6.969" Y="1.048" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-0.529" Y="2.077" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAEAAAABAAAAAAAABAAAAAAACBAAEAAAEAAgAAAAAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\DirWatcher.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="m_fileNameQueue" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="TaskThread" Collapsed="true">
+    <Position X="0.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAoACIAAEAAAAgAAAAEAAAAAAAAEAAAAAAAAAACAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\Thread.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TaskThreadEx" Collapsed="true">
+    <Position X="0.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAiAAAEAAAIAAQFAAAAACAAAAkAAEAAAAAAAAAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\Thread.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Thread" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAADIAQEAAAAACACAAAQAACBAAWAIAEAAAAgAAAg=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\Thread.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TmtSocket" Collapsed="true">
+    <Position X="2.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIikAAAAAQBiBAAMgIACAAAAAgAAACQURAIAAEgAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\TmtSocket.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TmtSocketServer" Collapsed="true">
+    <Position X="2.5" Y="2.75" Width="1.5" />
+    <InheritanceLine Type="Thread" ManuallyRouted="true">
+      <Path>
+        <Point X="1.25" Y="1.048" />
+        <Point X="1.25" Y="1.443" />
+        <Point X="3.25" Y="1.443" />
+        <Point X="3.25" Y="2.75" />
+      </Path>
+    </InheritanceLine>
+    <InheritanceLine Type="TmtSocket" ManuallyRouted="true" FixedFromPoint="true">
+      <Path>
+        <Point X="3.25" Y="1.048" />
+        <Point X="3.25" Y="1.171" />
+        <Point X="3.25" Y="1.171" />
+        <Point X="3.25" Y="2.75" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAQABAAAAAAAAAAAAAAABARAEAAAAAAAAEgAAAAAAAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\TmtSocket.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BackgroundDetector" Collapsed="true">
+    <Position X="9.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAgAEAAJAAAAAAAAARAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\Detector.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Detector" Collapsed="true">
+    <Position X="9.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAAQJACAAAAAAARAABAAAAAEAAAAAAEJAAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\Detector.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Queue&lt;T&gt;" Collapsed="true">
+    <Position X="6.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEBAAFIAECAAgACABAAIAARAQAAAAAAoAAAIAIBAgAA=</HashCode>
+      <FileName>D:\行人识别项目\Code\TMTVision\Include\Queue.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CameraServerState" Collapsed="true">
+    <Position X="2.5" Y="4" Width="1.5" />
+    <AssociationLine Name="pCameraServer" Type="CameraServer" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="4" Y="4.375" />
+        <Point X="8.188" Y="4.375" />
+        <Point X="8.188" Y="3.427" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="2.886" Y="0.719" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAABEAAAAIQAYAkIAACBAAAgAAAAAAgAAAAEBAAAZA=</HashCode>
+      <FileName>CameraServerState.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="pCameraServer" />
+    </ShowAsAssociation>
+  </Class>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>
