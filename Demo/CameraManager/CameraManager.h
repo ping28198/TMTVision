@@ -103,13 +103,21 @@ public:
 public://Socket异步消息收发对象
 	SendServer m_SendServer;
     ReceiveServer m_ReceiveServer;
+
+public://文件读写命令
+
+	bool WriteCamObjsToFile();
+
+private:
+	bool ReadAndSetCamObj();//只允许初始化时使用
+
+
 public://相机、算法操作命令
 	enum { MAXCAMNUM = 128 };
 	int m_MaxCameraNum;
 	vector<CameraObject*> m_CameraObjectVector;
-	CameraObject* GetCamServer(int CamIndex);
-	CameraObject* GetCamServer(Tmtv_CameraInfo& cameraInfo);
-	CameraObject* GetCamServer(Tmtv_CameraInfo& cameraInfo);
+	CameraObject* GetCamObject(int CamIndex);
+	CameraObject* GetCamObject(Tmtv_CameraInfo& cameraInfo);
 	//载入参数
 	bool LoadSetting(PATHWSTR xmlFilePath);
 	//保存参数
@@ -133,11 +141,31 @@ public://相机、算法操作命令
 	//停止相机算法
 	bool SetAlgorithm(Tmtv_CameraInfo& cameraInfo);
 
+	bool GetManagerSetting(CameraManagerSetting &camManagerSetting);
+
+	bool GetSendServerSetting(SendServerSetting &sendServerSetting);
+
+	bool GetReciveServerSeting(ReceiveServerSetting &receiveServerSetting);
+
+	bool SetManagerSetting(const CameraManagerSetting &camManagerSetting);
+
+	bool SetSendServerSetting(SendServerSetting &sendServerSetting);
+
+	bool SetReciveServerSeting(ReceiveServerSetting &receiveServerSetting);
 public://发送消息交由SendServer处理
 	int SendMsgInfo(Tmtv_MsgInfo& msgInfo);
 	bool SendImage(Tmtv_ImageInfo& imgInfo);
 	//由ReceiveServer接受消息的本地处理
 	void Task();
+private:
+	PATHWSTR m_CamObjFilePath;
 };
 //==============================================================================
 ///</class_info>
+
+class LoggerServer
+{
+public:
+	static Logger mLogger;
+
+};

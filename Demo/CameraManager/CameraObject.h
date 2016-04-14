@@ -37,7 +37,8 @@ public:
 	CameraObject(void *pParent,HANDLE  hParent = 0);
 	~CameraObject();
 //文件监控
-public:
+private:
+
 	DirWatchServer m_DirWatchServer;
 	//Tmtv_CameraInfo m_ImageInfo.mCameraInfo;
 	BackgroundDetector m_Detector;
@@ -82,6 +83,12 @@ public:
 	bool StopAlgorithm();
 	//停止相机算法,操作m_Detector对象
 	bool SetAlgorithm(Tmtv_AlgorithmInfo& algorithmInfo);
+	//获取相机ImgInfo
+	bool GetImgInfo(Tmtv_ImageInfo* pImgInfo);
+	//获取相机Index
+	int GetCamIndex();
+	//获取相机CamInfo
+	bool GetCamInfo(Tmtv_CameraInfo* pCamInfo);
 
 public:
 	//调试函数,显示对象信息

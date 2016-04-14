@@ -157,6 +157,7 @@ void CameraObject::Task()
 //添加相机,操作CameraObject对象
 bool CameraObject::AddCamera(Tmtv_CameraInfo& cameraInfo)
 {
+	EnterCriticalSection(&m_section);
 	if (m_ImageInfo.mCameraInfo.CameraPath[0] == 0 &&
 		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_NOCAM)
 	{
@@ -186,7 +187,7 @@ bool CameraObject::AddCamera(Tmtv_CameraInfo& cameraInfo)
 bool CameraObject::DelCamera()
 {
 	EnterCriticalSection(&m_section);
-	if (m_ImageInfo.mCameraInfo.CameraPath[0] == 0 &&
+	if (m_ImageInfo.mCameraInfo.CameraPath[0] != 0 &&
 		m_ImageInfo.mCameraInfo.Status != Tmtv_CameraInfo::TMTV_NOCAM)
 	{
 		if (m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
@@ -321,6 +322,34 @@ bool CameraObject::SetAlgorithm(Tmtv_AlgorithmInfo& algorithmInfo)
 	OutputDebugString(L"<CameraObject::SetAlgorithm() failed.>\n");
 	return false;
 }
+
+bool CameraObject::GetImgInfo(Tmtv_ImageInfo* pImgInfo)
+{
+	if (pImgInfo == NULL) return false;
+	EnterCriticalSection(&m_section);
+	memcpy(pImgInfo, &m_ImageInfo, sizeof(Tmtv_ImageInfo));
+	LeaveCriticalSection(&m_section);
+	return true;
+}
+
+int CameraObject::GetCamIndex()
+{
+	int mIndex=0;
+	EnterCriticalSection(&m_section);
+	mIndex = m_ImageInfo.mCameraInfo.Indexnum;
+	LeaveCriticalSection(&m_section);
+	return mIndex;
+}
+
+bool CameraObject::GetCamInfo(Tmtv_CameraInfo* pCamInfo)
+{
+	if (pCamInfo == NULL) return false;
+	EnterCriticalSection(&m_section);
+	memcpy(pCamInfo, &(m_ImageInfo.mCameraInfo), sizeof(Tmtv_CameraInfo));
+	LeaveCriticalSection(&m_section);
+	return true;
+}
+
 //int CameraObject::m_CameraObjectID = 0;
 
 void CameraObject::ToString(MEGAWSTR & string, int method, int color)

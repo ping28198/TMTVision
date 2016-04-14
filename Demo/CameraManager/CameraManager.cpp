@@ -3,18 +3,23 @@
 bool CameraManagerSetting::LoadSetting(PATHWSTR xmlFilePath)
 {
 
+
+
 	return false;
 }
 
 bool CameraManagerSetting::SaveSetting(PATHWSTR xmlFilePath)
 {
+
+
+
 	return false;
 }
 
 CameraManager::CameraManager(int maxCameraNum):
 	m_MaxCameraNum(maxCameraNum), m_SendServer(this), m_ReceiveServer(this)
 {
-
+	swprintf_s(m_CamObjFilePath, L"setting\\CamObjInfo.data");
 }
 
 CameraManager::~CameraManager()
@@ -30,6 +35,7 @@ void CameraManager::Initial(CameraManagerSetting cameraManagerSetting)
 void CameraManager::Initial()
 {
 	//this->LoadSetting(L"");
+
 	this->Create(-1, m_CameraManagerSetting.m_SleepTime, true);
 	this->Resume();
 	m_SendServer.Initial(m_CameraManagerSetting.m_SendServerSetting);
@@ -38,6 +44,7 @@ void CameraManager::Initial()
 	m_ReceiveServer.Initial(m_CameraManagerSetting.m_ReceiveServerSetting);
 	m_ReceiveServer.Create();
 	m_ReceiveServer.Resume();
+	ReadAndSetCamObj();
 }
 
 void CameraManager::Unitial()
@@ -48,22 +55,82 @@ void CameraManager::Unitial()
 	m_ReceiveServer.Unitial();
 	m_SendServer.Unitial();
 	this->Unitial();
+	vector<CameraObject*>::iterator it;
+	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end();it++)
+	{
+		(*it)->DelCamera();
+		Sleep(10);//等待线程结束
+		delete (*it);
+	}
+	m_CameraObjectVector.clear();
+}
+bool CameraManager::WriteCamObjsToFile()
+{
+	CMemoryFile mMemFile;
+	bool isOK = mMemFile.OpenFile_W(m_CamObjFilePath);
+	if (!isOK)
+	{
+		LoggerServer::mLogger.TraceError("写入相机对象文件失败！");
+		return false;
+	}
+	vector<CameraObject*>::iterator it;
+	Tmtv_CameraInfo mCamInfo;
+	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end();it++)
+	{
+		(*it)->GetCamInfo(&mCamInfo);
+		mMemFile.WriteMemoryToFile(&mCamInfo, sizeof(Tmtv_CameraInfo));
+	}
+	mMemFile.CloseFile();
 }
 
 
-CameraObject* CameraManager::GetCamServer(int CamIndex)
+bool CameraManager::ReadAndSetCamObj()
+{
+	vector<CameraObject*>::iterator it;
+	m_CameraObjectVector.clear();
+	Tmtv_CameraInfo mCamInfo;
+	bool IsOK = true;
+	CMemoryFile mMemFile;
+	IsOK &= mMemFile.OpenFile_R(m_CamObjFilePath);
+	if (IsOK)
+	{
+		LoggerServer::mLogger.TraceError("加载相机对象文件失败");
+		return false;
+	}
+	while (mMemFile.ReadMemoryFromFile(&mCamInfo,sizeof(Tmtv_CameraInfo)))
+	{
+		//需增加数据校验，保证安全
+		//
+		//
+		this->AddCamera(mCamInfo);
+	}
+	mMemFile.CloseFile();
+	if (IsOK) LoggerServer::mLogger.TraceInfo("加载所有相机成功");
+}
+
+CameraObject* CameraManager::GetCamObject(int CamIndex)
 {
 	vector<CameraObject*>::iterator it;
 	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
 	{
-		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		if ((*it)->GetCamIndex() == CamIndex)
 		{
-			(*it)->StopCamera();
-			return true;
+			return *it;
 		}
 	}
-	return false;
+	return NULL;
+}
 
+CameraObject* CameraManager::GetCamObject(Tmtv_CameraInfo& cameraInfo)
+{
+	vector<CameraObject*>::iterator it;
+	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
+	{
+		if ((*it)->GetCamIndex() == cameraInfo.Indexnum)
+		{
+			return *it;
+		}
+	}
 	return NULL;
 }
 
@@ -83,9 +150,11 @@ bool CameraManager::AddCamera(Tmtv_CameraInfo& cameraInfo)
 	CameraObject *newCameraObject = new CameraObject(this, this->m_hThread);
 	addedOK &= newCameraObject->AddCamera(cameraInfo);
 	newCameraObject->Resume();
-	/*addedOK &=*/ newCameraObject->StartAlgorithm(cameraInfo.AlgorithmInfo);
-	addedOK &= newCameraObject->StartCamera();
+	/*addedOK &=*/ newCameraObject->SetAlgorithm(cameraInfo.AlgorithmInfo);
+	addedOK &= newCameraObject->SetCamera(cameraInfo);
 	m_CameraObjectVector.push_back(newCameraObject);
+	LoggerServer::mLogger.TraceInfo("添加%d号相机成功", cameraInfo.Indexnum);
+	WriteCamObjsToFile();
 	return addedOK;
 }
 
@@ -94,10 +163,13 @@ bool CameraManager::DelCamera(Tmtv_CameraInfo& cameraInfo)
 	vector<CameraObject*>::iterator it;
 	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
 	{
-		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		if ((*it)->GetCamIndex() == cameraInfo.Indexnum)
 		{
 			(*it)->DelCamera();
+			delete (*it);
 			m_CameraObjectVector.erase(it);
+			LoggerServer::mLogger.TraceInfo("删除%d号相机成功", cameraInfo.Indexnum);
+			WriteCamObjsToFile();
 			return true;
 		}
 	}
@@ -109,9 +181,11 @@ bool CameraManager::StartCamera(Tmtv_CameraInfo& cameraInfo)
 	vector<CameraObject*>::iterator it;
 	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
 	{
-		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		if ((*it)->GetCamIndex() == cameraInfo.Indexnum)
 		{
 			(*it)->StartCamera();
+			LoggerServer::mLogger.TraceInfo("打开%d号相机成功", cameraInfo.Indexnum);
+			WriteCamObjsToFile();
 			return true;
 		}
 	}
@@ -123,9 +197,11 @@ bool CameraManager::StopCamera(Tmtv_CameraInfo& cameraInfo)
 	vector<CameraObject*>::iterator it;
 	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
 	{
-		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		if ((*it)->GetCamIndex() == cameraInfo.Indexnum)
 		{
 			(*it)->StopCamera();
+			LoggerServer::mLogger.TraceInfo("停止%d号相机成功", cameraInfo.Indexnum);
+			WriteCamObjsToFile();
 			return true;
 		}
 	}
@@ -137,13 +213,17 @@ bool CameraManager::SetCamera(Tmtv_CameraInfo& cameraInfo)
 	vector<CameraObject*>::iterator it;
 	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
 	{
-		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		if ((*it)->GetCamIndex() == cameraInfo.Indexnum)
 		{
 			(*it)->SetCamera(cameraInfo);
 			if (cameraInfo.Status == Tmtv_CameraInfo::TMTV_NOCAM)
 			{
+				(*it)->DelCamera();
+				delete (*it);
 				m_CameraObjectVector.erase(it);
 			}
+			LoggerServer::mLogger.TraceInfo("设置%d号相机成功", cameraInfo.Indexnum);
+			WriteCamObjsToFile();
 			return true;
 		}
 	}
@@ -155,10 +235,9 @@ bool CameraManager::GetCamera(Tmtv_CameraInfo & cameraInfo)
 	vector<CameraObject*>::iterator it;
 	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
 	{
-		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		if ((*it)->GetCamIndex() == cameraInfo.Indexnum)
 		{
-			memcpy((void*)&cameraInfo, (void*)&(*it)->m_ImageInfo.mCameraInfo,
-				sizeof(Tmtv_CameraInfo));
+			(*it)->GetCamInfo(&cameraInfo);
 			return true;
 		}
 	}
@@ -170,9 +249,11 @@ bool CameraManager::StopAlgorithm(Tmtv_CameraInfo& cameraInfo)
 	vector<CameraObject*>::iterator it;
 	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
 	{
-		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		if ((*it)->GetCamIndex() == cameraInfo.Indexnum)
 		{
 			(*it)->StopAlgorithm();
+			LoggerServer::mLogger.TraceInfo("停止%d号相机算法成功", cameraInfo.Indexnum);
+			WriteCamObjsToFile();
 			return true;
 		}
 	}
@@ -184,13 +265,48 @@ bool CameraManager::SetAlgorithm(Tmtv_CameraInfo& cameraInfo)
 	vector<CameraObject*>::iterator it;
 	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
 	{
-		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		if ((*it)->GetCamIndex() == cameraInfo.Indexnum)
 		{
 			(*it)->SetAlgorithm(cameraInfo.AlgorithmInfo);
+			LoggerServer::mLogger.TraceInfo("设置%d号相机算法成功", cameraInfo.Indexnum);
+			WriteCamObjsToFile();
 			return true;
 		}
 	}
 	return false;
+}
+
+bool CameraManager::GetManagerSetting(CameraManagerSetting &camManagerSetting)
+{
+	camManagerSetting = m_CameraManagerSetting;
+	return true;
+}
+
+bool CameraManager::GetSendServerSetting(SendServerSetting &sendServerSetting)
+{
+	sendServerSetting = m_CameraManagerSetting.m_SendServerSetting;
+	return true;
+}
+
+bool CameraManager::GetReciveServerSeting(ReceiveServerSetting &receiveServerSetting)
+{
+	receiveServerSetting = m_CameraManagerSetting.m_ReceiveServerSetting;
+	return true;
+}
+
+bool CameraManager::SetManagerSetting(const CameraManagerSetting &camManagerSetting)
+{
+	return true;
+}
+
+bool CameraManager::SetSendServerSetting(SendServerSetting &sendServerSetting)
+{
+	return true;
+}
+
+bool CameraManager::SetReciveServerSeting(ReceiveServerSetting &receiveServerSetting)
+{
+	return true;
 }
 
 bool CameraManager::StartAlgorithm(Tmtv_CameraInfo& cameraInfo)
@@ -198,9 +314,11 @@ bool CameraManager::StartAlgorithm(Tmtv_CameraInfo& cameraInfo)
 	vector<CameraObject*>::iterator it;
 	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
 	{
-		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		if ((*it)->GetCamIndex() == cameraInfo.Indexnum)
 		{
 			(*it)->StartAlgorithm(cameraInfo.AlgorithmInfo);
+			LoggerServer::mLogger.TraceInfo("启动%d号相机算法成功", cameraInfo.Indexnum);
+			WriteCamObjsToFile();
 			return true;
 		}
 	}
@@ -223,9 +341,9 @@ bool CameraManager::SendImage(Tmtv_ImageInfo& imgInfo)
 void CameraManager::Task()
 {
 	MessageItem tmpMsgItem;
-	EnterCriticalSection(&m_section);
+	EnterCriticalSection(&(m_ReceiveServer.m_section));
 	bool isOK = m_ReceiveServer.PullMsg(tmpMsgItem);
-	LeaveCriticalSection(&m_section);
+	LeaveCriticalSection(&(m_ReceiveServer.m_section));
 	if (!isOK)
 	{
 		return;
@@ -353,4 +471,6 @@ void CameraManager::Task()
 	}
 }
 
+
+Logger LoggerServer::mLogger;
 

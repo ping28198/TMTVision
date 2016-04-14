@@ -198,7 +198,12 @@
     <ClInclude Include="..\..\Include\CommonFunc.h" />
     <ClInclude Include="..\..\Include\CommonInclude.h" />
     <ClInclude Include="..\..\Include\CvImage.h" />
+    <ClInclude Include="..\..\Include\logger.h" />
+    <ClInclude Include="..\..\Include\MemoryFile.h" />
+    <ClInclude Include="..\..\Include\ReceiveServer.h" />
+    <ClInclude Include="..\..\Include\SendServer.h" />
     <ClInclude Include="..\..\Include\Thread.h" />
+    <ClInclude Include="..\..\Include\VisionStruct.h" />
     <ClInclude Include="AddCamDlg.h" />
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CameraManagerApp.h" />
@@ -214,6 +219,10 @@
     <ClCompile Include="..\..\Include\ArWatch.cpp" />
     <ClCompile Include="..\..\Include\CommonFunc.cpp" />
     <ClCompile Include="..\..\Include\CvImage.cpp" />
+    <ClCompile Include="..\..\Include\logger.cpp" />
+    <ClCompile Include="..\..\Include\MemoryFile.cpp" />
+    <ClCompile Include="..\..\Include\ReceiveServer.cpp" />
+    <ClCompile Include="..\..\Include\SendServer.cpp" />
     <ClCompile Include="..\..\Include\Thread.cpp" />
     <ClCompile Include="AddCamDlg.cpp" />
     <ClCompile Include="CameraManager.cpp" />
