@@ -92,12 +92,12 @@ void CAddCamDlg::OnBnClickedAddFinishBt()
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(TRUE);
 
-	CCommonFunc::UnicodeToAnsi(m_CamName.GetBuffer(), Camname, TMTV_PATHSTRLEN);
+	CCommonFunc::UnicodeToAnsi(m_CamName.GetBuffer(), Camname, TMTV_SHORTSTRLEN);
 	mCamInfo.Indexnum = m_CamIndex;
 	mCamInfo.CameraPos[0] = mCamPos_X;
 	mCamInfo.CameraPos[1] = m_CamPos_Y;
 	mCamInfo.CameraPos[2] = mCamPos_Z;
-	strcpy_s(mCamInfo.CameraName, TMTV_PATHSTRLEN, Camname);
+	strcpy_s(mCamInfo.CameraName, TMTV_SHORTSTRLEN, Camname);
 	strcpy_s(mCamInfo.CameraPath, TMTV_PATHSTRLEN, Campath);
 	int warnindex = m_WarningLevel.GetCurSel();
 	if (warnindex>=0&&warnindex<=4)

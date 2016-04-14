@@ -1,32 +1,42 @@
 #include "CameraManager.h"
+#include "XMLOperator.h"
+bool CameraManagerSetting::LoadSetting(PATHWSTR xmlFilePath)
+{
 
+	return false;
+}
+
+bool CameraManagerSetting::SaveSetting(PATHWSTR xmlFilePath)
+{
+	return false;
+}
 
 CameraManager::CameraManager(int maxCameraNum):
 	m_MaxCameraNum(maxCameraNum), m_SendServer(this), m_ReceiveServer(this)
 {
+
 }
 
 CameraManager::~CameraManager()
 {
 }
 
+void CameraManager::Initial(CameraManagerSetting cameraManagerSetting)
+{
+	m_CameraManagerSetting = cameraManagerSetting;
+	Initial();
+}
+
 void CameraManager::Initial()
 {
-	int remoteRecvPort = 5001;
-	NetIP remoteRecvIp = "0.0.0.0";
-	int localSendPort = 5002;
-	NetIP localSendIP = "0.0.0.0";
-	int localRecvPort = 5003;
-	NetIP localRecvIP = "0.0.0.0";
-	DWORD optionFlag = 1;
-	this->LoadSetting(L"");
-	this->Create(-1, 100, true);
+	//this->LoadSetting(L"");
+	this->Create(-1, m_CameraManagerSetting.m_SleepTime, true);
 	this->Resume();
-	m_SendServer.Initial(remoteRecvPort, remoteRecvIp, localSendPort, localSendIP, optionFlag);
-	m_SendServer.Create(-1, 0, false);
+	m_SendServer.Initial(m_CameraManagerSetting.m_SendServerSetting);
+	m_SendServer.Create();
 	m_SendServer.Resume();
-	m_ReceiveServer.Initial(localRecvPort, localRecvIP, optionFlag);
-	m_ReceiveServer.Create(-1, 0, false);
+	m_ReceiveServer.Initial(m_CameraManagerSetting.m_ReceiveServerSetting);
+	m_ReceiveServer.Create();
 	m_ReceiveServer.Resume();
 }
 
@@ -43,19 +53,28 @@ void CameraManager::Unitial()
 
 CameraObject* CameraManager::GetCamServer(int CamIndex)
 {
-
+	vector<CameraObject*>::iterator it;
+	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
+	{
+		if ((*it)->m_ImageInfo.mCameraInfo.Indexnum == cameraInfo.Indexnum)
+		{
+			(*it)->StopCamera();
+			return true;
+		}
+	}
+	return false;
 
 	return NULL;
 }
 
 bool CameraManager::LoadSetting(PATHWSTR xmlFilePath)
 {
-	return false;
+	return m_CameraManagerSetting.LoadSetting(xmlFilePath);
 }
 
 bool CameraManager::SaveSetting(PATHWSTR xmlFilePath)
 {
-	return false;
+	return m_CameraManagerSetting.SaveSetting(xmlFilePath);
 }
 
 bool CameraManager::AddCamera(Tmtv_CameraInfo& cameraInfo)
@@ -333,3 +352,5 @@ void CameraManager::Task()
 		}
 	}
 }
+
+

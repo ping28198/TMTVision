@@ -38,7 +38,7 @@ public:
 	~CameraObject();
 //文件监控
 public:
-	DirWatchServer *pDirWatchServer;
+	DirWatchServer m_DirWatchServer;
 	//Tmtv_CameraInfo m_ImageInfo.mCameraInfo;
 	BackgroundDetector m_Detector;
 	//static int m_CameraObjectID;
@@ -62,19 +62,19 @@ public:
 	void  ForceEnd(void);
 //任务功能
 public:
-	//处理pDirWatchServer中的图像队列
+	//处理m_DirWatchServer中的图像队列
 	void Task();
 
 //消息功能,由父线程调用或返回给父线程
-	//添加相机,操作CameraObject对象, 准备pDirWatchServer对象
+	//添加相机,操作CameraObject对象, 准备m_DirWatchServer对象
 	bool AddCamera(Tmtv_CameraInfo& cameraInfo);
-	//删除相机,操作CameraObject对象, 准备pDirWatchServer对象
+	//删除相机,操作CameraObject对象, 准备m_DirWatchServer对象
 	bool DelCamera();
-	//打开相机,操作pDirWatchServer对象
+	//打开相机,操作m_DirWatchServer对象
 	bool StartCamera();
-	//停止相机,操作pDirWatchServer对象
+	//停止相机,操作m_DirWatchServer对象
 	bool StopCamera();
-	//设置相机,操作pDirWatchServer对象
+	//设置相机,操作m_DirWatchServer对象
 	bool SetCamera(Tmtv_CameraInfo& cameraInfo);
 	//打开相机算法,操作m_Detector对象
 	bool StartAlgorithm(Tmtv_AlgorithmInfo& algorithmInfo);

@@ -58,6 +58,36 @@
 //==============================================================================
 ///</header_info>
 
+///<datastruct_info>
+//==============================================================================
+//Xml配置文件按照此结构存储, 读取后再逐步启动程序
+class CameraManagerSetting
+{
+public:
+	long m_SleepTime=0;
+	SendServerSetting m_SendServerSetting;
+	ReceiveServerSetting m_ReceiveServerSetting;
+public:
+	CameraManagerSetting() {}
+	CameraManagerSetting(const CameraManagerSetting& cameraManagerSetting)
+	{
+		m_SendServerSetting = cameraManagerSetting.m_SendServerSetting;
+		m_ReceiveServerSetting = cameraManagerSetting.m_ReceiveServerSetting;
+		m_SleepTime = cameraManagerSetting.m_SleepTime;
+	}
+	CameraManagerSetting& operator= (const CameraManagerSetting& cameraManagerSetting)
+	{
+		m_SendServerSetting = cameraManagerSetting.m_SendServerSetting;
+		m_ReceiveServerSetting = cameraManagerSetting.m_ReceiveServerSetting;
+		m_SleepTime = cameraManagerSetting.m_SleepTime;
+	}
+	bool LoadSetting(PATHWSTR xmlFilePath);
+	bool SaveSetting(PATHWSTR xmlFilePath);
+};
+//==============================================================================
+///</datastruct_info>
+
+
 ///<class_info>
 //==============================================================================
 //程序管理类
@@ -66,6 +96,8 @@ class CameraManager: public Thread
 public:
 	CameraManager(int maxCameraNum = MAXCAMNUM);
 	~CameraManager();
+	CameraManagerSetting m_CameraManagerSetting;
+	void Initial(CameraManagerSetting cameraManagerSetting);
 	void Initial();
 	void Unitial();
 public://Socket异步消息收发对象
@@ -76,6 +108,8 @@ public://相机、算法操作命令
 	int m_MaxCameraNum;
 	vector<CameraObject*> m_CameraObjectVector;
 	CameraObject* GetCamServer(int CamIndex);
+	CameraObject* GetCamServer(Tmtv_CameraInfo& cameraInfo);
+	CameraObject* GetCamServer(Tmtv_CameraInfo& cameraInfo);
 	//载入参数
 	bool LoadSetting(PATHWSTR xmlFilePath);
 	//保存参数

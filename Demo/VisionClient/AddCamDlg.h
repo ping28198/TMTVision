@@ -19,7 +19,7 @@ public:
 	virtual ~CAddCamDlg();
 	CVisionClientDlg* pParent;
 	char Campath[TMTV_PATHSTRLEN];
-	char Camname[TMTV_PATHSTRLEN];
+	char Camname[TMTV_SHORTSTRLEN];
 	Tmtv_CameraInfo mCamInfo;
 	vector<CPoint> mWarnRange[MAX_RANGE_NUM];
 	int mRangeIndex;

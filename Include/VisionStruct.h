@@ -103,7 +103,7 @@ public:
 struct Tmtv_CameraInfo //相机信息
 {
 	int Indexnum = 0; //相机序号
-	PATHSTR CameraName = "";//相机名称等信息
+	SHORTSTR CameraName = "";//相机名称等信息
 	PATHSTR CameraPath = "";//相机根目录路径
 	int CameraPos[8];//x,y,z坐标, 方向
 	int CameraWidth = 1920;//1.1 //相机图片宽度

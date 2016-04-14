@@ -58,7 +58,7 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_CameraInfo& camraInfo, int met
 		CCommonFunc::SafeWStringCpy(tmpWStr, TMTV_PATHSTRLEN, L"");
 		if (camraInfo.CameraPath[0] != 0)
 		{
-			CCommonFunc::AnsiToUnicode(camraInfo.CameraName, tmpWStr, TMTV_PATHSTRLEN);
+			CCommonFunc::AnsiToUnicode(camraInfo.CameraName, tmpWStr, TMTV_SHORTSTRLEN);
 		}
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s  <CameraName=\"%s\">\n", wstring, tmpWStr);
 		tmpWStr[0] = 0;
@@ -79,7 +79,7 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_CameraInfo& camraInfo, int met
 	}
 	else if (method == 1)
 	{
-		CCommonFunc::AnsiToUnicode(camraInfo.CameraName, tmpWStr, TMTV_PATHSTRLEN);
+		CCommonFunc::AnsiToUnicode(camraInfo.CameraName, tmpWStr, TMTV_SHORTSTRLEN);
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"<Tmtv_CameraInfo Indexnum=%d CameraName=\"%s\" Status=%d>\n",
 			camraInfo.Indexnum, tmpWStr, camraInfo.Status);
 	}
@@ -91,7 +91,7 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_CameraInfo& camraInfo, int met
 		CCommonFunc::SafeWStringCpy(tmpWStr, TMTV_PATHSTRLEN, L"");
 		if (camraInfo.CameraPath[0] != 0)
 		{
-			CCommonFunc::AnsiToUnicode(camraInfo.CameraName, tmpWStr, TMTV_PATHSTRLEN);
+			CCommonFunc::AnsiToUnicode(camraInfo.CameraName, tmpWStr, TMTV_SHORTSTRLEN);
 		}
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s CameraName=\"%s\" ", wstring, tmpWStr);
 		tmpWStr[0] = 0;

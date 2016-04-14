@@ -1,47 +1,41 @@
 #include "stdafx.h"
 #include "SendServer.h"
 
-void SendServer::Task(void)
-{
-	if (m_SkStatus == enSendOK || m_SkStatus == enSendAndRecvOK)
-	{
-		if (m_MessageItemQueue.GetLength()>0)
-		{
-			for (int i = 0; i < 3;i++)
-			{
-				if (SendMsg((void*)m_MessageItemQueue.GetHead()->p_Buffer, 
-						m_MessageItemQueue.GetHead()->m_BufferSize)>0)
-				{
-					EnterCriticalSection(&m_section);
-					m_MessageItemQueue.DelHead();
-					LeaveCriticalSection(&m_section);
-					break;
-				}
-				else
-				{
-					Sleep(100);
-				}
-			}
-		}
-	}
-}
 
-bool SendServer::Initial(int remoteRecvPort, char * remoteRecvIp,
-	int localSendPort/* = 0*/, char * localSendIP/* = NULL*/, DWORD optionFlag/* = 1*/)
+
+bool SendServer::Initial(int remoteRecvPort, NetIP remoteRecvIp,
+	                 int localSendPort, NetIP localSendIP,
+	                 DWORD optionFlag, long sleepTime = 0)
 {
 	ForceEnd();
+	bool isOK = true;
+	SendServerSetting tmpSetting(remoteRecvPort, remoteRecvIp,
+		localSendPort, localSendIP,optionFlag, sleepTime);
 	EnterCriticalSection(&m_section);
 	m_MessageItemQueue.Clear();
+	isOK &= SetOption(optionFlag);
+	isOK &= SetSendAddr(remoteRecvPort, remoteRecvIp, localSendPort, localSendIP);
+	m_SendServerSetting = tmpSetting;
 	LeaveCriticalSection(&m_section);
-	if (!SetOption(optionFlag))
-	{
-		return false;
-	}
-	else
-	{
-		bool isOK = SetSendAddr(remoteRecvPort, remoteRecvIp, localSendPort, localSendIP);
-		return isOK;
-	}
+}
+
+bool SendServer::Initial(SendServerSetting sendServerSetting)
+{
+	ForceEnd();
+	bool isOK = true;
+	EnterCriticalSection(&m_section);
+	m_MessageItemQueue.Clear();
+	isOK &= SetOption(sendServerSetting.m_OptionFlag);
+	isOK &= SetSendAddr(sendServerSetting.m_RemoteRecvPort, sendServerSetting.m_RemoteRecvIp,
+		sendServerSetting.m_LocalSendPort, sendServerSetting.m_LocalSendIP);
+	m_SendServerSetting = sendServerSetting;
+	LeaveCriticalSection(&m_section);
+	return isOK;
+}
+
+void SendServer::Create()
+{
+	Thread::Create(-1, MIN(m_ReceiveServerSetting.m_SleepTime, 0), true);
 }
 
 bool SendServer::Unitial()
@@ -82,5 +76,30 @@ bool SendServer::PushMsg(MessageItem & messageItem)
 		bool isOK = m_MessageItemQueue.AddTail(messageItem);
 		LeaveCriticalSection(&m_section);
 		return isOK;
+	}
+}
+
+void SendServer::Task(void)
+{
+	if (m_SkStatus == enSendOK || m_SkStatus == enSendAndRecvOK)
+	{
+		if (m_MessageItemQueue.GetLength() > 0)
+		{
+			for (int i = 0; i < 3; i++)
+			{
+				if (SendMsg((void*)m_MessageItemQueue.GetHead()->p_Buffer,
+					m_MessageItemQueue.GetHead()->m_BufferSize)>0)
+				{
+					EnterCriticalSection(&m_section);
+					m_MessageItemQueue.DelHead();
+					LeaveCriticalSection(&m_section);
+					break;
+				}
+				else
+				{
+					Sleep(100);
+				}
+			}
+		}
 	}
 }

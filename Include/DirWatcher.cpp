@@ -151,18 +151,18 @@ void DirWatcher::ToString(MEGAWSTR & string, int method, int color)
 //执行前强制停止线程, 需要用Create()再次启动
 bool DirWatchServer::RegPath(PATHWSTR path, DWORD action)
 {
+	Thread::ForceEnd();
 	EnterCriticalSection(&m_section);
 	m_fileNameQueue.Clear();
-	Thread::ForceEnd();
 	int rtVal= DirWatcher::RegPath(path, action);
 	LeaveCriticalSection(&m_section);
 	return rtVal;
 }
 //执行前强制停止线程, 停止监控文件夹
 void DirWatchServer::FreePath()
-{
-	EnterCriticalSection(&m_section);
+{	
 	Thread::ForceEnd();
+	EnterCriticalSection(&m_section);
 	DirWatcher::FreePath();
 	m_fileNameQueue.Clear();
 	LeaveCriticalSection(&m_section);

@@ -144,7 +144,8 @@ public:
 	//监控线程将从尾部添加
 	enum { QUEUESIZE = 64 };
 	Queue<FileItem> m_fileNameQueue;
-	DirWatchServer(HANDLE  hParent = 0)
+	void *p_Parent;//父类指针
+	DirWatchServer(void *pParent,HANDLE  hParent = 0):p_Parent(pParent)
 	{
 		//初始化文件名队列
 		m_fileNameQueue.Initial(QUEUESIZE);

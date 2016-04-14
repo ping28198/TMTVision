@@ -2,10 +2,8 @@
 #include "CameraObject.h"
 #include "CameraManager.h"
 
-CameraObject::CameraObject(void *pParent, HANDLE hParent)
+CameraObject::CameraObject(void *pParent, HANDLE hParent):m_DirWatchServer(this)
 {
-	pDirWatchServer = 0;
-	pDirWatchServer = new DirWatchServer();
 	//m_CameraObjectID++;
 	//m_ImageInfo.mCameraInfo.Indexnum = /*m_CameraObjectID*/;
 	m_ImageInfo.mCameraInfo.CameraPath[0] = 0;
@@ -22,12 +20,7 @@ CameraObject::CameraObject(void *pParent, HANDLE hParent)
 
 CameraObject::~CameraObject()
 {
-	if (pDirWatchServer != 0)
-	{
-		pDirWatchServer->Destroy();
-		delete pDirWatchServer;
-		pDirWatchServer = 0;
-	}
+	m_DirWatchServer.ForceEnd();
 	if (m_Detector.m_imageWidth != 0 && m_Detector.m_imageHeight != 0)
 	{ 
 		m_Detector.Unitial();
@@ -39,15 +32,10 @@ CameraObject::~CameraObject()
 bool CameraObject::RegPath(PATHWSTR path, DWORD action)
 {
 	EnterCriticalSection(&m_section);
-	if (pDirWatchServer != 0)
-	{
-		pDirWatchServer->RegPath(path, action);
-		pDirWatchServer->m_hParent = this->m_hThread;
-		LeaveCriticalSection(&m_section);
-		return true;
-	}
+	m_DirWatchServer.RegPath(path, action);
+	m_DirWatchServer.m_hParent = this->m_hThread;
 	LeaveCriticalSection(&m_section);
-	return false;
+	return true;
 }
 
 //创建线程
@@ -55,21 +43,15 @@ void CameraObject::Create(int times, long waiteTime, bool includeTaskTime)
 {
 	EnterCriticalSection(&m_section);
 	Thread::Create(-1, waiteTime, includeTaskTime);
-	if (pDirWatchServer != 0)
-	{
-		pDirWatchServer->Create(-1,MAX(0, waiteTime*2),true);
-		pDirWatchServer->m_hParent = this->m_hThread;
-	}
+	m_DirWatchServer.Create(-1,MAX(0, waiteTime*2),true);
+	m_DirWatchServer.m_hParent = this->m_hThread;
 	LeaveCriticalSection(&m_section);
 }
 //继续执行挂起的线程
 void CameraObject::Resume(void)
 {
 	EnterCriticalSection(&m_section);
-	if (pDirWatchServer != 0)
-	{
-		pDirWatchServer->Resume();
-	}
+	m_DirWatchServer.Resume();
 	Thread::Resume();
 	LeaveCriticalSection(&m_section);
 }
@@ -77,10 +59,7 @@ void CameraObject::Resume(void)
 void CameraObject::Suspend(void)
 {
 	EnterCriticalSection(&m_section);
-	if (pDirWatchServer != 0)
-	{
-		pDirWatchServer->Suspend();
-	}
+	m_DirWatchServer.Suspend();
 	Thread::Suspend();
 	LeaveCriticalSection(&m_section);
 }
@@ -88,10 +67,7 @@ void CameraObject::Suspend(void)
 void  CameraObject::Destroy(void)
 {
 	EnterCriticalSection(&m_section);
-	if (pDirWatchServer != 0)
-	{
-		pDirWatchServer->Destroy();
-	}
+	m_DirWatchServer.Destroy();
 	Thread::Destroy();
 	LeaveCriticalSection(&m_section);
 }
@@ -99,16 +75,13 @@ void  CameraObject::Destroy(void)
 void CameraObject::ForceEnd(void)
 {
 	EnterCriticalSection(&m_section);
-	if (pDirWatchServer != 0)
-	{
-		pDirWatchServer->ForceEnd();
-	}
+	m_DirWatchServer.ForceEnd();
 	Thread::ForceEnd();
 	LeaveCriticalSection(&m_section);
 }
 
 
-//处理pDirWatchServer中的图像队列
+//处理m_DirWatchServer中的图像队列
 void CameraObject::Task()
 {
 	FileItem tmpFileItem;
@@ -116,11 +89,10 @@ void CameraObject::Task()
 	if (m_ImageInfo.mCameraInfo.Status==Tmtv_CameraInfo::TMTV_RUNNINGCAM &&
 		m_ImageInfo.mCameraInfo.CameraPath[0]!=0)
 	{	
-		if (pDirWatchServer != 0)
 		{
-			while(!pDirWatchServer->m_fileNameQueue.IsEmpty())
+			while(!m_DirWatchServer.m_fileNameQueue.IsEmpty())
 			{
-				if (!pDirWatchServer->m_fileNameQueue.GetHead(tmpFileItem))
+				if (!m_DirWatchServer.m_fileNameQueue.GetHead(tmpFileItem))
 				{
 					break;
 				}
@@ -134,7 +106,7 @@ void CameraObject::Task()
 					{
 						OutputDebugString(L"<CameraObject::Task() SendImage failed.>\n");
 					}
-					pDirWatchServer->m_fileNameQueue.DelHead();
+					m_DirWatchServer.m_fileNameQueue.DelHead();
 					break;
 				case Tmtv_AlgorithmInfo::TMTV_PREWARN://预执行算法并返回图像
 					m_ImageInfo.IsWarnning = 0;
@@ -152,7 +124,7 @@ void CameraObject::Task()
 					{
 						OutputDebugString(L"<CameraObject::Task() SendImage failed.>\n");
 					}
-					pDirWatchServer->m_fileNameQueue.DelHead();
+					m_DirWatchServer.m_fileNameQueue.DelHead();
 					break;
 				case Tmtv_AlgorithmInfo::TMTV_STARTWARN://执行算法并返回图像和缺陷
 					m_ImageInfo.IsWarnning = 1;
@@ -169,7 +141,7 @@ void CameraObject::Task()
 					{
 						OutputDebugString(L"<CameraObject::Task() SendImage failed.>\n");
 					}
-					pDirWatchServer->m_fileNameQueue.DelHead();
+					m_DirWatchServer.m_fileNameQueue.DelHead();
 					break;
 				default:
 					break;
@@ -191,19 +163,13 @@ bool CameraObject::AddCamera(Tmtv_CameraInfo& cameraInfo)
 		if (cameraInfo.CameraPath[0]!=0 && 
 			cameraInfo.CameraName[0]!=0)
 		{
-			if (pDirWatchServer != 0)
 			{
 				PATHWSTR cameraPathW = { 0 };
 				CCommonFunc::AnsiToUnicode(cameraInfo.CameraPath, cameraPathW, TMTV_PATHSTRLEN);
-				//pDirWatchServer->RegPath(cameraPathW,FILE_NOTIFY_CHANGE_LAST_WRITE);
+				//m_DirWatchServer->RegPath(cameraPathW,FILE_NOTIFY_CHANGE_LAST_WRITE);
 				RegPath(cameraPathW, FILE_NOTIFY_CHANGE_LAST_WRITE);
 				Create(-1, MAX(0,cameraInfo.WaiteTime),true);
 			}
-			else
-			{
-				OutputDebugString(L"<CameraObject::AddCamera() failed.>\n");
-			}
-
 			m_ImageInfo.mCameraInfo = cameraInfo;
 			m_ImageInfo.mCameraInfo.Status = Tmtv_CameraInfo::TMTV_STOPEDCAM;
 			m_ImageInfo.ImagePath[0] = 0;
@@ -230,13 +196,8 @@ bool CameraObject::DelCamera()
 			StopCamera();
 		}
 		ForceEnd();
-		if (pDirWatchServer != 0)
 		{
-			pDirWatchServer->FreePath();
-		}
-		else
-		{
-			OutputDebugString(L"<CameraObject::DelCamera() failed.>\n");
+			m_DirWatchServer.FreePath();
 		}
 		m_Detector.Unitial();
 		m_ImageInfo.mCameraInfo.CameraPath[0] = 0;
@@ -249,22 +210,15 @@ bool CameraObject::DelCamera()
 	OutputDebugString(L"<CameraObject::AddCamera() failed.>\n");
 	return false;
 }
-//打开相机,操作pDirWatchServer对象
+//打开相机,操作m_DirWatchServer对象
 bool CameraObject::StartCamera()
 {
 	EnterCriticalSection(&m_section);
 	if (m_ImageInfo.mCameraInfo.CameraPath[0] != 0 &&
 		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_STOPEDCAM)
 	{
-		if (pDirWatchServer != 0)
 		{
-			pDirWatchServer->Resume();
-		}
-		else
-		{
-			LeaveCriticalSection(&m_section);
-			OutputDebugString(L"<CameraObject::AddCamera() failed.>\n");
-			return false;
+			m_DirWatchServer.Resume();
 		}
 		m_ImageInfo.mCameraInfo.Status = Tmtv_CameraInfo::TMTV_RUNNINGCAM;
 		LeaveCriticalSection(&m_section);
@@ -274,14 +228,14 @@ bool CameraObject::StartCamera()
 	OutputDebugString(L"<CameraObject::StartCamera() failed.>\n");
 	return false;
 }
-//停止相机,操作pDirWatchServer对象
+//停止相机,操作m_DirWatchServer对象
 bool CameraObject::StopCamera()
 {
 	EnterCriticalSection(&m_section);
 	if (m_ImageInfo.mCameraInfo.CameraPath[0] != 0 &&
 		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
 	{
-		pDirWatchServer->Suspend();
+		m_DirWatchServer.Suspend();
 		m_ImageInfo.mCameraInfo.Status = Tmtv_CameraInfo::TMTV_STOPEDCAM;
 		LeaveCriticalSection(&m_section);
 		return true;
@@ -290,7 +244,7 @@ bool CameraObject::StopCamera()
 	OutputDebugString(L"<CameraObject::StopCamera() failed.>\n");
 	return false;
 }
-//设置相机,操作pDirWatchServer对象
+//设置相机,操作m_DirWatchServer对象
 bool CameraObject::SetCamera(Tmtv_CameraInfo& cameraInfo)
 {
 	switch (cameraInfo.Status)
@@ -373,9 +327,8 @@ void CameraObject::ToString(MEGAWSTR & string, int method, int color)
 {
 	string[0] = 0;
 	MEGAWSTR tmpStr1 = { 0 };
-	if (pDirWatchServer!=0)
 	{
-		pDirWatchServer->ToString(tmpStr1, method, 0);
+		m_DirWatchServer.ToString(tmpStr1, method, 0);
 	}
 	MEGAWSTR tmpStr2 = { 0 };
 	ObjToString::ToString(tmpStr2, m_ImageInfo, method, 0);
