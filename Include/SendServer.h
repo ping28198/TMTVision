@@ -1,4 +1,3 @@
-#pragma once
 ///<proj_info>
 //==============================================================================
 // 项目名 : 图像处理平台
@@ -21,8 +20,8 @@
 //==============================================================================
 //添加所需的头文件
 #pragma once
-#include "Thread.h"
 #include "TmtSocket.h"
+#include "Thread.h"
 #include "Queue.h"
 //#include <deque>
 //#include <queue>
@@ -43,6 +42,18 @@ public:
 	long m_BufferSize = 0;
 	int m_SenderPort = 0;
 	NetIP m_SenderIp;
+public:
+	MessageItem() {}
+	MessageItem(void* pBuffer,long bufferSize) 
+	{
+		memcpy_s(p_Buffer, MAXMSGSIZE, pBuffer, bufferSize);
+		m_BufferSize = MIN(bufferSize, MAXMSGSIZE);
+	}	
+	MessageItem(MessageItem& messageItem)
+	{
+		memcpy_s(p_Buffer, MAXMSGSIZE, messageItem.p_Buffer, messageItem.m_BufferSize);
+		m_BufferSize = MIN(messageItem.m_BufferSize, MAXMSGSIZE);
+	}
 };
 #endif
 //==============================================================================
@@ -55,11 +66,13 @@ class SendServer :
 	public Thread, public TmtSocket
 {
 public:
+	void* p_Parent;
 	enum { QUEUESIZE = 64 };
 	MessageItem tmpMessageItem;
 	Queue<MessageItem>  m_MessageItemQueue;
-	SendServer(HANDLE  hParent = 0)
+	SendServer(void* pParent,HANDLE  hParent = 0)
 	{
+		p_Parent = pParent;
 		m_MessageItemQueue.Initial(QUEUESIZE);
 	}
 	~SendServer()
@@ -72,6 +85,9 @@ public:
 		int localSendPort = 0, char * localSendIP = NULL, DWORD optionFlag = 1);
 	bool Unitial();	
 	void Task(void);
+	//推送消息
+	bool PushMsg(void *pBuffer, long msgLength);
+	bool PushMsg(MessageItem &messageItem);
 };
 //==============================================================================
 ///</class_info>

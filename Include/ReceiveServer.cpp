@@ -42,3 +42,46 @@ bool ReceiveServer::Unitial()
 	LeaveCriticalSection(&m_section);
 	return ReleaseSocket() != 0;
 }
+
+bool ReceiveServer::PullMsg(void * pBuffer, long & msgLength, int * senderPort, NetIP senderIP)
+{
+	if (m_MessageItemQueue.IsEmpty())
+	{
+		return false;
+	}
+	else
+	{
+		MessageItem tmpMsgItem;
+		EnterCriticalSection(&m_section);
+		bool isOK = m_MessageItemQueue.GetHead(tmpMsgItem);
+		m_MessageItemQueue.DelHead();
+		LeaveCriticalSection(&m_section);
+		memcpy_s(pBuffer, msgLength, tmpMsgItem.p_Buffer, tmpMsgItem.m_BufferSize);
+		msgLength = tmpMsgItem.m_BufferSize;
+		if (senderPort!=0)
+		{
+			*senderPort = tmpMsgItem.m_SenderPort;
+		}
+		if (senderIP != 0)
+		{
+			strcpy_s(senderIP, TMTV_IPSTRLEN, tmpMsgItem.m_SenderIp);
+		}
+		return isOK;
+	}
+}
+
+bool ReceiveServer::PullMsg(MessageItem & messageItem)
+{
+	if (m_MessageItemQueue.IsEmpty())
+	{
+		return false;
+	}
+	else
+	{
+		EnterCriticalSection(&m_section);
+		bool isOK = m_MessageItemQueue.GetHead(messageItem);
+		m_MessageItemQueue.DelHead();
+		LeaveCriticalSection(&m_section);
+		return isOK;
+	}
+}

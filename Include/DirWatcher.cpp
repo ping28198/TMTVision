@@ -190,14 +190,15 @@ void DirWatchServer::Task()
 	{
 		return;
 	}
-	FileItem tmpFileItem, tmpFileItem2;
+	FileItem tmpFileItem;
 	tmpFileItem.m_fileName[0] = 0;
 	tmpFileItem.m_fileAction = 0;
 	tmpFileItem.m_fileProcessed = false;
-	EnterCriticalSection(&m_section);
+	
 	if (DirWatcher::Watch(tmpFileItem.m_fileName, 
 		tmpFileItem.m_fileTime, tmpFileItem.m_fileAction))
 	{
+		EnterCriticalSection(&m_section);
 		if (m_fileNameQueue.GetLength() > 0)
 		{
 			bool isNew = true;
@@ -214,13 +215,14 @@ void DirWatchServer::Task()
 			{
 				m_fileNameQueue.AddTail(tmpFileItem);
 			}
+
 		}
 		else
 		{
 			m_fileNameQueue.AddTail(tmpFileItem);
 		}
+		LeaveCriticalSection(&m_section);
 	}
-	LeaveCriticalSection(&m_section);
 }
 
 //调试函数,显示对象信息
