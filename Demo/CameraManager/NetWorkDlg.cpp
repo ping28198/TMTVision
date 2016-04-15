@@ -23,6 +23,7 @@ NetWorkDlg::~NetWorkDlg()
 void NetWorkDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_MESSAGEINFO_LST, mNetStatusList);
 }
 
 

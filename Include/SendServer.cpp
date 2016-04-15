@@ -36,12 +36,14 @@ bool SendServer::Initial(SendServerSetting sendServerSetting)
 
 void SendServer::Create()
 {
-	Thread::Create(-1, MIN(this->m_SendServerSetting.m_SleepTime, 0), true);
+	Thread::Create(-1, MAX(this->m_SendServerSetting.m_SleepTime, 0), true);
 }
 
 bool SendServer::GetSetting(SendServerSetting &mSetting)
 {
+	EnterCriticalSection(&m_section);
 	mSetting = m_SendServerSetting;
+	LeaveCriticalSection(&m_section);
 	return true;
 }
 
@@ -59,6 +61,7 @@ bool SendServer::ResetSocket()
 	isOK &= SetSendAddr(m_SendServerSetting.m_RemoteRecvPort, m_SendServerSetting.m_RemoteRecvIp,
 		m_SendServerSetting.m_LocalSendPort,m_SendServerSetting.m_LocalSendIP);
 	isOK &= SetOption(m_SendServerSetting.m_OptionFlag);
+	m_SkStatus |= enSendOK;
 	LeaveCriticalSection(&m_section);
 	Create();
 	Resume();

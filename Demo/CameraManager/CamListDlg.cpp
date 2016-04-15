@@ -46,47 +46,47 @@ void CCamListDlg::OnBnClickedAddcameraBtn()
 void CCamListDlg::OnNMCustomdrawCamList(NMHDR* pNMHDR, LRESULT* pResult)
 {//////////////////////////////////////////////////////////////////////////
 	//修改相机列表单元格颜色
-	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>(pNMHDR);
+	//NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>(pNMHDR);
 
-	if (CDDS_PREPAINT == pLVCD->nmcd.dwDrawStage)
-	{
-		*pResult = CDRF_NOTIFYITEMDRAW;
-	}
-	else if (CDDS_ITEMPREPAINT == pLVCD->nmcd.dwDrawStage)
-	{
-		// This is the notification message for an item. We'll request  
-		// notifications before each subitem's prepaint stage.  
+	//if (CDDS_PREPAINT == pLVCD->nmcd.dwDrawStage)
+	//{
+	//	*pResult = CDRF_NOTIFYITEMDRAW;
+	//}
+	//else if (CDDS_ITEMPREPAINT == pLVCD->nmcd.dwDrawStage)
+	//{
+	//	// This is the notification message for an item. We'll request  
+	//	// notifications before each subitem's prepaint stage.  
 
-		*pResult = CDRF_NOTIFYSUBITEMDRAW;
-	}
-	else if ((CDDS_ITEMPREPAINT | CDDS_SUBITEM) == pLVCD->nmcd.dwDrawStage)
-	{
-		int nItem = static_cast<int>(pLVCD->nmcd.dwItemSpec);
-		switch (pLVCD->iSubItem)
-		{
-		case 2:
-		case 4:
-		{
-			if (nItem % 2 == 0)
-			{
+	//	*pResult = CDRF_NOTIFYSUBITEMDRAW;
+	//}
+	//else if ((CDDS_ITEMPREPAINT | CDDS_SUBITEM) == pLVCD->nmcd.dwDrawStage)
+	//{
+	//	int nItem = static_cast<int>(pLVCD->nmcd.dwItemSpec);
+	//	switch (pLVCD->iSubItem)
+	//	{
+	//	case 2:
+	//	case 4:
+	//	{
+	//		if (nItem % 2 == 0)
+	//		{
 
-				COLORREF clrNewTextColor, clrNewBkColor;
-				clrNewTextColor = RGB(0, 0, 0);
-				clrNewBkColor = RGB(198, 202, 198);
+	//			COLORREF clrNewTextColor, clrNewBkColor;
+	//			clrNewTextColor = RGB(0, 0, 0);
+	//			clrNewBkColor = RGB(198, 202, 198);
 
-				pLVCD->clrText = clrNewTextColor;
-				pLVCD->clrTextBk = clrNewBkColor;
-				*pResult = CDRF_DODEFAULT;
-				break;
-			}
-		}
-		default:
-			pLVCD->clrText = RGB(0, 0, 0);
-			pLVCD->clrTextBk = RGB(255, 255, 255);
-			*pResult = CDRF_DODEFAULT;
-			break;
-		}
-	}
+	//			pLVCD->clrText = clrNewTextColor;
+	//			pLVCD->clrTextBk = clrNewBkColor;
+	//			*pResult = CDRF_DODEFAULT;
+	//			break;
+	//		}
+	//	}
+	//	default:
+	//		pLVCD->clrText = RGB(0, 0, 0);
+	//		pLVCD->clrTextBk = RGB(255, 255, 255);
+	//		*pResult = CDRF_DODEFAULT;
+	//		break;
+	//	}
+	//}
 }
 
 BOOL CCamListDlg::OnInitDialog()

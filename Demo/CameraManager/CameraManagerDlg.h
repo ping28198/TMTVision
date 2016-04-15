@@ -7,8 +7,8 @@
 #include "AddCamDlg.h"
 #include "CamListDlg.h"
 #include "NetWorkDlg.h"
-
-
+#include "CameraManager.h"
+#include "UpdateDataThread.h"
 
 
 
@@ -34,6 +34,8 @@ public:
 public:
 	CTabCtrl m_tab;
 	int m_CurSelTab;
+	CameraManager* pCamManager;
+	CUpdateDataThread* pUpdateTread;
 	CCamListDlg* pCamListDlg;
 	NetWorkDlg* pNetWorkDlg;
 	CAddCamDlg* pAddCamDlg;

@@ -154,7 +154,9 @@ public:
 	// Access:    public 
 	// 返回值:   bool  // 
 	//************************************
-	bool ReSetSocket();
+	bool ResetSocket();
+
+	DWORD GetReceiveStatus();
 	void Create();
 	bool Unitial();	
 //Socket功能

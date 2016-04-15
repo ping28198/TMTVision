@@ -1,4 +1,5 @@
 #pragma once
+#include "afxwin.h"
 
 
 // NetWorkDlg 对话框
@@ -30,4 +31,6 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 	DECLARE_MESSAGE_MAP()
+public:
+	CListBox mNetStatusList;
 };

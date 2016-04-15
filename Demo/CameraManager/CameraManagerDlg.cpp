@@ -66,10 +66,11 @@ BOOL CCameraManagerDlg::OnInitDialog()
 	pCamListDlg = new CCamListDlg(this);
 	pNetWorkDlg = new NetWorkDlg(this);
 	pAddCamDlg = new CAddCamDlg(this);
+	pCamManager = new CameraManager;
+	pUpdateTread = new CUpdateDataThread(this);
 
-
-
-
+	pCamManager->Initial();
+	pUpdateTread->Initial();
 	pAddCamDlg->Create(IDD_ADDCAM_DLG, this);
 	m_tab.InsertItem(0, _T("Ïà»ú"));
 	m_tab.InsertItem(1, _T("ÍøÂç"));

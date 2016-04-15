@@ -115,9 +115,17 @@ void CameraObject::Task()
 						((tmpFileItem.m_fileAction & FILE_ACTION_ADDED) == FILE_ACTION_ADDED ||
 							(tmpFileItem.m_fileAction & FILE_ACTION_MODIFIED) == FILE_ACTION_MODIFIED))
 					{
-						m_Detector.Detect(m_ImageInfo.ImagePath,
-							m_ImageInfo.mCameraInfo.AlgorithmInfo.DstImgPath,
-							m_ImageInfo.mDefectInfo);
+						try
+						{
+							m_Detector.Detect(m_ImageInfo.ImagePath,
+								m_ImageInfo.mCameraInfo.AlgorithmInfo.DstImgPath,
+								m_ImageInfo.mDefectInfo);
+						}
+						catch (...)
+						{
+							OutputDebugString(L"<CameraObject::Task() Detect failed.>\n");
+						}
+
 					}
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
 					if (!((CameraManager*)p_Parent)->SendImage(m_ImageInfo))
@@ -133,9 +141,16 @@ void CameraObject::Task()
 						((tmpFileItem.m_fileAction & FILE_ACTION_ADDED) == FILE_ACTION_ADDED ||
 							(tmpFileItem.m_fileAction & FILE_ACTION_MODIFIED) == FILE_ACTION_MODIFIED))
 					{
-						m_Detector.Detect(m_ImageInfo.ImagePath,
-							m_ImageInfo.mCameraInfo.AlgorithmInfo.DstImgPath,
-							m_ImageInfo.mDefectInfo);
+						try
+						{
+							m_Detector.Detect(m_ImageInfo.ImagePath,
+								m_ImageInfo.mCameraInfo.AlgorithmInfo.DstImgPath,
+								m_ImageInfo.mDefectInfo);
+						}
+						catch (...)
+						{
+							OutputDebugString(L"<CameraObject::Task() Detect failed.>\n");
+						}
 					}
 					if (!((CameraManager*)p_Parent)->SendImage(m_ImageInfo))
 					{

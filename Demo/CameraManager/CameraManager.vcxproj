@@ -239,6 +239,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="UpdateDataThread.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Include\ArWatch.cpp" />
@@ -267,6 +268,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="UpdateDataThread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CameraManager.rc" />

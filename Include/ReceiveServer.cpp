@@ -30,7 +30,9 @@ bool ReceiveServer::Initial(ReceiveServerSetting receiveServerSetting)
 
 bool ReceiveServer::GetSetting(ReceiveServerSetting &mSetting)
 {	
+	EnterCriticalSection(&m_section);
 	mSetting = m_ReceiveServerSetting;
+	LeaveCriticalSection(&m_section);
 	return true;
 }
 
@@ -38,25 +40,33 @@ bool ReceiveServer::ReSetSetting(const ReceiveServerSetting &mSetting)
 {
 	m_ReceiveServerSetting = mSetting;
 	
-	return ReSetSocket();
+	return ResetSocket();
 }
 
-bool ReceiveServer::ReSetSocket()
+bool ReceiveServer::ResetSocket()
 {
 	ForceEnd();
 	bool isOK = true;
 	EnterCriticalSection(&m_section);
 	isOK &= SetRecvAddr(m_ReceiveServerSetting.m_LocalRecvPort, m_ReceiveServerSetting.m_LocalRecvIP);
 	isOK &= SetOption(m_ReceiveServerSetting.m_OptionFlag);
+	m_SkStatus |= enRecvOK;
 	LeaveCriticalSection(&m_section);
 	Create();
 	Resume();
 	return isOK;
 }
 
+DWORD ReceiveServer::GetReceiveStatus()
+{
+	EnterCriticalSection(&m_section);
+	return GetStatus();
+	LeaveCriticalSection(&m_section);
+}
+
 void ReceiveServer::Create()
 {
-	Thread::Create(-1, MIN(m_ReceiveServerSetting.m_SleepTime, 0), true);
+	Thread::Create(-1, MAX(m_ReceiveServerSetting.m_SleepTime, 0), true);
 }
 
 bool ReceiveServer::Unitial()
