@@ -136,12 +136,21 @@ public:
 		DWORD optionFlag = RECV_NOWAIT | ADDR_REUSE, long sleepTime = 0);	
 	bool Initial(SendServerSetting sendServerSetting);
 	void Create();
+
+	bool GetSetting(SendServerSetting &mSetting);
+
+	bool ReSetSetting(const SendServerSetting &mSetting);
+
+	bool ResetSocket();
+
+	DWORD GetSendServerStatus();
+
 	bool Unitial();
 //Socket功能
 private:
 	MessageItem tmpMessageItem;	
 public:
-	enum { QUEUESIZE = 64 };
+	enum { QUEUESIZE = 256 };
 	Queue<MessageItem>  m_MessageItemQueue;
 	//推送消息
 	bool PushMsg(void *pBuffer, long msgLength);

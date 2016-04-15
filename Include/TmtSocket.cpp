@@ -202,13 +202,40 @@ bool TmtSocket::SetOption(DWORD flag)
 		u_long mode = 1;
 		ioctlsocket(sock_recv, FIONBIO, &mode);
 	}
+	else
+	{
+		u_long mode = 0;
+		ioctlsocket(sock_recv, FIONBIO, &mode);
+	}
+
+	int nNetTimeout = 1000; //1秒
+	setsockopt(sock_send, SOL_SOCKET, SO_SNDTIMEO, (char *)&nNetTimeout, sizeof(int));//强制给sendsocket设置发送时限
+	BOOL bDontLinger = FALSE;
+	setsockopt(sock_recv, SOL_SOCKET, SO_DONTLINGER, (const char*)&bDontLinger, sizeof(BOOL));//设置closesocket时不等待
+	setsockopt(sock_send, SOL_SOCKET, SO_DONTLINGER, (const char*)&bDontLinger, sizeof(BOOL));
+	int optVal = 1024 * 1024 * 6;
+	int optLen = sizeof(int);
+	setsockopt(sock_recv, SOL_SOCKET, SO_RCVBUF, (char*)&optVal, optLen);//设置缓冲区长度
 	return true;
+}
+
+DWORD TmtSocket::GetStatus()
+{
+	return m_SkStatus;
 }
 
 int TmtSocket::SendMsg(void *pBuffer, size_t MsgLength)
 {
-	int recnum = sendto(sock_send, (char*)pBuffer, MsgLength, 0, (SOCKADDR*)&Sd_DstAddr, sizeof(Sd_DstAddr));
-	return recnum;
+	int sendnum = sendto(sock_send, (char*)pBuffer, MsgLength, 0, (SOCKADDR*)&Sd_DstAddr, sizeof(Sd_DstAddr));
+	if (sendnum ==SOCKET_ERROR)
+	{
+		m_SkStatus &= ~enSendOK;
+	}
+	else
+	{
+		m_SkStatus |= enSendOK;
+	}
+	return sendnum;
 }
 
 int TmtSocket::RecvMsg(void *pBuffer, size_t bufLength, int *pRemoteSendPort, char* pRemoteSendIp)

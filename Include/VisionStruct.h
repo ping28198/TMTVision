@@ -164,7 +164,9 @@ struct Tmtv_AskInfo//指令信息, 主程序端发往相机服务端
 		TMTV_SETCAM = 105,        //设置CameraInfo指定的已加载相机的指定参数
 		TMTV_STARTALGO = 106,     //启动CameraInfo指定的算法
 		TMTV_STOPCALGO = 107,      //暂定CameraInfo指定的算法
-		TMTV_SETALGO = 108      //暂定CameraInfo指定的算法
+		TMTV_SETALGO = 108,      //暂定CameraInfo指定的算法
+		TMTV_GETALLCAM = 150,		//获取所有相机状态
+		TMTV_GETALLIMG = 151,		//获取所有相机最新图片
 	};
 	int Asktype=0;
 	HANDLE hAskHandle;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
@@ -190,22 +192,26 @@ struct Tmtv_MsgInfo//指令信息, 相机服务端发往主程序端
 		TMTV_STARTALGO_OK = 206,     //启动算法成功
 		TMTV_STOPALGO_OK = 207,      //暂定算法成功
 		TMTV_SETALGO_OK = 208,       //设定算法成功
+		TMTV_SENDALLCAMOK=209,
+		TMTV_SENDALLIMGOK=210,
 
-		TMTV_ADDCAM_FAIL = 210,      //添加CameraInfo指定的未加载相机未成功
-		TMTV_DELCAM_FAIL = 211,      //删除CameraInfo指定的未加载相机未成功
-		TMTV_STARTCAM_FAIL = 212,    //启动CameraInfo指定的已加载相机未成功
-		TMTV_STOPCAM_FAIL = 213,     //暂定CameraInfo指定的已加载相机未成功
-		TMTV_GETCAM_FAIL = 214,      //查询CameraInfo指定的已加载相机的指定参数未成功
-		TMTV_SETCAM_FAIL = 215,      //设置CameraInfo指定的已加载相机的指定参数未成功
-		TMTV_STARTALGO_FAIL = 216,   //启动算法未成功
-		TMTV_STOPALGO_FAIL = 217,    //暂定算法未成功
-		TMTV_SETALGO_FAIL = 218,       //设定算法成功
+		TMTV_ADDCAM_FAIL = 240,      //添加CameraInfo指定的未加载相机未成功
+		TMTV_DELCAM_FAIL,      //删除CameraInfo指定的未加载相机未成功
+		TMTV_STARTCAM_FAIL,    //启动CameraInfo指定的已加载相机未成功
+		TMTV_STOPCAM_FAIL,     //暂定CameraInfo指定的已加载相机未成功
+		TMTV_GETCAM_FAIL,      //查询CameraInfo指定的已加载相机的指定参数未成功
+		TMTV_SETCAM_FAIL,      //设置CameraInfo指定的已加载相机的指定参数未成功
+		TMTV_STARTALGO_FAIL,   //启动算法未成功
+		TMTV_STOPALGO_FAIL,    //暂定算法未成功
+		TMTV_SETALGO_FAIL,       //设定算法成功
 
-		TMTV_INVALID = 220,          //返回非法的命令
+		TMTV_INVALID = 260,          //返回非法的命令
 		TMTV_SNAPED = 298,           //推送实时mImgInfo图片
 		TMTV_DETECTED = 299,         //推送检测到的的mImgInfo图片+缺陷
+		TMTV_CAMINFO = 300,
 	};
-	int MsgType=0;
+	int MsgType = 0;
+	int MsgNum = 1;					//消息数量，用于一次传输多个消息
 	HANDLE hAskHandle;            //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
 	HANDLE hAnswerHandle;         //1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用
 	//Tmtv_CameraInfo CameraInfo;//1.1//冗余的数据

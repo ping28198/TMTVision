@@ -228,6 +228,7 @@
     <ClInclude Include="..\..\Include\Thread.h" />
     <ClInclude Include="..\..\Include\TmtSocket.h" />
     <ClInclude Include="..\..\Include\VisionStruct.h" />
+    <ClInclude Include="..\..\Include\XMLOperator.h" />
     <ClInclude Include="AddCamDlg.h" />
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CameraManagerApp.h" />
@@ -252,6 +253,7 @@
     <ClCompile Include="..\..\Include\SendServer.cpp" />
     <ClCompile Include="..\..\Include\Thread.cpp" />
     <ClCompile Include="..\..\Include\TmtSocket.cpp" />
+    <ClCompile Include="..\..\Include\XMLOperator.cpp" />
     <ClCompile Include="AddCamDlg.cpp" />
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CameraManagerApp.cpp" />

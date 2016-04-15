@@ -121,16 +121,46 @@ public:
 	{
 		m_MessageItemQueue.Unitial();
 	}
-	ReceiveServerSetting m_ReceiveServerSetting;
+	
 	//初始化
 	bool Initial(int localRecvPort, NetIP localRecvIP,
 		DWORD optionFlag = RECV_NOWAIT|ADDR_REUSE,long sleepTime=0);
 	bool Initial(ReceiveServerSetting receiveServerSetting);
+
+	//************************************
+	// 作用:  获取当前网络配置
+	// 说明:  
+	// 名称:  ReceiveServer::GetSetting
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   ReceiveServerSetting & mSetting  //
+	//************************************
+	bool GetSetting(ReceiveServerSetting &mSetting);
+
+	//************************************
+	// 作用:  应用给定的配置重设网络
+	// 说明:  
+	// 名称:  ReceiveServer::ReSetSetting
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   const ReceiveServerSetting & mSetting  //
+	//************************************
+	bool ReSetSetting(const ReceiveServerSetting &mSetting);
+
+	//************************************
+	// 作用:  应用当前配置重设网络
+	// 说明:  
+	// 名称:  ReceiveServer::ReSetSocket
+	// Access:    public 
+	// 返回值:   bool  // 
+	//************************************
+	bool ReSetSocket();
 	void Create();
 	bool Unitial();	
 //Socket功能
 private:
 	MessageItem tmpMessageItem;
+	ReceiveServerSetting m_ReceiveServerSetting;
 public:
 	enum { QUEUESIZE = 64 };
 	Queue<MessageItem>  m_MessageItemQueue;

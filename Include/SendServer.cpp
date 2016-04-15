@@ -39,6 +39,41 @@ void SendServer::Create()
 	Thread::Create(-1, MIN(this->m_SendServerSetting.m_SleepTime, 0), true);
 }
 
+bool SendServer::GetSetting(SendServerSetting &mSetting)
+{
+	mSetting = m_SendServerSetting;
+	return true;
+}
+
+bool SendServer::ReSetSetting(const SendServerSetting &mSetting)
+{
+	m_SendServerSetting = mSetting;
+	return ResetSocket();
+}
+
+bool SendServer::ResetSocket()
+{
+	ForceEnd();
+	bool isOK = true;
+	EnterCriticalSection(&m_section);
+	isOK &= SetSendAddr(m_SendServerSetting.m_RemoteRecvPort, m_SendServerSetting.m_RemoteRecvIp,
+		m_SendServerSetting.m_LocalSendPort,m_SendServerSetting.m_LocalSendIP);
+	isOK &= SetOption(m_SendServerSetting.m_OptionFlag);
+	LeaveCriticalSection(&m_section);
+	Create();
+	Resume();
+	return isOK;
+}
+
+DWORD SendServer::GetSendServerStatus()
+{
+	DWORD mdw;
+	EnterCriticalSection(&m_section);
+	mdw = GetStatus();
+	LeaveCriticalSection(&m_section);
+	return mdw;
+}
+
 bool SendServer::Unitial()
 {
 	ForceEnd();
@@ -93,11 +128,15 @@ void SendServer::Task(void)
 				{
 					EnterCriticalSection(&m_section);
 					m_MessageItemQueue.DelHead();
+					m_SkStatus |= enRecvOK;
 					LeaveCriticalSection(&m_section);
 					break;
 				}
 				else
 				{
+					EnterCriticalSection(&m_section);
+					m_SkStatus &= ~enRecvOK;
+					LeaveCriticalSection(&m_section);
 					Sleep(100);
 				}
 			}

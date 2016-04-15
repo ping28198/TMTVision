@@ -2,15 +2,34 @@
 #include "XMLOperator.h"
 bool CameraManagerSetting::LoadSetting(PATHWSTR xmlFilePath)
 {
-
-
-
-	return false;
+	CMemoryFile mMemFile;
+	bool isOK = mMemFile.OpenFile_R(xmlFilePath);
+	if (!isOK)
+	{
+		LoggerServer::mLogger.TraceError("读取网络配置文件失败！");
+		return false;
+	}
+	CameraManagerSetting msetting;
+	mMemFile.ReadMemoryFromFile(&msetting, sizeof(CameraManagerSetting));
+	this->m_ReceiveServerSetting = msetting.m_ReceiveServerSetting;
+	this->m_SendServerSetting = msetting.m_SendServerSetting;
+	this->m_SleepTime = msetting.m_SleepTime;
+	mMemFile.CloseFile();
+	return true;
 }
 
 bool CameraManagerSetting::SaveSetting(PATHWSTR xmlFilePath)
 {
-
+	CMemoryFile mMemFile;
+	bool isOK = mMemFile.OpenFile_W(xmlFilePath);
+	if (!isOK)
+	{
+		LoggerServer::mLogger.TraceError("读取网络配置文件失败！");
+		return false;
+	}
+	mMemFile.WriteMemoryToFile(this, sizeof(CameraManagerSetting));
+	mMemFile.CloseFile();
+	return true;
 
 
 	return false;
@@ -34,16 +53,23 @@ void CameraManager::Initial(CameraManagerSetting cameraManagerSetting)
 
 void CameraManager::Initial()
 {
-	//this->LoadSetting(L"");
-
-	this->Create(-1, m_CameraManagerSetting.m_SleepTime, true);
+	bool IsOk = this->LoadSetting();
+	if (IsOk)
+	{
+		m_SendServer.Initial(m_CameraManagerSetting.m_SendServerSetting);
+		m_SendServer.Create();
+		m_SendServer.Resume();
+		m_ReceiveServer.Initial(m_CameraManagerSetting.m_ReceiveServerSetting);
+		m_ReceiveServer.Create();
+		m_ReceiveServer.Resume();
+		LoggerServer::mLogger.TraceInfo("加载网络配置参数成功！");
+	}
+	else
+	{
+		LoggerServer::mLogger.TraceInfo("加载网络配置参数失败！");
+	}
+	this->Create(-1, 0, true);
 	this->Resume();
-	m_SendServer.Initial(m_CameraManagerSetting.m_SendServerSetting);
-	m_SendServer.Create();
-	m_SendServer.Resume();
-	m_ReceiveServer.Initial(m_CameraManagerSetting.m_ReceiveServerSetting);
-	m_ReceiveServer.Create();
-	m_ReceiveServer.Resume();
 	ReadAndSetCamObj();
 }
 
@@ -54,7 +80,7 @@ void CameraManager::Unitial()
 	this->ForceEnd();
 	m_ReceiveServer.Unitial();
 	m_SendServer.Unitial();
-	this->Unitial();
+	//this->Unitial();
 	vector<CameraObject*>::iterator it;
 	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end();it++)
 	{
@@ -81,8 +107,8 @@ bool CameraManager::WriteCamObjsToFile()
 		mMemFile.WriteMemoryToFile(&mCamInfo, sizeof(Tmtv_CameraInfo));
 	}
 	mMemFile.CloseFile();
+	return true;
 }
-
 
 bool CameraManager::ReadAndSetCamObj()
 {
@@ -106,6 +132,7 @@ bool CameraManager::ReadAndSetCamObj()
 	}
 	mMemFile.CloseFile();
 	if (IsOK) LoggerServer::mLogger.TraceInfo("加载所有相机成功");
+	return true;
 }
 
 CameraObject* CameraManager::GetCamObject(int CamIndex)
@@ -134,14 +161,14 @@ CameraObject* CameraManager::GetCamObject(Tmtv_CameraInfo& cameraInfo)
 	return NULL;
 }
 
-bool CameraManager::LoadSetting(PATHWSTR xmlFilePath)
+bool CameraManager::LoadSetting()
 {
-	return m_CameraManagerSetting.LoadSetting(xmlFilePath);
+	return m_CameraManagerSetting.LoadSetting(L"setting\\NetworkInfo.data");
 }
 
-bool CameraManager::SaveSetting(PATHWSTR xmlFilePath)
+bool CameraManager::SaveSetting()
 {
-	return m_CameraManagerSetting.SaveSetting(xmlFilePath);
+	return m_CameraManagerSetting.SaveSetting(L"setting\\NetworkInfo.data");
 }
 
 bool CameraManager::AddCamera(Tmtv_CameraInfo& cameraInfo)
@@ -284,29 +311,56 @@ bool CameraManager::GetManagerSetting(CameraManagerSetting &camManagerSetting)
 
 bool CameraManager::GetSendServerSetting(SendServerSetting &sendServerSetting)
 {
-	sendServerSetting = m_CameraManagerSetting.m_SendServerSetting;
-	return true;
+	
+	return m_SendServer.GetSetting(sendServerSetting);
 }
 
 bool CameraManager::GetReciveServerSeting(ReceiveServerSetting &receiveServerSetting)
 {
-	receiveServerSetting = m_CameraManagerSetting.m_ReceiveServerSetting;
-	return true;
+	return m_ReceiveServer.GetSetting(receiveServerSetting);
 }
 
 bool CameraManager::SetManagerSetting(const CameraManagerSetting &camManagerSetting)
 {
-	return true;
+	bool isOK = true;
+	isOK &= SetSendServerSetting(camManagerSetting.m_SendServerSetting);
+	isOK &= SetReciveServerSeting(camManagerSetting.m_ReceiveServerSetting);
+	return isOK;
 }
 
-bool CameraManager::SetSendServerSetting(SendServerSetting &sendServerSetting)
+bool CameraManager::SetSendServerSetting(const SendServerSetting &sendServerSetting)
 {
-	return true;
+	m_CameraManagerSetting.m_SendServerSetting = sendServerSetting;
+	SaveSetting();
+	bool IsOK = m_SendServer.ReSetSetting(m_CameraManagerSetting.m_SendServerSetting);
+	if (IsOK)
+	{
+		LoggerServer::mLogger.TraceKeyInfo("重设发送网络服务：目标IP：%s:%d 本地IP：%s:%d成功！", sendServerSetting.m_RemoteRecvIp, 
+			sendServerSetting.m_RemoteRecvPort, sendServerSetting.m_LocalSendIP, sendServerSetting.m_LocalSendPort);
+	}
+	else
+	{
+		LoggerServer::mLogger.TraceKeyInfo("重设发送网络服务：目标IP：%s:%d 本地IP：%s:%d失败！", sendServerSetting.m_RemoteRecvIp,
+			sendServerSetting.m_RemoteRecvPort, sendServerSetting.m_LocalSendIP, sendServerSetting.m_LocalSendPort);
+	}
+	return IsOK;
 }
+	
 
-bool CameraManager::SetReciveServerSeting(ReceiveServerSetting &receiveServerSetting)
+bool CameraManager::SetReciveServerSeting(const ReceiveServerSetting &receiveServerSetting)
 {
-	return true;
+	m_CameraManagerSetting.m_ReceiveServerSetting = receiveServerSetting;
+	SaveSetting();
+	bool IsOK = m_ReceiveServer.ReSetSetting(m_CameraManagerSetting.m_ReceiveServerSetting);
+	if (IsOK)
+	{
+		LoggerServer::mLogger.TraceKeyInfo("重设接收网络IP：%s端口：%d成功！",receiveServerSetting.m_LocalRecvIP, receiveServerSetting.m_LocalRecvPort);
+	}
+	else
+	{
+		LoggerServer::mLogger.TraceKeyInfo("重设接收网络IP：%s端口：%d失败！",receiveServerSetting.m_LocalRecvIP, receiveServerSetting.m_LocalRecvPort);
+	}
+	return IsOK;
 }
 
 bool CameraManager::StartAlgorithm(Tmtv_CameraInfo& cameraInfo)
@@ -338,6 +392,32 @@ bool CameraManager::SendImage(Tmtv_ImageInfo& imgInfo)
 	return (SendMsgInfo(msgInfo) > 0);
 }
 
+bool CameraManager::SendAllCamInfo()
+{
+	Tmtv_MsgInfo msgInfo;
+	msgInfo.MsgType = Tmtv_MsgInfo::TMTV_CAMINFO;
+	vector<CameraObject*>::iterator it;
+	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
+	{
+		(*it)->GetImgInfo(&msgInfo.ImgInfo);
+		m_SendServer.PushMsg((void *)& msgInfo, msgInfo.structSize);
+	}
+	return true;
+}
+
+bool CameraManager::SendAllImgInfo()
+{
+	Tmtv_MsgInfo msgInfo;
+	msgInfo.MsgType = Tmtv_MsgInfo::TMTV_SNAPED;
+	vector<CameraObject*>::iterator it;
+	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
+	{
+		(*it)->GetImgInfo(&msgInfo.ImgInfo);
+		m_SendServer.PushMsg((void *)& msgInfo, msgInfo.structSize);
+	}
+	return true;
+}
+
 void CameraManager::Task()
 {
 	MessageItem tmpMsgItem;
@@ -350,7 +430,7 @@ void CameraManager::Task()
 	}
 	else
 	{
-		Tmtv_AskInfo* pAskData = (Tmtv_AskInfo*)tmpMsgItem.m_BufferSize;
+		Tmtv_AskInfo* pAskData = (Tmtv_AskInfo*)tmpMsgItem.p_Buffer;
 		Tmtv_MsgInfo msgData;
 		if (pAskData->CheckCode == TMTV_CHECKCODE)
 		{
@@ -464,6 +544,20 @@ void CameraManager::Task()
 					SendMsgInfo(msgData);
 				}
 				break;
+			case Tmtv_AskInfo::TMTV_GETALLCAM:
+				if (SendAllCamInfo())
+				{
+					msgData.MsgType = Tmtv_MsgInfo::TMTV_SENDALLCAMOK;
+					SendMsgInfo(msgData);
+				}
+				break;
+			case Tmtv_AskInfo::TMTV_GETALLIMG:
+				if (SendAllImgInfo())
+				{
+					msgData.MsgType = Tmtv_MsgInfo::TMTV_SENDALLIMGOK;
+					SendMsgInfo(msgData);
+				}
+				break;
 			default:
 				break;
 			}
@@ -472,5 +566,5 @@ void CameraManager::Task()
 }
 
 
-Logger LoggerServer::mLogger;
+Logger LoggerServer::mLogger("serverlog\\");
 

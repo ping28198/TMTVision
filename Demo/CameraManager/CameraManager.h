@@ -120,9 +120,11 @@ public://相机、算法操作命令
 	CameraObject* GetCamObject(int CamIndex);
 	CameraObject* GetCamObject(Tmtv_CameraInfo& cameraInfo);
 	//载入参数
-	bool LoadSetting(PATHWSTR xmlFilePath);
+	bool LoadSetting();
 	//保存参数
-	bool SaveSetting(PATHWSTR xmlFilePath);
+	bool SaveSetting();
+
+public:
 	//添加相机
 	bool AddCamera(Tmtv_CameraInfo& cameraInfo);
 	//删除相机
@@ -142,6 +144,7 @@ public://相机、算法操作命令
 	//停止相机算法
 	bool SetAlgorithm(Tmtv_CameraInfo& cameraInfo);
 
+public://配置参数函数
 	bool GetManagerSetting(CameraManagerSetting &camManagerSetting);
 
 	bool GetSendServerSetting(SendServerSetting &sendServerSetting);
@@ -150,12 +153,17 @@ public://相机、算法操作命令
 
 	bool SetManagerSetting(const CameraManagerSetting &camManagerSetting);
 
-	bool SetSendServerSetting(SendServerSetting &sendServerSetting);
+	bool SetSendServerSetting(const SendServerSetting &sendServerSetting);
 
-	bool SetReciveServerSeting(ReceiveServerSetting &receiveServerSetting);
+	bool SetReciveServerSeting(const ReceiveServerSetting &receiveServerSetting);
+
+
+
 public://发送消息交由SendServer处理
 	int SendMsgInfo(Tmtv_MsgInfo& msgInfo);
 	bool SendImage(Tmtv_ImageInfo& imgInfo);
+	bool SendAllCamInfo();
+	bool SendAllImgInfo();
 	//由ReceiveServer接受消息的本地处理
 	void Task();
 private:

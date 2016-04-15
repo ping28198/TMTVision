@@ -28,6 +28,32 @@ bool ReceiveServer::Initial(ReceiveServerSetting receiveServerSetting)
 	return isOK;
 }
 
+bool ReceiveServer::GetSetting(ReceiveServerSetting &mSetting)
+{	
+	mSetting = m_ReceiveServerSetting;
+	return true;
+}
+
+bool ReceiveServer::ReSetSetting(const ReceiveServerSetting &mSetting)
+{
+	m_ReceiveServerSetting = mSetting;
+	
+	return ReSetSocket();
+}
+
+bool ReceiveServer::ReSetSocket()
+{
+	ForceEnd();
+	bool isOK = true;
+	EnterCriticalSection(&m_section);
+	isOK &= SetRecvAddr(m_ReceiveServerSetting.m_LocalRecvPort, m_ReceiveServerSetting.m_LocalRecvIP);
+	isOK &= SetOption(m_ReceiveServerSetting.m_OptionFlag);
+	LeaveCriticalSection(&m_section);
+	Create();
+	Resume();
+	return isOK;
+}
+
 void ReceiveServer::Create()
 {
 	Thread::Create(-1, MIN(m_ReceiveServerSetting.m_SleepTime, 0), true);
@@ -89,14 +115,21 @@ void ReceiveServer::Task(void)
 {
 	if (m_SkStatus == enRecvOK || m_SkStatus == enSendAndRecvOK)
 	{
-		EnterCriticalSection(&m_section);
 		tmpMessageItem.p_Buffer[0] = 0;
 		int revLen = RecvMsg((void*)tmpMessageItem.p_Buffer, tmpMessageItem.m_BufferSize,
 			&tmpMessageItem.m_SenderPort,tmpMessageItem.m_SenderIp);
 		if (revLen>0)
 		{
+			EnterCriticalSection(&m_section);
 			m_MessageItemQueue.ForcTail(tmpMessageItem);
+			m_SkStatus |= enRecvOK;
+			LeaveCriticalSection(&m_section);
 		}
-		LeaveCriticalSection(&m_section);
+		else
+		{
+			EnterCriticalSection(&m_section);
+			m_SkStatus &= ~enRecvOK;
+			LeaveCriticalSection(&m_section);
+		}
 	}
 }

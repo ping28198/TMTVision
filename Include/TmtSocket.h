@@ -84,7 +84,8 @@ public:
 	enum { RECV_NOWAIT = 1, ADDR_REUSE = 2 };
 	bool SetOption(DWORD flag);
 
-
+	//获取socket运行状态
+	DWORD GetStatus();
 
 	//////////////////////////////////////////////////////////////////////////
 	//缓冲区指针, 需要发送数据长度
@@ -96,7 +97,7 @@ public:
 	int ReSet();//看需要进行重置
 	int ReleaseSocket();//手动释放socket
 public:
-	enum { enNoSendOrRecv = 0, enSendOK= 1, enRecvOK = 2, enSendAndRecvOK = 3};
+	enum { enNoSendOrRecv = 0, enSendOK = 1, enRecvOK = 2, enSendAndRecvOK = 3};
 	DWORD m_SkStatus;
 	bool m_SKInitialOK;
 	int m_OptionFlag;
