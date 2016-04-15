@@ -5,7 +5,7 @@
 
 bool SendServer::Initial(int remoteRecvPort, NetIP remoteRecvIp,
 	                 int localSendPort, NetIP localSendIP,
-	                 DWORD optionFlag, long sleepTime = 0)
+	                 DWORD optionFlag, long sleepTime)
 {
 	ForceEnd();
 	bool isOK = true;
@@ -17,6 +17,7 @@ bool SendServer::Initial(int remoteRecvPort, NetIP remoteRecvIp,
 	isOK &= SetSendAddr(remoteRecvPort, remoteRecvIp, localSendPort, localSendIP);
 	m_SendServerSetting = tmpSetting;
 	LeaveCriticalSection(&m_section);
+	return isOK;
 }
 
 bool SendServer::Initial(SendServerSetting sendServerSetting)
@@ -35,7 +36,7 @@ bool SendServer::Initial(SendServerSetting sendServerSetting)
 
 void SendServer::Create()
 {
-	Thread::Create(-1, MIN(m_ReceiveServerSetting.m_SleepTime, 0), true);
+	Thread::Create(-1, MIN(this->m_SendServerSetting.m_SleepTime, 0), true);
 }
 
 bool SendServer::Unitial()

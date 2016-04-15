@@ -75,18 +75,35 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\Bin\$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformName)\$(Configuration)\</IntDir>
+    <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
+    <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(ProjectDir)..\..\Lib\CryptLib\x64;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
     <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(ProjectDir)..\..\Lib\CryptLib\x64</LibraryPath>
+    <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(ProjectDir)..\..\Lib\CryptLib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(ProjectDir)..\..\Lib\CryptLib\x64</LibraryPath>
+    <OutDir>$(ProjectDir)..\..\Bin\$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\Bin\$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformName)\$(Configuration)\</IntDir>
+    <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
+    <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(ProjectDir)..\..\Lib\CryptLib\x64;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\Bin\$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformName)\$(Configuration)\</IntDir>
+    <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
+    <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(ProjectDir)..\..\Lib\CryptLib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -99,6 +116,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opencv_world310d.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -150,6 +168,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opencv_world310.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -177,6 +196,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opencv_world310.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -198,11 +218,15 @@
     <ClInclude Include="..\..\Include\CommonFunc.h" />
     <ClInclude Include="..\..\Include\CommonInclude.h" />
     <ClInclude Include="..\..\Include\CvImage.h" />
+    <ClInclude Include="..\..\Include\Detector.h" />
+    <ClInclude Include="..\..\Include\DirWatcher.h" />
     <ClInclude Include="..\..\Include\logger.h" />
     <ClInclude Include="..\..\Include\MemoryFile.h" />
+    <ClInclude Include="..\..\Include\ObjToString.h" />
     <ClInclude Include="..\..\Include\ReceiveServer.h" />
     <ClInclude Include="..\..\Include\SendServer.h" />
     <ClInclude Include="..\..\Include\Thread.h" />
+    <ClInclude Include="..\..\Include\TmtSocket.h" />
     <ClInclude Include="..\..\Include\VisionStruct.h" />
     <ClInclude Include="AddCamDlg.h" />
     <ClInclude Include="CameraManager.h" />
@@ -219,11 +243,15 @@
     <ClCompile Include="..\..\Include\ArWatch.cpp" />
     <ClCompile Include="..\..\Include\CommonFunc.cpp" />
     <ClCompile Include="..\..\Include\CvImage.cpp" />
+    <ClCompile Include="..\..\Include\Detector.cpp" />
+    <ClCompile Include="..\..\Include\DirWatcher.cpp" />
     <ClCompile Include="..\..\Include\logger.cpp" />
     <ClCompile Include="..\..\Include\MemoryFile.cpp" />
+    <ClCompile Include="..\..\Include\ObjToString.cpp" />
     <ClCompile Include="..\..\Include\ReceiveServer.cpp" />
     <ClCompile Include="..\..\Include\SendServer.cpp" />
     <ClCompile Include="..\..\Include\Thread.cpp" />
+    <ClCompile Include="..\..\Include\TmtSocket.cpp" />
     <ClCompile Include="AddCamDlg.cpp" />
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CameraManagerApp.cpp" />

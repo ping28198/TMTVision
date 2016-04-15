@@ -72,6 +72,7 @@ public:
 		strcpy_s(m_LocalSendIP, TMTV_IPSTRLEN, SendServerSetting.m_LocalSendIP);
 		m_OptionFlag = SendServerSetting.m_OptionFlag;
 		m_SleepTime = SendServerSetting.m_SleepTime;
+		return *this;
 	}
 };
 //==============================================================================
@@ -105,6 +106,7 @@ public:
 	{
 		memcpy_s(p_Buffer, MAXMSGSIZE, messageItem.p_Buffer, messageItem.m_BufferSize);
 		m_BufferSize = MIN(messageItem.m_BufferSize, MAXMSGSIZE);
+		return *this;
 	}
 };
 #endif

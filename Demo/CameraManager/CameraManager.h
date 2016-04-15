@@ -80,6 +80,7 @@ public:
 		m_SendServerSetting = cameraManagerSetting.m_SendServerSetting;
 		m_ReceiveServerSetting = cameraManagerSetting.m_ReceiveServerSetting;
 		m_SleepTime = cameraManagerSetting.m_SleepTime;
+		return *this;
 	}
 	bool LoadSetting(PATHWSTR xmlFilePath);
 	bool SaveSetting(PATHWSTR xmlFilePath);

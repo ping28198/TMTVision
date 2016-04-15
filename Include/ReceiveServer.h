@@ -63,6 +63,7 @@ public:
 		strcpy_s(m_LocalRecvIP, TMTV_IPSTRLEN, receiveServerSetting.m_LocalRecvIP);
 		m_OptionFlag = receiveServerSetting.m_OptionFlag;
 		m_SleepTime = receiveServerSetting.m_SleepTime;
+		return *this;
 	}
 };
 //==============================================================================
@@ -96,6 +97,7 @@ public:
 	{
 		memcpy_s(p_Buffer, MAXMSGSIZE, messageItem.p_Buffer, messageItem.m_BufferSize);
 		m_BufferSize = MIN(messageItem.m_BufferSize, MAXMSGSIZE);
+		return *this;
 	}
 };
 #endif
