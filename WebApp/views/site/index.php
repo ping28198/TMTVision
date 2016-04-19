@@ -7,21 +7,17 @@ $this->title = 'TMT vision';
 <div class="site-index">
 
     <div class="jumbotron">
-        <h1>Congratulations？<?php
-            $test = "now later";
-            echo $test;
-            ?></h1>
+        <h1>探头监控系统</h1>
 
-        <p class="lead">ffffffff</p>
-        <p><a class="btn btn-lg btn-success" href="http://www.yiiframework.com">Get started with Yii</a></p>
+        <p class="lead">在任何终端随时查看</p>
     </div>
 
     <div class="body-content">
 
         <div class="row">
             <div class="col-lg-4">
-                <h2>查看所有监控</h2>
-                <p><img src="<?= Yii::$app->getUrlManager()->getBaseUrl()?>/../resources/images/camera_sample.jpg" width="100%" alt=""/></p>
+                <h2>监控探头管理</h2>
+                <p><img class="" src="<?= Yii::$app->getUrlManager()->getBaseUrl()?>/../resources/images/camera_sample.jpg" width="100%" alt=""/></p>
                 <p><a class="btn btn-default" href="<?=Yii::$app->homeUrl?>?r=camera/index">点击查看&raquo;</a></p>
             </div>
             <div class="col-lg-4">

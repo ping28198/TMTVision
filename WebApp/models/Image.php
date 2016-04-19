@@ -15,14 +15,14 @@ use Yii;
  * @property double $height
  * @property double $width
  */
-class Image201604161 extends \yii\db\ActiveRecord
+class Image extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
-    public static function tableName()
+    public static function tableName($suffix="")
     {
-        return 'image_20160416_1';
+        return 'image'.$suffix;
     }
 
     /**
@@ -53,4 +53,6 @@ class Image201604161 extends \yii\db\ActiveRecord
             'width' => 'Width',
         ];
     }
+
+
 }

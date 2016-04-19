@@ -49,7 +49,7 @@ class Camera extends \yii\db\ActiveRecord
             'id' => 'ID',
             'cam_num' => 'Cam Num',
             'cam_name' => 'Cam Name',
-            'cam_folder' => 'Cam Folder',
+            'cam_folder' => '图像目录',
             'server_ip' => 'Server Ip',
             'location_lat' => 'Location Lat',
             'location_lng' => 'Location Lng',

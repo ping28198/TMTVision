@@ -16,7 +16,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Create Camera', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('添加新的监控探头', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?= GridView::widget([
