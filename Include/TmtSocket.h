@@ -15,6 +15,7 @@
 //版本号  开发人员      时间        描述
 //1.0     任威平      2016-03-29   创建模块
 //1.1     王磊        2016-03-31   添加线程
+//2.0	  任威平		2016 - 4 - 19		修改网络消息传输从消息中解析目标地址和消息长度
 //==============================================================================
 ///</ver_info>
 
@@ -93,6 +94,24 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//缓冲区指针, 缓冲区长度, 接收到的消息长度, 对方端口号, 对方ip
 	int RecvMsg(void *pBuffer, size_t bufLength, int *pRemoteSendPort = NULL, char* pRemoteSendIp = NULL);
+
+	//************************************
+	// 作用:  发送网络消息
+	// 说明:  自动解析内部数据发送，无需指定长度和目标
+	// 名称:  TmtSocket::SendNetMsg
+	// Access:    public 
+	// 返回值:   int  // 
+	// 参数:   void * pBuffer  //
+	//************************************
+	int SendNetMsg(void *pBuffer);//2.0
+
+	int RecvNetMsg(void *pBuffer, size_t bufLength);//2.0
+
+
+
+
+
+
 
 	int ReSet();//看需要进行重置
 	int ReleaseSocket();//手动释放socket

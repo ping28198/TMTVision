@@ -1,7 +1,7 @@
 
 // CameraManagerDlg.cpp : 实现文件
 //
-
+#pragma once
 #include "stdafx.h"
 #include "CameraManagerApp.h"
 #include "CameraManagerDlg.h"
@@ -30,14 +30,30 @@ void CCameraManagerDlg::DoDataExchange(CDataExchange* pDX)
 
 bool CCameraManagerDlg::AddCam(Tmtv_CameraInfo* pCamInfo)
 {
-
-
-	return true;
+	
+	return pCamManager->AddCamera(*pCamInfo);
 }
 
 int CCameraManagerDlg::CheckCam(Tmtv_CameraInfo* pCamInfo)
 {
-
+	vector<CameraObject*>::iterator it;
+	Tmtv_CameraInfo mCam;
+	for (it = pCamManager->m_CameraObjectVector.begin(); it != pCamManager->m_CameraObjectVector.end(); it++)
+	{
+		(*it)->GetCamInfo(&mCam);
+		if (mCam.Indexnum == pCamInfo->Indexnum)
+		{
+			return 1;
+		}
+		if (strcmp(mCam.CameraName, pCamInfo->CameraName) == 0)
+		{
+			return 2;
+		}
+		if (strcmp(mCam.CameraPath, pCamInfo->CameraPath) == 0)
+		{
+			return 3;
+		}
+	}
 	return 0;
 }
 
@@ -62,15 +78,17 @@ BOOL CCameraManagerDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-
+	LoggerServer::mLogger.TraceKeyInfo("-----------------------------------程序启动！");
 	pCamListDlg = new CCamListDlg(this);
 	pNetWorkDlg = new NetWorkDlg(this);
 	pAddCamDlg = new CAddCamDlg(this);
 	pCamManager = new CameraManager;
+	pCamManager->Initial();
+
 	pUpdateTread = new CUpdateDataThread(this);
 
-	pCamManager->Initial();
-	pUpdateTread->Initial();
+	
+
 	pAddCamDlg->Create(IDD_ADDCAM_DLG, this);
 	m_tab.InsertItem(0, _T("相机"));
 	m_tab.InsertItem(1, _T("网络"));
@@ -90,7 +108,7 @@ BOOL CCameraManagerDlg::OnInitDialog()
 	pDialog[1]->ShowWindow(SW_HIDE);
 	m_CurSelTab = 0;
 
-
+	pUpdateTread->Initial();
 
 
 

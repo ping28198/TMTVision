@@ -50,6 +50,7 @@
 ///<header_info>
 //==============================================================================
 #pragma once
+#include "stdafx.h"
 #include "CommonInclude.h"
 #include "CameraObject.h"
 #include "SendServer.h"

@@ -71,7 +71,7 @@
 ///<header_info>
 //==============================================================================
 #pragma once
-#include "Windows.h"
+#include <Windows.h>
 #include <process.h>
 #ifndef MIN
 #define MIN(i,j) i<j?i:j

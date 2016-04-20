@@ -19,6 +19,7 @@
 //1.2     王磊        2016.3.29  增加相机状态空间管理,对应于相机管理消息
 //2.0     王磊        2016.3.29  *待增加算法状态空间管理
 //2.1     王磊        2016.3.29  实现算法状态空间管理
+//2.2	  任威平		 2016.4.18   添加主机地址到相机信息
 //==============================================================================
 ///</ver_info>
 
@@ -26,6 +27,10 @@
 //==============================================================================
 #pragma once
 #include "CommonDefine.h" 
+#include "WinSock2.h"
+#include <iphlpapi.h>
+#pragma comment(lib,"Iphlpapi.lib")
+#pragma comment(lib,"WS2_32.lib")
 //==============================================================================
 ///</header_info>
 
@@ -79,6 +84,14 @@
 ///</algorithm_info>
 
 
+//struct sockaddr_in {
+//	short   sin_family;
+//	u_short sin_port;
+//	struct  in_addr sin_addr;
+//	char    sin_zero[8];
+//};
+
+
 
 ///<datastruct_info>
 //==============================================================================
@@ -93,7 +106,8 @@ public:
 		TMTV_PREWARN = 1,    //启动算法过程中
 		TMTV_STARTWARN = 2,  //已启动的算法
 	};
-	int WarnningLevel = TMTV_NOWARN;//警告等级,设置算法启动状态
+	int WarnningLevel = 0;//警告等级,设置算法启动状态
+	int mAlgoStatus = TMTV_NOWARN;
 };
 //==============================================================================
 ///</datastruct_info>
@@ -105,6 +119,7 @@ struct Tmtv_CameraInfo //相机信息
 	int Indexnum = 0; //相机序号
 	SHORTSTR CameraName = "";//相机名称等信息
 	PATHSTR CameraPath = "";//相机根目录路径
+	NetIP CameraHost = "";//相机所在主机
 	int CameraPos[8];//x,y,z坐标, 方向
 	int CameraWidth = 1920;//1.1 //相机图片宽度
 	int CameraHeight = 1080;//1.1 //相机图片高度	
@@ -113,7 +128,7 @@ struct Tmtv_CameraInfo //相机信息
 		TMTV_STOPEDCAM = 301,  //已加载的暂停相机
 		TMTV_RUNNINGCAM = 302, //已加载的运行相机
 	};
-	int Status;//1.2//相机状态	
+	int Status= TMTV_NOCAM;//1.2//相机状态	
 	int WaiteTime=1000;//1.2//相机状态
 	Tmtv_AlgorithmInfo AlgorithmInfo;
 };
@@ -134,18 +149,39 @@ struct Tmtv_DefectInfo	//缺陷信息
 
 ///<datastruct_info>
 //==============================================================================
-struct Tmtv_ImageInfo	//图像信息, 相机服务端发往主程序端
+//struct Tmtv_ImageInfo	//图像信息, 相机服务端发往主程序端
+//{
+//	Tmtv_CameraInfo mCameraInfo;
+//	Tmtv_DefectInfo mDefectInfo;
+//	PATHSTR ImagePath = "";//文件路径
+//	TINYSTR GrabTime = "";//采集时间 格式: 年-月-日-时:分: 秒. 例: 2016-03-22-12:00:00
+//	int IsWarnning = 0;//是否有警告
+//	int IsVIP = 0;//设置是否是重点
+//	LONGSTR Reservechar;//保留
+//};
+struct Tmtv_ImageInfo	//图像信息, 相机服务端发往主程序端//2.0
 {
-	Tmtv_CameraInfo mCameraInfo;
+	int mCamId = 0;
 	Tmtv_DefectInfo mDefectInfo;
 	PATHSTR ImagePath = "";//文件路径
 	TINYSTR GrabTime = "";//采集时间 格式: 年-月-日-时:分: 秒. 例: 2016-03-22-12:00:00
-	int IsWarnning = 0;//是否有警告
-	int IsVIP = 0;//设置是否是重点
 	LONGSTR Reservechar;//保留
 };
 //==============================================================================
 ///</datastruct_info>
+
+struct Tmtv_BaseNetMessage
+{
+	unsigned long structSize = sizeof(Tmtv_BaseNetMessage);
+	int CheckCode = TMTV_CHECKCODE;//验证码, 防止通信干扰
+	int MsgType = 0;
+	sockaddr_in mAddr;		//告知接收方，我方的接收地址
+	sockaddr_in dstAddr;		//消息发送的目标地址
+	unsigned long ElementCount = 0;		//跟随的消息元素数量
+	unsigned long ElementLength = 0;   //跟随的消息单个元素长度
+};
+
+
 
 
 
@@ -228,6 +264,17 @@ struct Tmt_UserInfo
 	LONGSTR UserName;		//用户名
 	LONGSTR PassWord;		//密码
 	int AuthorityLevel = 0;	//权限等级
+};
+//==============================================================================
+///</datastruct_info>
+
+///<datastruct_info>
+//==============================================================================
+struct Tmt_ClientInfo //客户端信息
+{
+	NetIP mIpAddr;		//IP
+	int mport;		//port
+	int status;		//工作状态
 };
 //==============================================================================
 ///</datastruct_info>

@@ -1,3 +1,5 @@
+
+
 #include "UpdateDataThread.h"
 #include "CameraManagerDlg.h"
 CUpdateDataThread::CUpdateDataThread(void* pParent)
@@ -18,11 +20,13 @@ void CUpdateDataThread::Initial()
 		return;
 	}
 	m_NetCount = 0;
-	Create(-1, 500);
+	Create(-1, 2000);
+	Resume();
 }
 
 void CUpdateDataThread::Task()
 {
+
 	CListCtrl *pList = &(pParent->pCamListDlg->m_CamList);
 	pList->DeleteAllItems();
 	vector<CameraObject*>::iterator it;
@@ -79,27 +83,48 @@ void CUpdateDataThread::Task()
 	pCamManager->m_SendServer.GetSetting(mSendSetting);
 	pCamManager->m_ReceiveServer.GetSetting(mRecvSetting);
 	pListBox->ResetContent();
-	pListBox->AddString(L"发送状态：");
+	pListBox->AddString(L"发送状态: ");
 	DWORD mstatus;
 	mstatus = pCamManager->m_SendServer.GetSendServerStatus();
 	if ((mstatus&TmtSocket::enSendOK) == TmtSocket::enSendOK)
 	{
-		wsprintf(wstr, L"  运行状态：正常");
+		wsprintf(wstr, L"  运行状态: 正常");
 	}
 	else
 	{
-		wsprintf(wstr, L"  运行状态：异常");
+		wsprintf(wstr, L"  运行状态: 异常");
 	}
-
-	wsprintf(wstr, L"  本地端口号：%d", mSendSetting.m_LocalSendPort);
-	
-
-
-
-
-
+	pListBox->AddString(wstr);
+	wsprintf(wstr, L"  本地端口号: %d", mSendSetting.m_LocalSendPort);
+	pListBox->AddString(wstr);
+	NetIPW mWip;
+	CCommonFunc::AnsiToUnicode(mSendSetting.m_LocalSendIP, mWip, TMTV_IPSTRLEN);
+	wsprintf(wstr, L"  本地IP: %s", mWip);
+	pListBox->AddString(wstr);
+	wsprintf(wstr, L"  远端端口号: %d", mSendSetting.m_RemoteRecvPort);
+	pListBox->AddString(wstr);
+	CCommonFunc::AnsiToUnicode(mSendSetting.m_RemoteRecvIp, mWip, TMTV_IPSTRLEN);
+	wsprintf(wstr, L"  远端IP: %s", mWip);
+	pListBox->AddString(wstr);
+	////////////////////////////////////////////////////////////////
+	pListBox->AddString(L"接收状态:");
+	mstatus = pCamManager->m_ReceiveServer.GetReceiveStatus();
+	if ((mstatus&TmtSocket::enSendOK) == TmtSocket::enSendOK)
+	{
+		wsprintf(wstr, L"  运行状态: 正常");
+	}
+	else
+	{
+		wsprintf(wstr, L"  运行状态: 异常");
+	}
+	pListBox->AddString(wstr);
+	wsprintf(wstr, L"  本地端口号: %d", mRecvSetting.m_LocalRecvPort);
+	pListBox->AddString(wstr);
+	CCommonFunc::AnsiToUnicode(mRecvSetting.m_LocalRecvIP, mWip, TMTV_IPSTRLEN);
+	wsprintf(wstr, L"  本地IP: %s", mWip);
+	pListBox->AddString(wstr);
 	m_NetCount++;
-	if (m_NetCount>=4)
+	if (m_NetCount>=6)
 	{
 		if ((pCamManager->m_SendServer.GetSendServerStatus() & SendServer::enSendOK) != SendServer::enSendOK)
 		{
@@ -111,6 +136,5 @@ void CUpdateDataThread::Task()
 		}
 		m_NetCount = 0;
 	}
-
 
 }

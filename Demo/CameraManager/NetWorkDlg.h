@@ -33,4 +33,11 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CListBox mNetStatusList;
+	afx_msg void OnBnClickedNetSubmit();
+	DWORD mRemoteRecvIP;
+	DWORD mLocalRecvIP;
+	DWORD mLocalSendIP;
+	int mRemoteRecvPort;
+	int mLocalRecvPort;
+	int mLocalSendPort;
 };

@@ -146,8 +146,8 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_DefectInfo& defectInfo, int me
 void ObjToString::ToString(MEGAWSTR wstring, Tmtv_ImageInfo& imageInfo, int method, int color)
 {
 	wstring[0] = 0;
-	MEGAWSTR tmpWStrMega1 = { 0 };
-	ObjToString::ToString(tmpWStrMega1, imageInfo.mCameraInfo, method, 0);
+	//MEGAWSTR tmpWStrMega1 = { 0 };
+	//ObjToString::ToString(tmpWStrMega1, imageInfo.mCameraInfo, method, 0);
 	MEGAWSTR tmpWStrMega2 = { 0 };
 	ObjToString::ToString(tmpWStrMega2, imageInfo.mDefectInfo, method, 0);
 	PATHWSTR tmpWStr1 = { 0 };
@@ -157,9 +157,9 @@ void ObjToString::ToString(MEGAWSTR wstring, Tmtv_ImageInfo& imageInfo, int meth
 
 	if (method >= 0 && method <= 2)
 	{
-		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"<Tmtv_ImageInfo ImagePath=\"%s\" GrabTime=\"%s\" IsWarnning=%d IsVIP=%d>\n",
-			tmpWStr1, tmpWStr2, imageInfo.IsWarnning, imageInfo.IsVIP);
-		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s%s", wstring, tmpWStrMega1);
+		//CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"<Tmtv_ImageInfo ImagePath=\"%s\" GrabTime=\"%s\" IsWarnning=%d IsVIP=%d>\n",
+		//	tmpWStr1, tmpWStr2, imageInfo.IsWarnning, imageInfo.IsVIP);
+		//CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s%s", wstring, tmpWStrMega1);
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s%s", wstring, tmpWStrMega2);
 		CCommonFunc::SafeWStringPrintf(wstring, TMTV_HUGESTRLEN, L"%s</Tmtv_ImageInfo>\n", wstring);
 	}
