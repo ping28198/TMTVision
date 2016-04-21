@@ -16,14 +16,14 @@ public:
 	Queue<CImage> m_CImageList;
 	void InitialCamera(Tmtv_CameraInfo cameraInfo);
 	void UnitialCamera();
-	void SetCamera(SHORTWSTR cameraName,int capTime)
+	void SetCamera(Tmtv_CameraInfo cameraInfo)
 	{
 		UnitialCamera();
-		InitialCamera(cameraName, capTime);
+		InitialCamera(cameraInfo);
 	}
 	void Create()
 	{
-		Thread::Create(-1, MIN(0, m_CapTime), true);
+		Thread::Create(-1, MIN(0, m_CameraInfo.WaiteTime), true);
 	}
 	void Task();
 };

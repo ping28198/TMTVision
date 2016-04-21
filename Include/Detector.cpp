@@ -130,7 +130,6 @@ BackgroundDetector::BackgroundDetector()
 	m_imageHeight = 0;
 	m_imageWidth = 0;
 	p_maskImageData = 0;
-	m_AlgorithmInfo = 0;
 }
 BackgroundDetector::~BackgroundDetector()
 {
@@ -142,11 +141,12 @@ bool BackgroundDetector::Initial(Tmtv_AlgorithmInfo algorithmInfo)
 	Detector::Initial(algorithmInfo);
 	///<BackgroundSubtractorMOG2初始化>
 	m_BackgroundDetectorInfo = algorithmInfo;
-
-
-
-
-
+	if (!p_backgroundSubtractor.empty())
+	{
+		p_backgroundSubtractor->clear();
+	}
+	p_backgroundSubtractor.release();
+	p_backgroundSubtractor = createBackgroundSubtractorMOG2(500, m_BackgroundDetectorInfo.THEREHOLD, false);
 	///</BackgroundSubtractorMOG2初始化>
 	m_AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_STARTWARN;
 	return false;
@@ -155,12 +155,11 @@ bool BackgroundDetector::Initial(Tmtv_AlgorithmInfo algorithmInfo)
 void BackgroundDetector::Unitial()
 {
 	///<BackgroundSubtractorMOG2卸载>
-
-
-
-
-
-
+	if (!p_backgroundSubtractor.empty())
+	{
+		p_backgroundSubtractor->clear();
+	}
+	p_backgroundSubtractor.release();
 	///</BackgroundSubtractorMOG2卸载>
 	Detector::Unitial();
 }

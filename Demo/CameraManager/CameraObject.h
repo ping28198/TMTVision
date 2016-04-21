@@ -43,6 +43,7 @@ private:
 	//Tmtv_CameraInfo m_ImageInfo.mCameraInfo;
 	BackgroundDetector m_Detector;
 	//static int m_CameraObjectID;
+	Tmtv_CameraInfo m_CameraInfo;//仅保存短算法结构
 	Tmtv_ImageInfo m_ImageInfo;//仅保存短算法结构
 
 

@@ -114,7 +114,7 @@ public:
 	{
 		structSize = sizeof(Tmtv_AlgorithmInfo);
 	}
-	Tmtv_AlgorithmInfo(Tmtv_AlgorithmInfo& algorithmInfo)
+	Tmtv_AlgorithmInfo(const Tmtv_AlgorithmInfo& algorithmInfo)
 	{
 		structSize = sizeof(Tmtv_AlgorithmInfo);
 		strcpy_s(MaskImgPath, TMTV_PATHSTRLEN, algorithmInfo.MaskImgPath);
@@ -156,6 +156,43 @@ struct Tmtv_CameraInfo //相机信息
 	int Status= TMTV_NOCAM;//1.2//相机状态	
 	int WaiteTime=1000;//1.2//相机状态
 	Tmtv_AlgorithmInfo AlgorithmInfo;
+public:
+	Tmtv_CameraInfo(){}
+	Tmtv_CameraInfo(const Tmtv_CameraInfo& cameraInfo)
+	{
+		Indexnum = cameraInfo.Indexnum;
+		strcpy_s(CameraName, TMTV_SHORTSTRLEN, cameraInfo.CameraName);
+		strcpy_s(CameraPath, TMTV_PATHSTRLEN, cameraInfo.CameraPath);
+		strcpy_s(CameraHost, TMTV_IPSTRLEN, cameraInfo.CameraHost);
+		for (int i = 0; i < 8;i++)
+		{
+			CameraPos[i] = cameraInfo.CameraPos[i];
+		}
+		CameraWidth = cameraInfo.CameraWidth;
+		CameraHeight = cameraInfo.CameraHeight;
+		Status = cameraInfo.Status;
+		WaiteTime = cameraInfo.WaiteTime;
+		AlgorithmInfo = cameraInfo.AlgorithmInfo;
+		CameraHeight = cameraInfo.CameraHeight;
+	}
+	Tmtv_CameraInfo& operator= (const Tmtv_CameraInfo& cameraInfo)
+	{
+		Indexnum = cameraInfo.Indexnum;
+		strcpy_s(CameraName, TMTV_SHORTSTRLEN, cameraInfo.CameraName);
+		strcpy_s(CameraPath, TMTV_PATHSTRLEN, cameraInfo.CameraPath);
+		strcpy_s(CameraHost, TMTV_IPSTRLEN, cameraInfo.CameraHost);
+		for (int i = 0; i < 8; i++)
+		{
+			CameraPos[i] = cameraInfo.CameraPos[i];
+		}
+		CameraWidth = cameraInfo.CameraWidth;
+		CameraHeight = cameraInfo.CameraHeight;
+		Status = cameraInfo.Status;
+		WaiteTime = cameraInfo.WaiteTime;
+		AlgorithmInfo = cameraInfo.AlgorithmInfo;
+		CameraHeight = cameraInfo.CameraHeight;
+		return *this;
+	}
 };
 //==============================================================================
 ///</datastruct_info>
