@@ -108,6 +108,7 @@ public:
 	};
 	int WarnningLevel = 0;//警告等级,设置算法启动状态
 	int mAlgoStatus = TMTV_NOWARN;
+	LONGSTR Reservechar;//保留
 };
 //==============================================================================
 ///</datastruct_info>
@@ -174,6 +175,46 @@ struct Tmtv_BaseNetMessage
 {
 	unsigned long structSize = sizeof(Tmtv_BaseNetMessage);
 	int CheckCode = TMTV_CHECKCODE;//验证码, 防止通信干扰
+	enum {
+		TMTV_ADDCAM = 100,        //添加CameraInfo指定的未加载相机
+		TMTV_DELCAM = 101,        //删除CameraInfo指定的未加载相机
+		TMTV_STARTCAM = 102,      //启动CameraInfo指定的已加载相机
+		TMTV_STOPCAM = 103,       //暂定CameraInfo指定的已加载相机
+		TMTV_GETCAM = 104,        //查询CameraInfo指定的已加载相机的指定参数
+		TMTV_SETCAM = 105,        //设置CameraInfo指定的已加载相机的指定参数
+		TMTV_STARTALGO = 106,     //启动CameraInfo指定的算法
+		TMTV_STOPCALGO = 107,      //暂定CameraInfo指定的算法
+		TMTV_SETALGO = 108,      //暂定CameraInfo指定的算法
+		TMTV_GETALLCAM = 150,		//获取所有相机状态
+		TMTV_GETALLIMG = 151,		//获取所有相机最新图片
+
+		TMTV_ADDCAM_OK = 200,        //添加CameraInfo指定的未加载相机成功
+		TMTV_DELCAM_OK = 201,        //删除CameraInfo指定的未加载相机成功
+		TMTV_STARTCAM_OK = 202,      //启动CameraInfo指定的已加载相机成功
+		TMTV_STOPCAM_OK = 203,       //暂定CameraInfo指定的已加载相机成功
+		TMTV_GETCAM_OK = 204,        //查询CameraInfo指定的已加载相机的指定参数成功
+		TMTV_SETCAM_OK = 205,        //设置CameraInfo指定的已加载相机的指定参数成功
+		TMTV_STARTALGO_OK = 206,     //启动算法成功
+		TMTV_STOPALGO_OK = 207,      //暂定算法成功
+		TMTV_SETALGO_OK = 208,       //设定算法成功
+		TMTV_SENDALLCAMOK = 209,
+		TMTV_SENDALLIMGOK = 210,
+
+		TMTV_ADDCAM_FAIL = 240,      //添加CameraInfo指定的未加载相机未成功
+		TMTV_DELCAM_FAIL,      //删除CameraInfo指定的未加载相机未成功
+		TMTV_STARTCAM_FAIL,    //启动CameraInfo指定的已加载相机未成功
+		TMTV_STOPCAM_FAIL,     //暂定CameraInfo指定的已加载相机未成功
+		TMTV_GETCAM_FAIL,      //查询CameraInfo指定的已加载相机的指定参数未成功
+		TMTV_SETCAM_FAIL,      //设置CameraInfo指定的已加载相机的指定参数未成功
+		TMTV_STARTALGO_FAIL,   //启动算法未成功
+		TMTV_STOPALGO_FAIL,    //暂定算法未成功
+		TMTV_SETALGO_FAIL,       //设定算法成功
+
+		TMTV_INVALID = 260,          //返回非法的命令
+		TMTV_SNAPED = 298,           //推送实时mImgInfo图片
+		TMTV_DETECTED = 299,         //推送检测到的的mImgInfo图片+缺陷
+		TMTV_CAMINFO = 300,
+	};
 	int MsgType = 0;
 	HANDLE hAskHandle;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
 	HANDLE hAnswerHandle;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用	
