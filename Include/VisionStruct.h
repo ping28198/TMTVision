@@ -120,7 +120,7 @@ struct Tmtv_CameraInfo //相机信息
 	SHORTSTR CameraName = "";//相机名称等信息
 	PATHSTR CameraPath = "";//相机根目录路径
 	NetIP CameraHost = "";//相机所在主机
-	int CameraPos[8];//x,y,z坐标, 方向
+	double CameraPos[8];//x,y,z坐标, 方向
 	int CameraWidth = 1920;//1.1 //相机图片宽度
 	int CameraHeight = 1080;//1.1 //相机图片高度	
 	enum {//1.2
@@ -175,6 +175,8 @@ struct Tmtv_BaseNetMessage
 	unsigned long structSize = sizeof(Tmtv_BaseNetMessage);
 	int CheckCode = TMTV_CHECKCODE;//验证码, 防止通信干扰
 	int MsgType = 0;
+	HANDLE hAskHandle;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
+	HANDLE hAnswerHandle;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用	
 	sockaddr_in mAddr;		//告知接收方，我方的接收地址
 	sockaddr_in dstAddr;		//消息发送的目标地址
 	unsigned long ElementCount = 0;		//跟随的消息元素数量
@@ -263,6 +265,8 @@ struct Tmt_UserInfo
 {
 	LONGSTR UserName;		//用户名
 	LONGSTR PassWord;		//密码
+	LONGSTR mCamWatch;
+	LONGSTR mWeChat_id;
 	int AuthorityLevel = 0;	//权限等级
 };
 //==============================================================================
@@ -275,6 +279,10 @@ struct Tmt_ClientInfo //客户端信息
 	NetIP mIpAddr;		//IP
 	int mport;		//port
 	int status;		//工作状态
+	enum {
+		TMT_CLIENT_RUNNING = 1,
+		TMT_CLIENT_CLOSE,
+	};
 };
 //==============================================================================
 ///</datastruct_info>
