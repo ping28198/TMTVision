@@ -21,7 +21,6 @@ void CDatabaseManager::Initial()
 
 bool CDatabaseManager::ConnectDb()
 {
-	EnterCriticalSection(&m_section);
 	bool IsOk = mysql_real_connect(&m_mysql, LOCAL_HOST, "root", "bkdtmt", "tmt_database", 3306, NULL, 0);
 	if (IsOk)
 	{
@@ -32,20 +31,16 @@ bool CDatabaseManager::ConnectDb()
 	{
 		DbServerLogger::mLogger.TraceInfo("链接数据库失败！");
 		m_DbStatus = DB_DISCONNECT;
-		LeaveCriticalSection(&m_section);
 		return false;
 	}
-	LeaveCriticalSection(&m_section);
 	return true;
 }
 
 bool CDatabaseManager::DisConnectDb()
 {
-	EnterCriticalSection(&m_section);
 	mysql_close(&m_mysql);
 	DbServerLogger::mLogger.TraceInfo("关闭数据库！");
 	m_DbStatus = DB_DISCONNECT;
-	LeaveCriticalSection(&m_section);
 	return true;
 }
 
@@ -60,7 +55,6 @@ int CDatabaseManager::AddCamToDb(Tmtv_CameraInfo &mCam)
 	char a[256] = { 0 };
 	//正式版添加
 	int rt = -1;
-	EnterCriticalSection(&m_section);
 	sprintf(sqlcommand, "select * from %s where %s = '%s' and %s = '%s' and %s = '%s'", TMT_DB_TABLE_CAM,
 		TMT_DB_CAM_CAMNAME, mCam.CameraName, TMT_DB_CAM_FOLDER, mCam.CameraPath, TMT_DB_CAM_IPADDR, mCam.CameraHost);
 	int IsOk = mysql_query(&m_mysql, sqlcommand);
@@ -79,12 +73,11 @@ int CDatabaseManager::AddCamToDb(Tmtv_CameraInfo &mCam)
 	}
 	if (rt>0)
 	{
-		LeaveCriticalSection(&m_section);
 		if (res != NULL) mysql_free_result(res);
 		return rt;
 	}
 	sprintf(sqlcommand, "insert into camera (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-		" values('%d','%s','%s','%s','%d','%d','%d','%d','%s','%d')",
+		" values('%d','%s','%s','%s','%f','%f','%d','%d','%s','%d')",
 		TMT_DB_CAM_CAMNUM,TMT_DB_CAM_CAMNAME,TMT_DB_CAM_FOLDER,TMT_DB_CAM_IPADDR,TMT_DB_CAM_LOCATION_LAT,TMT_DB_CAM_LOCATION_LNG,
 		TMT_DB_CAM_WARNINGLEVEL,TMT_DB_CAM_CAMSTATUS,TMT_DB_CAM_ALGO_MASK,TMT_DB_CAM_ALGO_STATUS,
 		mCam.Indexnum,mCam.CameraName,mCam.CameraPath,mCam.CameraHost,mCam.CameraPos[0],mCam.CameraPos[1],
@@ -96,7 +89,6 @@ int CDatabaseManager::AddCamToDb(Tmtv_CameraInfo &mCam)
 	{
 		DbServerLogger::mLogger.TraceWarning("添加相机出错!");
 		m_DbStatus = DB_ERROR;
-		LeaveCriticalSection(&m_section);
 		return -1;
 	}
 	sprintf(sqlcommand, "select * from %s where %s='%s'",TMT_DB_TABLE_CAM, TMT_DB_CAM_CAMNAME,mCam.CameraName);
@@ -116,12 +108,10 @@ int CDatabaseManager::AddCamToDb(Tmtv_CameraInfo &mCam)
 		}
 	}
 	if (res != NULL) mysql_free_result(res);
-	LeaveCriticalSection(&m_section);
 	return rt;
 }
 int CDatabaseManager::CheckCamInfo(Tmtv_CameraInfo& mCam)
 {
-	EnterCriticalSection(&m_section);
 	MYSQL_RES *res = NULL;
 	MYSQL_ROW row;
 	MYSQL_FIELD *mfield = NULL;
@@ -165,18 +155,15 @@ int CDatabaseManager::CheckCamInfo(Tmtv_CameraInfo& mCam)
 		if (mysql_num_rows(res) != 0)
 		{
 			mysql_free_result(res);
-			LeaveCriticalSection(&m_section);
 			return CheckStatus::CamIndexExist;
 		}
 	}
 	if (res != NULL) mysql_free_result(res);
-	LeaveCriticalSection(&m_section);
 	return CheckStatus::CamCheckOK;
 }
 
-bool CDatabaseManager::GetClientInfoFrmDb()
+bool CDatabaseManager::GetActiveClientInfoFrmDb(vector<Tmt_ClientInfo> &mClientVec)
 {
-	EnterCriticalSection(&m_section);
 	char sqlcommand[256];
 	MYSQL_RES *res = NULL;
 	MYSQL_ROW row;
@@ -186,19 +173,172 @@ bool CDatabaseManager::GetClientInfoFrmDb()
 	res = mysql_store_result(&m_mysql);
 	if (res)
 	{
-		m_ClientInfoVec.clear();
+		mClientVec.swap(vector<Tmt_ClientInfo>());
 		row = mysql_fetch_row(res);
 		while (row)
 		{
 			sprintf(mClient.mIpAddr, row[1]);
 			mClient.mport = atoi(row[2]);
 			mClient.status = atoi(row[3]);
+			mClientVec.push_back(mClient);
 			row = mysql_fetch_row(res);
 		}
 	}
 	if (res != NULL) mysql_free_result(res);
-	LeaveCriticalSection(&m_section);
 	return true;
+}
+
+bool CDatabaseManager::GetAllCamInfoFrmDb(vector<Tmtv_CameraInfo> &mCamVec)
+{
+	char sqlcommand[256];
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW row;
+	Tmtv_CameraInfo mCam;
+	sprintf(sqlcommand, "select * from %s where 1=1", TMT_DB_TABLE_CAM);
+	mysql_query(&m_mysql, sqlcommand);
+	res = mysql_use_result(&m_mysql);
+	if (res)
+	{
+		mCamVec.swap(vector<Tmtv_CameraInfo>());
+		row = mysql_fetch_row(res);
+		while (row)
+		{
+			mCam.Indexnum = atoi(row[0]);
+			strcpy(mCam.CameraName, row[2]);
+			strcpy(mCam.CameraPath, row[3]);
+			strcpy(mCam.CameraHost, row[4]);
+			_CRT_DOUBLE crt_dbl;
+			_atodbl(&crt_dbl, row[5]);
+			mCam.CameraPos[0] = crt_dbl.x;
+			_atodbl(&crt_dbl, row[6]);
+			mCam.CameraPos[1] = crt_dbl.x;
+			mCam.AlgorithmInfo.WarnningLevel = atoi(row[7]);
+			mCam.Status = atoi(row[8]);
+			strcpy(mCam.AlgorithmInfo.MaskImgPath, row[9]);
+			mCam.AlgorithmInfo.mAlgoStatus = atoi(row[10]);
+			mCamVec.push_back(mCam);
+			row = mysql_fetch_row(res);
+		}
+	}
+	return true;
+}
+
+bool CDatabaseManager::GetRunningCamFrmDb(vector<Tmtv_CameraInfo> &mCamVec)
+{
+	char sqlcommand[256];
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW row;
+	Tmtv_CameraInfo mCam;
+	sprintf(sqlcommand, "select * from %s where %s = %d", TMT_DB_TABLE_CAM,TMT_DB_CAM_CAMSTATUS,Tmtv_CameraInfo::TMTV_RUNNINGCAM);
+	mysql_query(&m_mysql, sqlcommand);
+	res = mysql_use_result(&m_mysql);
+	if (res)
+	{
+		mCamVec.swap(vector<Tmtv_CameraInfo>());
+		row = mysql_fetch_row(res);
+		while (row)
+		{
+			mCam.Indexnum = atoi(row[0]);
+			strcpy(mCam.CameraName, row[2]);
+			strcpy(mCam.CameraPath, row[3]);
+			strcpy(mCam.CameraHost, row[4]);
+			_CRT_DOUBLE crt_dbl;
+			_atodbl(&crt_dbl, row[5]);
+			mCam.CameraPos[0] = crt_dbl.x;
+			_atodbl(&crt_dbl, row[6]);
+			mCam.CameraPos[1] = crt_dbl.x;
+			mCam.AlgorithmInfo.WarnningLevel = atoi(row[7]);
+			mCam.Status = atoi(row[8]);
+			strcpy(mCam.AlgorithmInfo.MaskImgPath, row[9]);
+			mCam.AlgorithmInfo.mAlgoStatus = atoi(row[10]);
+			mCamVec.push_back(mCam);
+			row = mysql_fetch_row(res);
+		}
+	}
+	return true;
+}
+
+bool CDatabaseManager::GetLastImginfoAllCam(vector<Tmtv_ImageInfo> &mimgVec)
+{
+	vector<Tmtv_CameraInfo> mCamVec;
+	GetRunningCamFrmDb(mCamVec);
+	vector<Tmtv_CameraInfo>::iterator it;
+	Tmtv_ImageInfo mImg;
+	mimgVec.swap(vector<Tmtv_ImageInfo>());
+	for (it = mCamVec.begin(); it != mCamVec.end();it++)
+	{
+		mImg.mCamId = it->Indexnum;
+		if (GetLastImgInfoFrmDb(mImg))
+		{
+			mimgVec.push_back(mImg);
+		}
+	}
+	return true;
+}
+
+bool CDatabaseManager::AddUserinfo(Tmt_UserInfo &mUser)
+{
+	if (CheckUserName(mUser)) return false;
+	char sqlcommand[256];
+	sprintf(sqlcommand, "insert into %s(%s,%s,%s,%s,%s) values(%s,%s,%s,%s,%d)", TMT_DB_TABLE_USER,
+		TMT_DB_USER_NAME, TMT_DB_USER_PASSWORD, TMT_DB_USER_CAM_WATCH, TMT_DB_USER_WECHARD_ID, TMT_DB_USER_AUTHORYLV,
+		mUser.UserName, mUser.PassWord, mUser.mCamWatch, mUser.mWeChat_id, mUser.AuthorityLevel);
+	int IsOk = mysql_query(&m_mysql, sqlcommand);
+	return !IsOk;
+}
+
+bool CDatabaseManager::CheckUserName(Tmt_UserInfo& mUser)
+{
+	char sqlcommand[256];
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW row;
+	sprintf(sqlcommand, "select * from %s where %s = %s", TMT_DB_TABLE_USER, TMT_DB_USER_NAME, mUser.UserName);
+	mysql_query(&m_mysql, sqlcommand);
+	res = mysql_store_result(&m_mysql);
+	if (res)
+	{
+		row = mysql_fetch_row(res);
+		if (row)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool CDatabaseManager::UpdateUserinfo(Tmt_UserInfo& mUser)
+{
+	char sqlcommand[512];
+	sprintf(sqlcommand, "update %s set %s = '%s',%s = '%d',%s = '%s',%s = '%s',%s = '%s' where %s = '%s'", TMT_DB_TABLE_USER,
+		TMT_DB_USER_PASSWORD, mUser.PassWord, TMT_DB_USER_AUTHORYLV, mUser.AuthorityLevel,
+		TMT_DB_USER_CAM_WATCH,mUser.mCamWatch, TMT_DB_USER_WECHARD_ID,mUser.mWeChat_id,
+		TMT_DB_USER_NAME,mUser.UserName);
+	int IsOk = mysql_query(&m_mysql, sqlcommand);
+	return !IsOk;
+}
+
+bool CDatabaseManager::GetUserinfo(Tmt_UserInfo& mUser)
+{
+	char sqlcommand[512];
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW row;
+	sprintf(sqlcommand, "select * from %s where %s = '%s'", TMT_DB_USER_ID, TMT_DB_USER_NAME, mUser.UserName);
+	int IsOk = mysql_query(&m_mysql, sqlcommand);
+	res = mysql_store_result(&m_mysql);
+	if (res)
+	{
+		row = mysql_fetch_row(res);
+		if (row)
+		{
+			sprintf(mUser.PassWord, row[2]);
+			if (row[3]) sprintf(mUser.mCamWatch, row[3]);
+			if (row[4]) sprintf(mUser.mWeChat_id, row[4]);
+			if (row[5]) mUser.AuthorityLevel = atoi(row[5]);
+			if(res) mysql_free_result(res);
+			return true;
+		}
+	}
+	return false;
 }
 
 int CDatabaseManager::GetDefectsPosFromStr(char* str, int DfPos[][8])
@@ -223,7 +363,6 @@ int CDatabaseManager::GetDefectsPosFromStr(char* str, int DfPos[][8])
 
 bool CDatabaseManager::InsertClientInfoToDb(const Tmt_ClientInfo & mClientInfo)
 {
-	EnterCriticalSection(&m_section);
 	char sqlcommand[256];
 	MYSQL_RES *res = NULL;
 	MYSQL_ROW row;
@@ -238,7 +377,6 @@ bool CDatabaseManager::InsertClientInfoToDb(const Tmt_ClientInfo & mClientInfo)
 		if (row)
 		{
 			if (res != NULL) mysql_free_result(res);
-			LeaveCriticalSection(&m_section);
 			return false;
 		}
 	}
@@ -251,7 +389,6 @@ bool CDatabaseManager::InsertClientInfoToDb(const Tmt_ClientInfo & mClientInfo)
 	{
 		DbServerLogger::mLogger.TraceWarning("插入客户端信息到数据库失败！");
 	}
-	LeaveCriticalSection(&m_section);
 	return true;
 }
 
@@ -261,9 +398,7 @@ bool CDatabaseManager::UpdateClientStatusDb(const Tmt_ClientInfo & mClientInfo)
 	char sqlcommand[256];
 	sprintf(sqlcommand, "update %s set %s = '%d' where %s = '%s' and %s = '%d'",TMT_DB_TABLE_CLIENT,
 		TMT_DB_CLIENT_STATUS, mClientInfo.status, TMT_DB_CLIENT_IPADDR, mClientInfo.mIpAddr, TMT_DB_CLIENT_PORT, mClientInfo.mport);
-	EnterCriticalSection(&m_section);
 	int IsOk = mysql_query(&m_mysql, sqlcommand);
-	LeaveCriticalSection(&m_section);
 	return !IsOk;
 }
 
@@ -294,14 +429,12 @@ bool CDatabaseManager::InsertImgInfoToDb(Tmtv_ImageInfo& mImginfo)
 bool CDatabaseManager::UpdateCamInfoDb(Tmtv_CameraInfo& mCam)
 {
 	char sqlcommand[512];
-	sprintf(sqlcommand, "update %s set %s = '%s', %s = '%s', %s = '%s', %s = '%d', %s = '%d' , %s = '%d', %s = '%d' , %s = '%s', %s = '%d' where %s = '%d'", TMT_DB_TABLE_CAM,
+	sprintf(sqlcommand, "update %s set %s = '%s', %s = '%s', %s = '%s', %s = '%f', %s = '%f' , %s = '%d', %s = '%d' , %s = '%s', %s = '%d' where %s = '%d'", TMT_DB_TABLE_CAM,
 		TMT_DB_CAM_CAMNAME, mCam.CameraName, TMT_DB_CAM_FOLDER, mCam.CameraPath, TMT_DB_CAM_IPADDR, mCam.CameraHost,
 		TMT_DB_CAM_LOCATION_LAT, mCam.CameraPos[0], TMT_DB_CAM_LOCATION_LNG, mCam.CameraPos[1], TMT_DB_CAM_WARNINGLEVEL, mCam.AlgorithmInfo.WarnningLevel,
 		TMT_DB_CAM_CAMSTATUS, mCam.Status, TMT_DB_CAM_ALGO_MASK, mCam.AlgorithmInfo.MaskImgPath, TMT_DB_CAM_ALGO_STATUS, mCam.AlgorithmInfo.mAlgoStatus,
 		TMT_DB_CAM_ID,mCam.Indexnum);
-	EnterCriticalSection(&m_section);
 	int IsOk = mysql_query(&m_mysql, sqlcommand);
-	LeaveCriticalSection(&m_section);
 	if (IsOk)
 	{
 		return false;
@@ -333,10 +466,12 @@ bool CDatabaseManager::GetLastImgInfoFrmDb(Tmtv_ImageInfo& mImg)
 			if (row[4]) mImg.mDefectInfo.DefectNum = GetDefectsPosFromStr(row[4], mImg.mDefectInfo.DefectPos);
 			if (row[5]) mImg.mDefectInfo.ImgWidth = atoi(row[5]);
 			if (row[6]) mImg.mDefectInfo.ImgHeight = atoi(row[6]);
+			if (res != NULL) mysql_free_result(res);
+			return true;
 		}
 	}
 	if (res != NULL) mysql_free_result(res);
-	return true;
+	return false;
 }
 
 bool CDatabaseManager::GetImginfoByDate(vector<Tmtv_ImageInfo> &mimgVec, int Camid,const char* mdate)

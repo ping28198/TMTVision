@@ -40,7 +40,7 @@
 #define TMT_DB_USER_PASSWORD	"password"
 #define TMT_DB_USER_CAM_WATCH	"cam_watch"
 #define TMT_DB_USER_WECHARD_ID	"wechat_id"
-
+#define TMT_DB_USER_AUTHORYLV	"authority_level"
 
 
 
@@ -66,8 +66,8 @@ public://数据库操作
 	//************************************
 	int AddCamToDb(Tmtv_CameraInfo& mCam);
 	//************************************
-	// 作用:  检查相机是否存在，返回枚举值
-	// 说明:  
+	// 作用: 插入相机信息
+	// 说明:   检查相机是否存在，返回枚举值
 	// 名称:  CDatabaseManager::CheckCamInfo
 	// Access:    public 
 	// 返回值:   int  // 
@@ -111,7 +111,7 @@ public://数据库操作
 	//************************************
 	bool UpdateCamInfoDb(Tmtv_CameraInfo& mCam);
 	//************************************
-	// 作用:  获取指定ID的最新图片
+	// 作用:  获取指定相机id的最新图片
 	// 说明:  
 	// 名称:  CDatabaseManager::GetLastImgInfoFrmDb
 	// Access:    public 
@@ -131,14 +131,92 @@ public://数据库操作
 	//************************************
 	bool GetImginfoByDate(vector<Tmtv_ImageInfo> &mimgVec,int Camid,const char* mdate);
 
+	//************************************
+	// 作用:  获取活动状态的客户端信息
+	// 说明:  
+	// 名称:  CDatabaseManager::GetActiveClientInfoFrmDb
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   vector<Tmt_ClientInfo> & mClientVec  //
+	//************************************
+	bool GetActiveClientInfoFrmDb(vector<Tmt_ClientInfo> &mClientVec);
 
+	//************************************
+	// 作用:  获取所有相机（任何状态的）
+	// 说明:  
+	// 名称:  CDatabaseManager::GetAllCamInfoFrmDb
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   vector<Tmtv_CameraInfo> & mCamVec  //
+	//************************************
+	bool GetAllCamInfoFrmDb(vector<Tmtv_CameraInfo> &mCamVec);
+
+	//************************************
+	// 作用:  获取运行状态的相机
+	// 说明:  
+	// 名称:  CDatabaseManager::GetRunningCamFrmDb
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   vector<Tmtv_CameraInfo> & mCamVec  //
+	//************************************
+	bool GetRunningCamFrmDb(vector<Tmtv_CameraInfo> &mCamVec);
+
+	//************************************
+	// 作用:  获取所有运行状态的的相机的最新图片
+	// 说明:  
+	// 名称:  CDatabaseManager::GetLastImginfoAllCam
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   vector<Tmtv_ImageInfo> & mimgVec  //
+	//************************************
+	bool GetLastImginfoAllCam(vector<Tmtv_ImageInfo> &mimgVec);
+
+	//************************************
+	// 作用:  添加用户
+	// 说明:  
+	// 名称:  CDatabaseManager::AddUserinfo
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   Tmt_UserInfo & mUser  //
+	//************************************
+	bool AddUserinfo(Tmt_UserInfo& mUser);
+
+	//************************************
+	// 作用:  检查用户名是否存在
+	// 说明:  
+	// 名称:  CDatabaseManager::CheckUserName
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   Tmt_UserInfo & mUser  //
+	//************************************
+	bool CheckUserName(Tmt_UserInfo& mUser);
+
+	//************************************
+	// 作用:  依用户名更新用户信息
+	// 说明:  
+	// 名称:  CDatabaseManager::UpdateUserinfo
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   Tmt_UserInfo & mUser  //
+	//************************************
+	bool UpdateUserinfo(Tmt_UserInfo& mUser);
+	
+	//************************************
+	// 作用:  依用户名获取用户信息
+	// 说明:  
+	// 名称:  CDatabaseManager::GetUserinfo
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   Tmt_UserInfo & mUser  //
+	//************************************
+	bool GetUserinfo(Tmt_UserInfo& mUser);
 
 public://线程函数
 	void Task();
 
 private://私有函数
 	bool GetYearMonth(char* pData, int Datalength);
-	bool GetClientInfoFrmDb();
+	
 	int GetDefectsPosFromStr(char* str,int DfPos[][8]);
 	bool CreatImgTable(int CamId);
 private://私有变量
