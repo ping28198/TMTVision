@@ -109,6 +109,30 @@ public:
 	int WarnningLevel = 0;//警告等级,设置算法启动状态
 	int mAlgoStatus = TMTV_NOWARN;
 	LONGSTR Reservechar;//保留
+public:
+	Tmtv_AlgorithmInfo()
+	{
+		structSize = sizeof(Tmtv_AlgorithmInfo);
+	}
+	Tmtv_AlgorithmInfo(Tmtv_AlgorithmInfo& algorithmInfo)
+	{
+		structSize = sizeof(Tmtv_AlgorithmInfo);
+		strcpy_s(MaskImgPath, TMTV_PATHSTRLEN, algorithmInfo.MaskImgPath);
+		strcpy_s(DstImgPath, TMTV_PATHSTRLEN, algorithmInfo.DstImgPath);
+		WarnningLevel = algorithmInfo.WarnningLevel;
+		mAlgoStatus = algorithmInfo.mAlgoStatus;
+		strcpy_s(Reservechar, TMTV_LONGSTRLEN, algorithmInfo.Reservechar);
+	}
+	Tmtv_AlgorithmInfo& operator= (const Tmtv_AlgorithmInfo& algorithmInfo)
+	{
+		structSize = sizeof(Tmtv_AlgorithmInfo);
+		strcpy_s(MaskImgPath, TMTV_PATHSTRLEN, algorithmInfo.MaskImgPath);
+		strcpy_s(DstImgPath, TMTV_PATHSTRLEN, algorithmInfo.DstImgPath);
+		WarnningLevel = algorithmInfo.WarnningLevel;
+		mAlgoStatus = algorithmInfo.mAlgoStatus;
+		strcpy_s(Reservechar, TMTV_LONGSTRLEN, algorithmInfo.Reservechar);
+		return *this;
+	}
 };
 //==============================================================================
 ///</datastruct_info>

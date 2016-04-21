@@ -330,6 +330,16 @@ public:
 	//	wchar_t* strAppName 需要运行的程序, 可以带有命令行参数
 	static long GetStringLen(wchar_t* srcString, int strMaxLen);
 	///</func_info>
+
+	///<func_info>
+	//描述: 获取字符串中的参数内容
+	//参数:以字符的个数为单位, 不是字节大小,可用STR_LEN宏获取
+	//	wchar_t* strAppName 需要运行的程序, 可以带有命令行参数
+	static bool GetWStringIntPara(const wchar_t* srcString, int strMaxLen, const wchar_t* paraName,int& paraVal);
+	static bool GetWStringDoublePara(const wchar_t* srcString, int strMaxLen, const wchar_t* paraName, double& paraVal);
+	static bool GetStringIntPara(const char* srcString, int strMaxLen, const char* paraName, int& paraVal);
+	static bool GetStringDoublePara(const char* srcString, int strMaxLen, const char* paraName, double& paraVal);
+	///</func_info>
 private:
 	CCommonFunc(void);
 	~CCommonFunc(void);

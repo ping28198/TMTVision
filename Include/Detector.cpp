@@ -7,21 +7,15 @@ Detector::Detector()
 	m_imageHeight = 0;
 	m_imageWidth = 0;
 	p_maskImageData = 0;
-	algorithmInfoSize = sizeof(Tmtv_AlgorithmInfo);
-	p_AlgorithmInfo = 0;
 	m_DetectedNum = 0;
 }
 Detector::~Detector() { Unitial(); }
 //初始化资源和掩码图像
-bool Detector::Initial(Tmtv_AlgorithmInfo *pAlgorithmInfo)
+bool Detector::Initial(Tmtv_AlgorithmInfo algorithmInfo)
 {
 	m_DetectedNum = 0;
-	if (pAlgorithmInfo == 0) return false;
-	if (pAlgorithmInfo->structSize < algorithmInfoSize) return false;
-	p_AlgorithmInfo = (Tmtv_AlgorithmInfo*)malloc(pAlgorithmInfo->structSize);
-	memcpy(p_AlgorithmInfo, pAlgorithmInfo, pAlgorithmInfo->structSize);
-	p_AlgorithmInfo->WarnningLevel = Tmtv_AlgorithmInfo::TMTV_PREWARN;
-	Mat tmpMat = cv::imread(p_AlgorithmInfo->MaskImgPath);
+	m_AlgorithmInfo = algorithmInfo;
+	Mat tmpMat = cv::imread(m_AlgorithmInfo.MaskImgPath);
 	if (tmpMat.empty()) return false;
 	Size mskSize = tmpMat.size();
 	int mskDepth = tmpMat.depth();
@@ -53,26 +47,20 @@ void Detector::Unitial()
 	}
 	m_imageHeight = 0;
 	m_imageWidth = 0;
-	if (p_AlgorithmInfo != 0)
-	{
-		free(p_AlgorithmInfo);
-		//delete p_AlgorithmInfo;
-		p_AlgorithmInfo = 0;
-	}
 	m_DetectedNum = 0;
 }
 //重设算法
-void Detector::Reset(Tmtv_AlgorithmInfo *pAlgorithmInfo)
+void Detector::Reset(Tmtv_AlgorithmInfo algorithmInfo)
 {
 	Unitial();
-	Initial(pAlgorithmInfo);
+	Initial(algorithmInfo);
 }
 //识别当前图像队列
 bool Detector::Detect(PATHSTR srcImagePath, PATHSTR rectImagePath,
 	Tmtv_DefectInfo & defects,
 	void* paras, long paraSize)
 {
-	if (p_AlgorithmInfo == 0) return false;
+	if (p_maskImageData == 0) return false;
 	Mat srcImageData = cv::imread(srcImagePath);
 	Mat rectImageData;
 	srcImageData.copyTo(rectImageData);
@@ -94,31 +82,73 @@ bool Detector::Detect(PATHSTR srcImagePath, PATHSTR rectImagePath,
 };
 
 
+Tmtv_BackgroundDetectorInfo::Tmtv_BackgroundDetectorInfo(const Tmtv_AlgorithmInfo& algorithmInfo)
+{
+	structSize = sizeof(Tmtv_BackgroundDetectorInfo);
+	strcpy_s(MaskImgPath, TMTV_PATHSTRLEN, algorithmInfo.MaskImgPath);
+	strcpy_s(DstImgPath, TMTV_PATHSTRLEN, algorithmInfo.DstImgPath);
+	WarnningLevel = algorithmInfo.WarnningLevel;
+	mAlgoStatus = algorithmInfo.mAlgoStatus;
+	strcpy_s(Reservechar, TMTV_LONGSTRLEN, algorithmInfo.Reservechar);
+	//
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "GAUSSIANSIZE", GAUSSIANSIZE);
+	CCommonFunc::GetStringDoublePara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "GAUSSIANSIGMA", GAUSSIANSIGMA);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE1", MORPHSIZE1);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE2", MORPHSIZE2);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE3", MORPHSIZE3);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE4", MORPHSIZE4);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE5", MORPHSIZE5);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE6", MORPHSIZE6);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE7", MORPHSIZE7);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "THEREHOLD", THEREHOLD);
+}
+Tmtv_BackgroundDetectorInfo& Tmtv_BackgroundDetectorInfo::operator= (const Tmtv_AlgorithmInfo& algorithmInfo)
+{
+	structSize = sizeof(Tmtv_BackgroundDetectorInfo);
+	strcpy_s(MaskImgPath, TMTV_PATHSTRLEN, algorithmInfo.MaskImgPath);
+	strcpy_s(DstImgPath, TMTV_PATHSTRLEN, algorithmInfo.DstImgPath);
+	WarnningLevel = algorithmInfo.WarnningLevel;
+	mAlgoStatus = algorithmInfo.mAlgoStatus;
+	strcpy_s(Reservechar, TMTV_LONGSTRLEN, algorithmInfo.Reservechar);
+	//
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "GAUSSIANSIZE", GAUSSIANSIZE);
+	CCommonFunc::GetStringDoublePara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "GAUSSIANSIGMA", GAUSSIANSIGMA);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE1", MORPHSIZE1);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE2", MORPHSIZE2);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE3", MORPHSIZE3);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE4", MORPHSIZE4);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE5", MORPHSIZE5);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE6", MORPHSIZE6);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "MORPHSIZE7", MORPHSIZE7);
+	CCommonFunc::GetStringIntPara(algorithmInfo.Reservechar, TMTV_LONGSTRLEN, "THEREHOLD", THEREHOLD);
+	return *this;
+}
+
+
 BackgroundDetector::BackgroundDetector()
 {
 	m_imageHeight = 0;
 	m_imageWidth = 0;
 	p_maskImageData = 0;
-	algorithmInfoSize = sizeof(Tmtv_BackgroundDetectorInfo);
-	p_AlgorithmInfo = 0;
+	m_AlgorithmInfo = 0;
 }
 BackgroundDetector::~BackgroundDetector()
 {
 	Unitial(); 
 }
 //初始化资源和掩码图像
-bool BackgroundDetector::Initial(Tmtv_AlgorithmInfo *pAlgorithmInfo)
+bool BackgroundDetector::Initial(Tmtv_AlgorithmInfo algorithmInfo)
 {
-	Detector::Initial(pAlgorithmInfo);
+	Detector::Initial(algorithmInfo);
 	///<BackgroundSubtractorMOG2初始化>
-
+	m_BackgroundDetectorInfo = algorithmInfo;
 
 
 
 
 
 	///</BackgroundSubtractorMOG2初始化>
-	p_AlgorithmInfo->WarnningLevel = Tmtv_AlgorithmInfo::TMTV_STARTWARN;
+	m_AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_STARTWARN;
 	return false;
 }
 //卸载资源和掩码图像
@@ -135,23 +165,23 @@ void BackgroundDetector::Unitial()
 	Detector::Unitial();
 }
 //重设算法
-void BackgroundDetector::Reset(Tmtv_AlgorithmInfo *pAlgorithmInfo)
+void BackgroundDetector::Reset(Tmtv_AlgorithmInfo algorithmInfo)
 {
 	Unitial();
-	Initial(pAlgorithmInfo);
+	Initial(algorithmInfo);
 }
 //识别当前图像队列
 bool BackgroundDetector::Detect(Mat & srcImageData, Mat & rectImageData, Tmtv_DefectInfo & defects, void * paras, long paraSize)
 {
-	if (p_AlgorithmInfo == 0) return false;
+	if (p_maskImageData == 0) return false;
 	m_DetectedNum++;
 	if (m_DetectedNum < PERDETECTNUM)
 	{
-		p_AlgorithmInfo->WarnningLevel = Tmtv_AlgorithmInfo::TMTV_PREWARN;
+		m_AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_PREWARN;
 	}
 	else
 	{
-		p_AlgorithmInfo->WarnningLevel = Tmtv_AlgorithmInfo::TMTV_STARTWARN;
+		m_AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_STARTWARN;
 	}
 	return false;
 }

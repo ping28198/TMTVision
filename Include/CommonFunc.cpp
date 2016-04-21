@@ -8,8 +8,6 @@
 #define STR_LEN(x)  (sizeof(x)/sizeof(x[0]))
 #endif
 
-
-
 CCommonFunc::CCommonFunc(void)
 {
 	
@@ -991,7 +989,7 @@ bool  CCommonFunc::StringToInts(wchar_t* srcString,  int strLen,int* pData, int&
 }
 ///</func_info>
 
-
+///<func_info>
 //描述: 计算字符串长度
 //参数:
 //	wchar_t* strAppName 需要运行的程序, 可以带有命令行参数
@@ -1006,5 +1004,238 @@ long CCommonFunc::GetStringLen(wchar_t * srcString, int strMaxLen)
 		}
 	}
 	return i;
+}
+///</func_info>
+
+///<func_info>
+//描述: 获取字符串中的参数内容
+//参数:以字符的个数为单位, 不是字节大小,可用STR_LEN宏获取
+//	wchar_t* strAppName 需要运行的程序, 可以带有命令行参数
+bool CCommonFunc::GetWStringIntPara(
+	const wchar_t * srcString, int strMaxLen, const wchar_t* paraName, int& paraVal)
+{
+	int paraNameStart = 0;
+	int paraNameLen = wcslen(paraName);
+	bool paraFix = true;
+	for (; paraNameStart + paraNameLen < strMaxLen;paraNameStart++)
+	{
+		paraFix = true;
+		for (int j = 0;j<paraNameLen;j++)
+		{
+			if (j>0 && paraName[j]==0)
+			{
+				break;
+			}
+			if (srcString[paraNameStart+j] == paraName[j])
+			{
+				continue;
+			}
+			else
+			{
+				paraFix = false;
+				break;
+			}
+		}
+		if (paraFix)
+		{
+			break;
+		}
+	}
+	if (!paraFix) return false;
+	int paraValStart = paraNameStart + paraNameLen;
+	if (srcString[paraValStart - 1] != L'=') return false;
+	int paraValLen = 0;
+	for (;paraValLen < strMaxLen - paraValStart; paraValLen++)
+	{
+		if (srcString[paraValStart+ paraValLen] == L';'
+			|| srcString[paraValStart+ paraValLen] == L','
+			|| srcString[paraValStart+ paraValLen] == L' ')
+		{
+			break;
+		}
+		else
+		{
+			paraValLen = -1;
+			break;
+		}
+	}
+	if (paraValLen < 0) return false;
+	wchar_t* paraValStr=new wchar_t[paraValLen+1];
+	wcscpy_s(paraValStr, paraValLen, srcString + paraValStart);
+	paraValStr[paraValLen] = 0;
+	paraVal=_wtoi(paraValStr);
+	delete[] paraValStr;
+	return true;
+}
+
+bool CCommonFunc::GetWStringDoublePara(
+	const wchar_t * srcString, int strMaxLen, const wchar_t* paraName, double& paraVal)
+{
+	int paraNameStart = 0;
+	int paraNameLen = wcslen(paraName);
+	bool paraFix = true;
+	for (; paraNameStart + paraNameLen < strMaxLen; paraNameStart++)
+	{
+		paraFix = true;
+		for (int j = 0; j < paraNameLen; j++)
+		{
+			if (j > 0 && paraName[j] == 0)
+			{
+				break;
+			}
+			if (srcString[paraNameStart + j] == paraName[j])
+			{
+				continue;
+			}
+			else
+			{
+				paraFix = false;
+				break;
+			}
+		}
+		if (paraFix)
+		{
+			break;
+		}
+	}
+	if (!paraFix) return false;
+	int paraValStart = paraNameStart + paraNameLen;
+	if (srcString[paraValStart - 1] != L'=') return false;
+	int paraValLen = 0;
+	for (; paraValLen < strMaxLen - paraValStart; paraValLen++)
+	{
+		if (srcString[paraValStart + paraValLen] == L';'
+			|| srcString[paraValStart + paraValLen] == L','
+			|| srcString[paraValStart + paraValLen] == L' ')
+		{
+			break;
+		}
+		else
+		{
+			paraValLen = -1;
+			break;
+		}
+	}
+	if (paraValLen < 0) return false;
+	wchar_t* paraValStr = new wchar_t[paraValLen + 1];
+	wcscpy_s(paraValStr, paraValLen, srcString + paraValStart);
+	paraValStr[paraValLen] = 0;
+	paraVal = _wtof(paraValStr);
+	delete[] paraValStr;
+	return true;
+}
+
+bool CCommonFunc::GetStringIntPara(
+	const char * srcString, int strMaxLen, const char* paraName, int& paraVal)
+{
+	int paraNameStart = 0;
+	int paraNameLen = strlen(paraName);
+	bool paraFix = true;
+	for (; paraNameStart + paraNameLen < strMaxLen; paraNameStart++)
+	{
+		paraFix = true;
+		for (int j = 0; j < paraNameLen; j++)
+		{
+			if (j > 0 && paraName[j] == 0)
+			{
+				break;
+			}
+			if (srcString[paraNameStart + j] == paraName[j])
+			{
+				continue;
+			}
+			else
+			{
+				paraFix = false;
+				break;
+			}
+		}
+		if (paraFix)
+		{
+			break;
+		}
+	}
+	if (!paraFix) return false;
+	int paraValStart = paraNameStart + paraNameLen;
+	if (srcString[paraValStart - 1] != L'=') return false;
+	int paraValLen = 0;
+	for (; paraValLen < strMaxLen - paraValStart; paraValLen++)
+	{
+		if (srcString[paraValStart + paraValLen] == ';'
+			|| srcString[paraValStart + paraValLen] == ','
+			|| srcString[paraValStart + paraValLen] == ' ')
+		{
+			break;
+		}
+		else
+		{
+			paraValLen = -1;
+			break;
+		}
+	}
+	if (paraValLen < 0) return false;
+	char* paraValStr = new char[paraValLen + 1];
+	strcpy_s(paraValStr, paraValLen, srcString + paraValStart);
+	paraValStr[paraValLen] = 0;
+	paraVal = atoi(paraValStr);
+	delete[] paraValStr;
+	return true;
+}
+
+bool CCommonFunc::GetStringDoublePara(
+	const char * srcString, int strMaxLen, const char* paraName, double& paraVal)
+{
+	int paraNameStart = 0;
+	int paraNameLen = strlen(paraName);
+	bool paraFix = true;
+	for (; paraNameStart + paraNameLen < strMaxLen; paraNameStart++)
+	{
+		paraFix = true;
+		for (int j = 0; j < paraNameLen; j++)
+		{
+			if (j > 0 && paraName[j] == 0)
+			{
+				break;
+			}
+			if (srcString[paraNameStart + j] == paraName[j])
+			{
+				continue;
+			}
+			else
+			{
+				paraFix = false;
+				break;
+			}
+		}
+		if (paraFix)
+		{
+			break;
+		}
+	}
+	if (!paraFix) return false;
+	int paraValStart = paraNameStart + paraNameLen;
+	if (srcString[paraValStart - 1] != L'=') return false;
+	int paraValLen = 0;
+	for (; paraValLen < strMaxLen - paraValStart; paraValLen++)
+	{
+		if (srcString[paraValStart + paraValLen] == ';'
+			|| srcString[paraValStart + paraValLen] == ','
+			|| srcString[paraValStart + paraValLen] == ' ')
+		{
+			break;
+		}
+		else
+		{
+			paraValLen = -1;
+			break;
+		}
+	}
+	if (paraValLen < 0) return false;
+	char* paraValStr = new char[paraValLen + 1];
+	strcpy_s(paraValStr, paraValLen, srcString + paraValStart);
+	paraValStr[paraValLen] = 0;
+	paraVal = atof(paraValStr);
+	delete[] paraValStr;
+	return true;
 }
 ///</func_info>

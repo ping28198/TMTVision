@@ -291,7 +291,7 @@ bool CameraObject::StartAlgorithm(Tmtv_AlgorithmInfo& algorithmInfo)
 	{
 		if (algorithmInfo.WarnningLevel== Tmtv_AlgorithmInfo::TMTV_STARTWARN)
 		{
-			m_Detector.Reset(&algorithmInfo);
+			m_Detector.Reset(algorithmInfo);
 			m_ImageInfo.mCameraInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_PREWARN;
 			LeaveCriticalSection(&m_section);
 			return true;
