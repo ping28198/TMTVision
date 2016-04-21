@@ -36,9 +36,6 @@
     <ClInclude Include="USBCameraApp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\VisionStruct.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Include\ArWatch.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -65,6 +62,9 @@
     </ClInclude>
     <ClInclude Include="USBCameraServer.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\VisionStruct.h">
+      <Filter>Include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

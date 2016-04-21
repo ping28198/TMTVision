@@ -14,7 +14,7 @@ public:
 
 	Tmtv_CameraInfo m_CameraInfo;
 	Queue<CImage> m_CImageList;
-	void InitialCamera(SHORTWSTR cameraName,int capTime);
+	void InitialCamera(Tmtv_CameraInfo cameraInfo);
 	void UnitialCamera();
 	void SetCamera(SHORTWSTR cameraName,int capTime)
 	{

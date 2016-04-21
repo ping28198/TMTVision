@@ -69,8 +69,10 @@ public:
 
 ///<datastruct_info>
 //==============================================================================
-struct Tmtv_BackgroundDetectorInfo: Tmtv_AlgorithmInfo	//算法信息
+//仅用于算法内部
+struct Tmtv_BackgroundDetectorInfo : Tmtv_AlgorithmInfo	//算法信息
 {
+	//MEGASTR Reservechar = {
 	int STRLEN = 260;
 	int GAUSSIANSIZE = 5;
 	double GAUSSIANSIGMA = 0.5;
@@ -82,13 +84,23 @@ struct Tmtv_BackgroundDetectorInfo: Tmtv_AlgorithmInfo	//算法信息
 	int MORPHSIZE6 = 5;
 	int MORPHSIZE7 = 5;
 	int THEREHOLD = 30;
-	Tmtv_BackgroundDetectorInfo()
+    //}
+public:
+	Tmtv_BackgroundDetectorInfo() 
 	{
 		structSize = sizeof(Tmtv_BackgroundDetectorInfo);
-	};
+	}
 	~Tmtv_BackgroundDetectorInfo()
 	{
-		int a = 0;
+	}
+	Tmtv_BackgroundDetectorInfo(const Tmtv_AlgorithmInfo& SendServerSetting)
+	{
+
+	}
+	Tmtv_BackgroundDetectorInfo& operator= (const Tmtv_AlgorithmInfo& SendServerSetting)
+	{
+
+		return *this;
 	}
 };
 //==============================================================================
