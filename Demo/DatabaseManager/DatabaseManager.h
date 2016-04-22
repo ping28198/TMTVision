@@ -1,7 +1,7 @@
 #pragma once
 #include "CommonInclude.h"
 #include"mysql.h"
-
+#include "TmtConfig.h"
 #pragma comment( lib, "libmysql.lib")
 
 #define TMT_DB_DATABASE			"tmt_database"
@@ -42,7 +42,23 @@
 #define TMT_DB_USER_WECHARD_ID	"wechat_id"
 #define TMT_DB_USER_AUTHORYLV	"authority_level"
 
-
+struct DbManagerSetting
+{
+public:
+	int m_SleepTime=0;
+	NetIP m_SendIp;
+	int m_SendPort = 5187;
+	NetIP m_RecvIp;
+	int m_RecvPort = 5188;
+	DbManagerSetting& operator= (const DbManagerSetting& DbMSetting)
+	{
+		m_SleepTime = DbMSetting.m_SleepTime;
+		strcpy_s(m_SendIp, TMTV_IPSTRLEN, DbMSetting.m_SendIp);
+		strcpy_s(m_RecvIp, TMTV_IPSTRLEN, DbMSetting.m_RecvIp);
+		m_SendPort = DbMSetting.m_SendPort;
+		m_RecvPort = DbMSetting.m_RecvPort;
+	}
+};
 
 
 class CDatabaseManager : public Thread
@@ -61,7 +77,7 @@ public://数据库操作
 	// 说明:  
 	// 名称:  CDatabaseManager::AddCamToDb
 	// Access:    public 
-	// 返回值:   int  // 
+	// 返回值:   int  // camid
 	// 参数:   Tmtv_CameraInfo & mCam  //
 	//************************************
 	int AddCamToDb(Tmtv_CameraInfo& mCam);
@@ -211,8 +227,16 @@ public://数据库操作
 	//************************************
 	bool GetUserinfo(Tmt_UserInfo& mUser);
 
+public://成员函数，常用
+	bool LoadSetting();
+	bool SaveSetting();
+
+
 public://线程函数
 	void Task();
+
+
+
 
 private://私有函数
 	bool GetYearMonth(char* pData, int Datalength);
@@ -223,8 +247,9 @@ private://私有变量
 	MYSQL m_mysql;
 	int m_DbStatus;
 	vector<Tmt_ClientInfo> m_ClientInfoVec;
-
-
+	SendServer m_SendServer;
+	ReceiveServer m_ReceiveServer;
+	DbManagerSetting m_Setting;
 
 
 

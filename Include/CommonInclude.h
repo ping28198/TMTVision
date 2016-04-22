@@ -22,6 +22,8 @@
 #include "TmtCrypt.h"
 #include "XMLOperator.h"
 #include "ObjToString.h"
+#include "SendServer.h"
+#include "ReceiveServer.h"
 //opencvÍ·ÎÄ¼þ
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"

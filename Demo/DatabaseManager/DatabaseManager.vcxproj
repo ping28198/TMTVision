@@ -202,8 +202,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\ArWatch.h" />
+    <ClInclude Include="..\..\Include\CfgFileOp.h" />
     <ClInclude Include="..\..\Include\CommonDefine.h" />
     <ClInclude Include="..\..\Include\CommonFunc.h" />
+    <ClInclude Include="..\..\Include\TmtConfig.h" />
     <ClInclude Include="..\..\Include\logger.h" />
     <ClInclude Include="..\..\Include\ObjToString.h" />
     <ClInclude Include="..\..\Include\ReceiveServer.h" />
@@ -220,7 +222,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Include\ArWatch.cpp" />
+    <ClCompile Include="..\..\Include\CfgFileOp.cpp" />
     <ClCompile Include="..\..\Include\CommonFunc.cpp" />
+    <ClCompile Include="..\..\Include\TmtConfig.cpp" />
     <ClCompile Include="..\..\Include\logger.cpp" />
     <ClCompile Include="..\..\Include\ObjToString.cpp" />
     <ClCompile Include="..\..\Include\ReceiveServer.cpp" />
