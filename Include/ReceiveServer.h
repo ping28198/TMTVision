@@ -81,7 +81,7 @@ public:
 	char p_Buffer[MAXMSGSIZE];
 	long m_BufferSize = 0;
 	int m_SenderPort = 0;
-	NetIP m_SenderIp;
+	NetIP m_SenderIp="";
 public:
 	MessageItem() {}
 	MessageItem(const void* pBuffer, const long bufferSize)
@@ -93,11 +93,15 @@ public:
 	{
 		memcpy_s(p_Buffer, MAXMSGSIZE, messageItem.p_Buffer, messageItem.m_BufferSize);
 		m_BufferSize = MIN(messageItem.m_BufferSize, MAXMSGSIZE);
+		m_SenderPort = messageItem.m_SenderPort;
+		strcpy_s(m_SenderIp, TMTV_IPSTRLEN, messageItem.m_SenderIp);
 	}
 	MessageItem& operator= (const MessageItem& messageItem)
 	{
 		memcpy_s(p_Buffer, MAXMSGSIZE, messageItem.p_Buffer, messageItem.m_BufferSize);
 		m_BufferSize = MIN(messageItem.m_BufferSize, MAXMSGSIZE);
+		m_SenderPort = messageItem.m_SenderPort;
+		strcpy_s(m_SenderIp, TMTV_IPSTRLEN, messageItem.m_SenderIp);
 		return *this;
 	}
 };

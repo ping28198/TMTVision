@@ -108,7 +108,7 @@ public:
 	};
 	int WarnningLevel = 0;//警告等级,设置算法启动状态
 	int mAlgoStatus = TMTV_NOWARN;
-	LONGSTR Reservechar;//保留
+	LONGSTR Reservechar="";//保留
 public:
 	Tmtv_AlgorithmInfo()
 	{
@@ -173,7 +173,6 @@ public:
 		Status = cameraInfo.Status;
 		WaiteTime = cameraInfo.WaiteTime;
 		AlgorithmInfo = cameraInfo.AlgorithmInfo;
-		CameraHeight = cameraInfo.CameraHeight;
 	}
 	Tmtv_CameraInfo& operator= (const Tmtv_CameraInfo& cameraInfo)
 	{
@@ -190,7 +189,6 @@ public:
 		Status = cameraInfo.Status;
 		WaiteTime = cameraInfo.WaiteTime;
 		AlgorithmInfo = cameraInfo.AlgorithmInfo;
-		CameraHeight = cameraInfo.CameraHeight;
 		return *this;
 	}
 };

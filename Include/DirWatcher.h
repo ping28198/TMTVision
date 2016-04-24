@@ -119,6 +119,8 @@ public:
 
 ///<datastruct_info>
 //==============================================================================
+#ifndef FILEITEM
+#define  FILEITEM
 struct FileItem
 {
 	PATHWSTR m_fileName;
@@ -126,6 +128,7 @@ struct FileItem
 	DWORD m_fileAction;
 	bool m_fileProcessed;
 };
+#endif
 //==============================================================================
 ///</datastruct_info>
 
