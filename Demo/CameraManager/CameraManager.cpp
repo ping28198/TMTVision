@@ -7,6 +7,7 @@ bool CameraManagerSetting::LoadSetting(PATHWSTR xmlFilePath)
 	if (!isOK)
 	{
 		LoggerServer::mLogger.TraceError("读取网络配置文件失败！");
+		mMemFile.CloseFile();
 		return false;
 	}
 	CameraManagerSetting msetting;
@@ -24,15 +25,13 @@ bool CameraManagerSetting::SaveSetting(PATHWSTR xmlFilePath)
 	bool isOK = mMemFile.OpenFile_W(xmlFilePath);
 	if (!isOK)
 	{
-		LoggerServer::mLogger.TraceError("读取网络配置文件失败！");
+		LoggerServer::mLogger.TraceError("写入网络配置文件失败！");
+		mMemFile.CloseFile();
 		return false;
 	}
 	mMemFile.WriteMemoryToFile(this, sizeof(CameraManagerSetting));
 	mMemFile.CloseFile();
 	return true;
-
-
-	return false;
 }
 
 CameraManager::CameraManager(int maxCameraNum):
@@ -68,7 +67,8 @@ void CameraManager::Initial()
 	{
 		LoggerServer::mLogger.TraceInfo("加载网络配置参数失败！");
 	}
-	this->Create(-1, 0, true);
+
+	this->Create(-1, 100, true);
 	this->Resume();
 	ReadAndSetCamObj();
 }
@@ -117,10 +117,11 @@ bool CameraManager::ReadAndSetCamObj()
 	Tmtv_CameraInfo mCamInfo;
 	bool IsOK = true;
 	CMemoryFile mMemFile;
-	IsOK &= mMemFile.OpenFile_R(m_CamObjFilePath);
-	if (IsOK)
+	IsOK = mMemFile.OpenFile_R(m_CamObjFilePath);
+	if (!IsOK)
 	{
-		LoggerServer::mLogger.TraceError("加载相机对象文件失败");
+		LoggerServer::mLogger.TraceError("读取相机对象文件失败！");
+		mMemFile.CloseFile();
 		return false;
 	}
 	while (mMemFile.ReadMemoryFromFile(&mCamInfo,sizeof(Tmtv_CameraInfo)))
@@ -131,7 +132,7 @@ bool CameraManager::ReadAndSetCamObj()
 		this->AddCamera(mCamInfo);
 	}
 	mMemFile.CloseFile();
-	if (IsOK) LoggerServer::mLogger.TraceInfo("加载所有相机成功");
+	LoggerServer::mLogger.TraceInfo("加载所有相机成功！");
 	return true;
 }
 
@@ -305,6 +306,8 @@ bool CameraManager::SetAlgorithm(Tmtv_CameraInfo& cameraInfo)
 
 bool CameraManager::GetManagerSetting(CameraManagerSetting &camManagerSetting)
 {
+	GetSendServerSetting(m_CameraManagerSetting.m_SendServerSetting);
+	GetReciveServerSeting(m_CameraManagerSetting.m_ReceiveServerSetting);
 	camManagerSetting = m_CameraManagerSetting;
 	return true;
 }
@@ -420,6 +423,7 @@ bool CameraManager::SendAllImgInfo()
 
 void CameraManager::Task()
 {
+	OutputDebugString(L"into CammeraManager Task\n");
 	MessageItem tmpMsgItem;
 	EnterCriticalSection(&(m_ReceiveServer.m_section));
 	bool isOK = m_ReceiveServer.PullMsg(tmpMsgItem);

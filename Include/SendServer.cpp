@@ -126,8 +126,7 @@ void SendServer::Task(void)
 		{
 			for (int i = 0; i < 3; i++)
 			{
-				if (SendMsg((void*)m_MessageItemQueue.GetHead()->p_Buffer,
-					m_MessageItemQueue.GetHead()->m_BufferSize)>0)
+				if (SendNetMsg((void*)m_MessageItemQueue.GetHead()->p_Buffer))
 				{
 					EnterCriticalSection(&m_section);
 					m_MessageItemQueue.DelHead();

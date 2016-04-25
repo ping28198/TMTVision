@@ -21,9 +21,7 @@
 //1.1     王磊        2016.3.29  整合旧版本,调整了CommonDefine
 //==============================================================================
 ///</ver_info>
-
-#ifndef LOGGER_H_
-#define LOGGER_H_
+#pragma once
 #include <Windows.h>
 #include <stdio.h>
 #include "CommonDefine.h"
@@ -57,7 +55,7 @@ public:
     //默认构造函数
     Logger();
     //构造函数
-    Logger(const char * strLogPath, EnumLogLevel nLogLevel = LogLevelNormal);
+    Logger(const char * strLogPath, EnumLogLevel nLogLevel = LogLevelAll);
     //析构函数
     virtual ~Logger();
 public:
@@ -93,4 +91,3 @@ private:
     CRITICAL_SECTION m_cs;
 };
  
-#endif

@@ -126,8 +126,10 @@ void ReceiveServer::Task(void)
 	if (m_SkStatus == enRecvOK || m_SkStatus == enSendAndRecvOK)
 	{
 		tmpMessageItem.p_Buffer[0] = 0;
-		int revLen = RecvMsg((void*)tmpMessageItem.p_Buffer, tmpMessageItem.m_BufferSize,
-			&tmpMessageItem.m_SenderPort,tmpMessageItem.m_SenderIp);
+		int revLen = 0;
+		//int revLen = RecvMsg((void*)tmpMessageItem.p_Buffer, tmpMessageItem.m_BufferSize,
+		//	&tmpMessageItem.m_SenderPort,tmpMessageItem.m_SenderIp);
+		revLen = RecvNetMsg(tmpMessageItem.p_Buffer, tmpMessageItem.m_BufferSize);//2.0
 		if (revLen>0)
 		{
 			EnterCriticalSection(&m_section);
@@ -135,7 +137,7 @@ void ReceiveServer::Task(void)
 			m_SkStatus |= enRecvOK;
 			LeaveCriticalSection(&m_section);
 		}
-		else
+		if (revLen<0)
 		{
 			EnterCriticalSection(&m_section);
 			m_SkStatus &= ~enRecvOK;

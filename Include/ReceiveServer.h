@@ -13,6 +13,7 @@
 //==============================================================================
 //版本号  开发人员      时间      描述
 //1.0     王磊        2016-1-31    增加DeletDir
+//2.0	  任威平		2016-4-19		修改网络消息传输从消息中解析目标地址和消息长度
 //==============================================================================
 ///</ver_info>
 
@@ -80,7 +81,7 @@ public:
 	char p_Buffer[MAXMSGSIZE];
 	long m_BufferSize = 0;
 	int m_SenderPort = 0;
-	NetIP m_SenderIp;
+	NetIP m_SenderIp="";
 public:
 	MessageItem() {}
 	MessageItem(const void* pBuffer, const long bufferSize)
@@ -92,11 +93,15 @@ public:
 	{
 		memcpy_s(p_Buffer, MAXMSGSIZE, messageItem.p_Buffer, messageItem.m_BufferSize);
 		m_BufferSize = MIN(messageItem.m_BufferSize, MAXMSGSIZE);
+		m_SenderPort = messageItem.m_SenderPort;
+		strcpy_s(m_SenderIp, TMTV_IPSTRLEN, messageItem.m_SenderIp);
 	}
 	MessageItem& operator= (const MessageItem& messageItem)
 	{
 		memcpy_s(p_Buffer, MAXMSGSIZE, messageItem.p_Buffer, messageItem.m_BufferSize);
 		m_BufferSize = MIN(messageItem.m_BufferSize, MAXMSGSIZE);
+		m_SenderPort = messageItem.m_SenderPort;
+		strcpy_s(m_SenderIp, TMTV_IPSTRLEN, messageItem.m_SenderIp);
 		return *this;
 	}
 };

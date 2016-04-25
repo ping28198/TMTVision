@@ -253,6 +253,34 @@ int TmtSocket::RecvMsg(void *pBuffer, size_t bufLength, int *pRemoteSendPort, ch
 	return recvnum;
 }
 
+int TmtSocket::SendNetMsg(void *pBuffer)
+{
+	sockaddr_in DstAddr;
+	int len = sizeof(sockaddr_in);
+	size_t MsgLength = 0;
+	Tmtv_BaseNetMessage* pMsg = (Tmtv_BaseNetMessage*)pBuffer;
+	if (pMsg->CheckCode != TMTV_CHECKCODE) return 0;
+	MsgLength = pMsg->structSize + pMsg->ElementCount*pMsg->ElementLength;
+	DstAddr = pMsg->dstAddr;
+
+	int sendnum = sendto(sock_send, (char*)pBuffer, MsgLength, 0, (SOCKADDR*)&DstAddr, len);
+	return sendnum;
+
+}
+
+int TmtSocket::RecvNetMsg(void *pBuffer, size_t bufLength)
+{
+	sockaddr_in SrcAddr;
+	int len = sizeof(sockaddr_in);
+	int recvnum = recvfrom(sock_recv, (char*)pBuffer, bufLength, 0, (SOCKADDR*)&SrcAddr, &len);
+	if (recvnum>0)
+	{
+		Tmtv_BaseNetMessage* pMsg = (Tmtv_BaseNetMessage*)pBuffer;
+		if (pMsg->CheckCode != TMTV_CHECKCODE) return 0;
+	}
+	return recvnum;
+}
+
 int TmtSocket::ReSet()
 {
 	if (m_SKInitialOK != true)

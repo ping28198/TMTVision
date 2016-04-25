@@ -1,4 +1,5 @@
 #pragma once
+#include "stdafx.h"
 #include "CameraObject.h"
 #include "CameraManager.h"
 
@@ -6,11 +7,11 @@ CameraObject::CameraObject(void *pParent, HANDLE hParent):m_DirWatchServer(this)
 {
 	//m_CameraObjectID++;
 	//m_ImageInfo.mCameraInfo.Indexnum = /*m_CameraObjectID*/;
-	m_ImageInfo.mCameraInfo.CameraPath[0] = 0;
-	m_ImageInfo.mCameraInfo.Status = Tmtv_CameraInfo::TMTV_NOCAM;
-	m_ImageInfo.mCameraInfo.AlgorithmInfo.DstImgPath[0] = 0;
-	m_ImageInfo.mCameraInfo.AlgorithmInfo.MaskImgPath[0] = 0;
-	m_ImageInfo.mCameraInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_NOWARN;
+	m_CameraInfo.CameraPath[0] = 0;
+	m_CameraInfo.Status = Tmtv_CameraInfo::TMTV_NOCAM;
+	m_CameraInfo.AlgorithmInfo.DstImgPath[0] = 0;
+	m_CameraInfo.AlgorithmInfo.MaskImgPath[0] = 0;
+	m_CameraInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_NOWARN;
 	m_Detector.m_imageWidth = 0;
 	m_Detector.m_imageHeight = 0;
 	m_ImageInfo.ImagePath[0] = 0;
@@ -86,8 +87,8 @@ void CameraObject::Task()
 {
 	FileItem tmpFileItem;
 	EnterCriticalSection(&m_section);
-	if (m_ImageInfo.mCameraInfo.Status==Tmtv_CameraInfo::TMTV_RUNNINGCAM &&
-		m_ImageInfo.mCameraInfo.CameraPath[0]!=0)
+	if (m_CameraInfo.Status==Tmtv_CameraInfo::TMTV_RUNNINGCAM &&
+		m_CameraInfo.CameraPath[0]!=0)
 	{	
 		{
 			while(!m_DirWatchServer.m_fileNameQueue.IsEmpty())
@@ -97,10 +98,9 @@ void CameraObject::Task()
 					break;
 				}
 				CCommonFunc::UnicodeToAnsi(tmpFileItem.m_fileName,m_ImageInfo.ImagePath, TMTV_PATHSTRLEN);
-				switch (m_ImageInfo.mCameraInfo.AlgorithmInfo.WarnningLevel)
+				switch (m_CameraInfo.AlgorithmInfo.WarnningLevel)
 				{
 				case Tmtv_AlgorithmInfo::TMTV_NOWARN://仅返回图像
-					m_ImageInfo.IsWarnning = 0;
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
 					if (!((CameraManager*)p_Parent)->SendImage(m_ImageInfo))
 					{
@@ -109,7 +109,6 @@ void CameraObject::Task()
 					m_DirWatchServer.m_fileNameQueue.DelHead();
 					break;
 				case Tmtv_AlgorithmInfo::TMTV_PREWARN://预执行算法并返回图像
-					m_ImageInfo.IsWarnning = 0;
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
 					if (!tmpFileItem.m_fileProcessed &&
 						((tmpFileItem.m_fileAction & FILE_ACTION_ADDED) == FILE_ACTION_ADDED ||
@@ -118,7 +117,7 @@ void CameraObject::Task()
 						try
 						{
 							m_Detector.Detect(m_ImageInfo.ImagePath,
-								m_ImageInfo.mCameraInfo.AlgorithmInfo.DstImgPath,
+								m_CameraInfo.AlgorithmInfo.DstImgPath,
 								m_ImageInfo.mDefectInfo);
 						}
 						catch (...)
@@ -135,7 +134,6 @@ void CameraObject::Task()
 					m_DirWatchServer.m_fileNameQueue.DelHead();
 					break;
 				case Tmtv_AlgorithmInfo::TMTV_STARTWARN://执行算法并返回图像和缺陷
-					m_ImageInfo.IsWarnning = 1;
 					m_ImageInfo.mDefectInfo.DefectNum = 0;
 					if (!tmpFileItem.m_fileProcessed &&
 						((tmpFileItem.m_fileAction & FILE_ACTION_ADDED) == FILE_ACTION_ADDED ||
@@ -144,7 +142,7 @@ void CameraObject::Task()
 						try
 						{
 							m_Detector.Detect(m_ImageInfo.ImagePath,
-								m_ImageInfo.mCameraInfo.AlgorithmInfo.DstImgPath,
+								m_CameraInfo.AlgorithmInfo.DstImgPath,
 								m_ImageInfo.mDefectInfo);
 						}
 						catch (...)
@@ -173,8 +171,8 @@ void CameraObject::Task()
 bool CameraObject::AddCamera(Tmtv_CameraInfo& cameraInfo)
 {
 	EnterCriticalSection(&m_section);
-	if (m_ImageInfo.mCameraInfo.CameraPath[0] == 0 &&
-		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_NOCAM)
+	if (m_CameraInfo.CameraPath[0] == 0 &&
+		m_CameraInfo.Status == Tmtv_CameraInfo::TMTV_NOCAM)
 	{
 		if (cameraInfo.CameraPath[0]!=0 && 
 			cameraInfo.CameraName[0]!=0)
@@ -186,8 +184,8 @@ bool CameraObject::AddCamera(Tmtv_CameraInfo& cameraInfo)
 				RegPath(cameraPathW, FILE_NOTIFY_CHANGE_LAST_WRITE);
 				Create(-1, MAX(0,cameraInfo.WaiteTime),true);
 			}
-			m_ImageInfo.mCameraInfo = cameraInfo;
-			m_ImageInfo.mCameraInfo.Status = Tmtv_CameraInfo::TMTV_STOPEDCAM;
+			m_CameraInfo = cameraInfo;
+			m_CameraInfo.Status = Tmtv_CameraInfo::TMTV_STOPEDCAM;
 			m_ImageInfo.ImagePath[0] = 0;
 			SetAlgorithm(cameraInfo.AlgorithmInfo);
 			LeaveCriticalSection(&m_section);
@@ -202,10 +200,10 @@ bool CameraObject::AddCamera(Tmtv_CameraInfo& cameraInfo)
 bool CameraObject::DelCamera()
 {
 	EnterCriticalSection(&m_section);
-	if (m_ImageInfo.mCameraInfo.CameraPath[0] != 0 &&
-		m_ImageInfo.mCameraInfo.Status != Tmtv_CameraInfo::TMTV_NOCAM)
+	if (m_CameraInfo.CameraPath[0] != 0 &&
+		m_CameraInfo.Status != Tmtv_CameraInfo::TMTV_NOCAM)
 	{
-		if (m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
+		if (m_CameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
 		{
 			Tmtv_CameraInfo tmpCameraInfo;
 			tmpCameraInfo.Status = Tmtv_CameraInfo::TMTV_STOPEDCAM;
@@ -216,8 +214,8 @@ bool CameraObject::DelCamera()
 			m_DirWatchServer.FreePath();
 		}
 		m_Detector.Unitial();
-		m_ImageInfo.mCameraInfo.CameraPath[0] = 0;
-		m_ImageInfo.mCameraInfo.Status = Tmtv_CameraInfo::TMTV_NOCAM;
+		m_CameraInfo.CameraPath[0] = 0;
+		m_CameraInfo.Status = Tmtv_CameraInfo::TMTV_NOCAM;
 		m_ImageInfo.ImagePath[0] = 0;
 		LeaveCriticalSection(&m_section);
 		return true;
@@ -230,13 +228,13 @@ bool CameraObject::DelCamera()
 bool CameraObject::StartCamera()
 {
 	EnterCriticalSection(&m_section);
-	if (m_ImageInfo.mCameraInfo.CameraPath[0] != 0 &&
-		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_STOPEDCAM)
+	if (m_CameraInfo.CameraPath[0] != 0 &&
+		m_CameraInfo.Status == Tmtv_CameraInfo::TMTV_STOPEDCAM)
 	{
 		{
 			m_DirWatchServer.Resume();
 		}
-		m_ImageInfo.mCameraInfo.Status = Tmtv_CameraInfo::TMTV_RUNNINGCAM;
+		m_CameraInfo.Status = Tmtv_CameraInfo::TMTV_RUNNINGCAM;
 		LeaveCriticalSection(&m_section);
 		return true;
 	}
@@ -248,11 +246,11 @@ bool CameraObject::StartCamera()
 bool CameraObject::StopCamera()
 {
 	EnterCriticalSection(&m_section);
-	if (m_ImageInfo.mCameraInfo.CameraPath[0] != 0 &&
-		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
+	if (m_CameraInfo.CameraPath[0] != 0 &&
+		m_CameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
 	{
 		m_DirWatchServer.Suspend();
-		m_ImageInfo.mCameraInfo.Status = Tmtv_CameraInfo::TMTV_STOPEDCAM;
+		m_CameraInfo.Status = Tmtv_CameraInfo::TMTV_STOPEDCAM;
 		LeaveCriticalSection(&m_section);
 		return true;
 	}
@@ -285,13 +283,13 @@ bool CameraObject::SetCamera(Tmtv_CameraInfo& cameraInfo)
 bool CameraObject::StartAlgorithm(Tmtv_AlgorithmInfo& algorithmInfo)
 {
 	EnterCriticalSection(&m_section);
-	if (m_ImageInfo.mCameraInfo.CameraPath[0] != 0 &&
-		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
+	if (m_CameraInfo.CameraPath[0] != 0 &&
+		m_CameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
 	{
 		if (algorithmInfo.WarnningLevel== Tmtv_AlgorithmInfo::TMTV_STARTWARN)
 		{
-			m_Detector.Reset(&algorithmInfo);
-			m_ImageInfo.mCameraInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_PREWARN;
+			m_Detector.Reset(algorithmInfo);
+			m_CameraInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_PREWARN;
 			LeaveCriticalSection(&m_section);
 			return true;
 		}
@@ -306,11 +304,11 @@ bool CameraObject::StartAlgorithm(Tmtv_AlgorithmInfo& algorithmInfo)
 bool CameraObject::StopAlgorithm()
 {
 	EnterCriticalSection(&m_section);
-	if (m_ImageInfo.mCameraInfo.CameraPath[0] != 0 &&
-		m_ImageInfo.mCameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
+	if (m_CameraInfo.CameraPath[0] != 0 &&
+		m_CameraInfo.Status == Tmtv_CameraInfo::TMTV_RUNNINGCAM)
 	{
 		m_Detector.Unitial();
-		m_ImageInfo.mCameraInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_NOWARN;
+		m_CameraInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_NOWARN;
 		LeaveCriticalSection(&m_section);
 		return true;
 	}
@@ -351,7 +349,7 @@ int CameraObject::GetCamIndex()
 {
 	int mIndex=0;
 	EnterCriticalSection(&m_section);
-	mIndex = m_ImageInfo.mCameraInfo.Indexnum;
+	mIndex = m_CameraInfo.Indexnum;
 	LeaveCriticalSection(&m_section);
 	return mIndex;
 }
@@ -360,7 +358,7 @@ bool CameraObject::GetCamInfo(Tmtv_CameraInfo* pCamInfo)
 {
 	if (pCamInfo == NULL) return false;
 	EnterCriticalSection(&m_section);
-	memcpy(pCamInfo, &(m_ImageInfo.mCameraInfo), sizeof(Tmtv_CameraInfo));
+	memcpy(pCamInfo, &(m_CameraInfo), sizeof(Tmtv_CameraInfo));
 	LeaveCriticalSection(&m_section);
 	return true;
 }

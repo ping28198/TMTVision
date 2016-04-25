@@ -3,14 +3,13 @@
 //
 
 #pragma once
-#include "CommonInclude.h"
-#include "AddCamDlg.h"
+#include "stdafx.h"
 #include "CamListDlg.h"
 #include "NetWorkDlg.h"
-#include "CameraManager.h"
+#include "AddCamDlg.h"
+#include "CommonInclude.h"
 #include "UpdateDataThread.h"
-
-
+#include "CameraManager.h"
 
 // CCameraManagerDlg ¶Ô»°¿ò
 class CCameraManagerDlg : public CDialog

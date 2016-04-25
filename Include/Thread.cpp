@@ -79,11 +79,28 @@ void Thread::ThreadMain(void* thisObj)
 		{
 			ArWatch arWatch;
 			arWatch.SetData(&taskTime);
-			pThisObj->Task();//3.0
+			try
+			{
+				pThisObj->Task();//3.0
+			}
+			catch (...)
+			{
+				LeaveCriticalSection(&(pThisObj->m_section));
+				OutputDebugString(L"<\\Thread::task() fail>\n");
+			}
+			
 		}
 		else
 		{
-			pThisObj->Task();//3.0
+			try
+			{
+				pThisObj->Task();//3.0
+			}
+			catch (...)
+			{
+				LeaveCriticalSection(&(pThisObj->m_section));
+				OutputDebugString(L"<\\Thread::task() fail>\n");
+			}
 		}
 		//::LeaveCriticalSection(&pThisObj->m_section);
 

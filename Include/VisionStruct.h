@@ -19,6 +19,7 @@
 //1.2     王磊        2016.3.29  增加相机状态空间管理,对应于相机管理消息
 //2.0     王磊        2016.3.29  *待增加算法状态空间管理
 //2.1     王磊        2016.3.29  实现算法状态空间管理
+//2.2	  任威平		 2016.4.18   添加主机地址到相机信息
 //==============================================================================
 ///</ver_info>
 
@@ -26,6 +27,10 @@
 //==============================================================================
 #pragma once
 #include "CommonDefine.h" 
+#include "WinSock2.h"
+#include <iphlpapi.h>
+#pragma comment(lib,"Iphlpapi.lib")
+#pragma comment(lib,"WS2_32.lib")
 //==============================================================================
 ///</header_info>
 
@@ -79,6 +84,14 @@
 ///</algorithm_info>
 
 
+//struct sockaddr_in {
+//	short   sin_family;
+//	u_short sin_port;
+//	struct  in_addr sin_addr;
+//	char    sin_zero[8];
+//};
+
+
 
 ///<datastruct_info>
 //==============================================================================
@@ -93,7 +106,33 @@ public:
 		TMTV_PREWARN = 1,    //启动算法过程中
 		TMTV_STARTWARN = 2,  //已启动的算法
 	};
-	int WarnningLevel = TMTV_NOWARN;//警告等级,设置算法启动状态
+	int WarnningLevel = 0;//警告等级,设置算法启动状态
+	int mAlgoStatus = TMTV_NOWARN;
+	LONGSTR Reservechar="";//保留
+public:
+	Tmtv_AlgorithmInfo()
+	{
+		structSize = sizeof(Tmtv_AlgorithmInfo);
+	}
+	Tmtv_AlgorithmInfo(const Tmtv_AlgorithmInfo& algorithmInfo)
+	{
+		structSize = sizeof(Tmtv_AlgorithmInfo);
+		strcpy_s(MaskImgPath, TMTV_PATHSTRLEN, algorithmInfo.MaskImgPath);
+		strcpy_s(DstImgPath, TMTV_PATHSTRLEN, algorithmInfo.DstImgPath);
+		WarnningLevel = algorithmInfo.WarnningLevel;
+		mAlgoStatus = algorithmInfo.mAlgoStatus;
+		strcpy_s(Reservechar, TMTV_LONGSTRLEN, algorithmInfo.Reservechar);
+	}
+	Tmtv_AlgorithmInfo& operator= (const Tmtv_AlgorithmInfo& algorithmInfo)
+	{
+		structSize = sizeof(Tmtv_AlgorithmInfo);
+		strcpy_s(MaskImgPath, TMTV_PATHSTRLEN, algorithmInfo.MaskImgPath);
+		strcpy_s(DstImgPath, TMTV_PATHSTRLEN, algorithmInfo.DstImgPath);
+		WarnningLevel = algorithmInfo.WarnningLevel;
+		mAlgoStatus = algorithmInfo.mAlgoStatus;
+		strcpy_s(Reservechar, TMTV_LONGSTRLEN, algorithmInfo.Reservechar);
+		return *this;
+	}
 };
 //==============================================================================
 ///</datastruct_info>
@@ -105,7 +144,8 @@ struct Tmtv_CameraInfo //相机信息
 	int Indexnum = 0; //相机序号
 	SHORTSTR CameraName = "";//相机名称等信息
 	PATHSTR CameraPath = "";//相机根目录路径
-	int CameraPos[8];//x,y,z坐标, 方向
+	NetIP CameraHost = "";//相机所在主机
+	double CameraPos[8];//x,y,z坐标, 方向
 	int CameraWidth = 1920;//1.1 //相机图片宽度
 	int CameraHeight = 1080;//1.1 //相机图片高度	
 	enum {//1.2
@@ -113,9 +153,44 @@ struct Tmtv_CameraInfo //相机信息
 		TMTV_STOPEDCAM = 301,  //已加载的暂停相机
 		TMTV_RUNNINGCAM = 302, //已加载的运行相机
 	};
-	int Status;//1.2//相机状态	
+	int Status= TMTV_NOCAM;//1.2//相机状态	
 	int WaiteTime=1000;//1.2//相机状态
 	Tmtv_AlgorithmInfo AlgorithmInfo;
+public:
+	Tmtv_CameraInfo(){}
+	Tmtv_CameraInfo(const Tmtv_CameraInfo& cameraInfo)
+	{
+		Indexnum = cameraInfo.Indexnum;
+		strcpy_s(CameraName, TMTV_SHORTSTRLEN, cameraInfo.CameraName);
+		strcpy_s(CameraPath, TMTV_PATHSTRLEN, cameraInfo.CameraPath);
+		strcpy_s(CameraHost, TMTV_IPSTRLEN, cameraInfo.CameraHost);
+		for (int i = 0; i < 8;i++)
+		{
+			CameraPos[i] = cameraInfo.CameraPos[i];
+		}
+		CameraWidth = cameraInfo.CameraWidth;
+		CameraHeight = cameraInfo.CameraHeight;
+		Status = cameraInfo.Status;
+		WaiteTime = cameraInfo.WaiteTime;
+		AlgorithmInfo = cameraInfo.AlgorithmInfo;
+	}
+	Tmtv_CameraInfo& operator= (const Tmtv_CameraInfo& cameraInfo)
+	{
+		Indexnum = cameraInfo.Indexnum;
+		strcpy_s(CameraName, TMTV_SHORTSTRLEN, cameraInfo.CameraName);
+		strcpy_s(CameraPath, TMTV_PATHSTRLEN, cameraInfo.CameraPath);
+		strcpy_s(CameraHost, TMTV_IPSTRLEN, cameraInfo.CameraHost);
+		for (int i = 0; i < 8; i++)
+		{
+			CameraPos[i] = cameraInfo.CameraPos[i];
+		}
+		CameraWidth = cameraInfo.CameraWidth;
+		CameraHeight = cameraInfo.CameraHeight;
+		Status = cameraInfo.Status;
+		WaiteTime = cameraInfo.WaiteTime;
+		AlgorithmInfo = cameraInfo.AlgorithmInfo;
+		return *this;
+	}
 };
 //==============================================================================
 ///</datastruct_info>
@@ -134,18 +209,81 @@ struct Tmtv_DefectInfo	//缺陷信息
 
 ///<datastruct_info>
 //==============================================================================
-struct Tmtv_ImageInfo	//图像信息, 相机服务端发往主程序端
+//struct Tmtv_ImageInfo	//图像信息, 相机服务端发往主程序端
+//{
+//	Tmtv_CameraInfo mCameraInfo;
+//	Tmtv_DefectInfo mDefectInfo;
+//	PATHSTR ImagePath = "";//文件路径
+//	TINYSTR GrabTime = "";//采集时间 格式: 年-月-日-时:分: 秒. 例: 2016-03-22-12:00:00
+//	int IsWarnning = 0;//是否有警告
+//	int IsVIP = 0;//设置是否是重点
+//	LONGSTR Reservechar;//保留
+//};
+struct Tmtv_ImageInfo	//图像信息, 相机服务端发往主程序端//2.0
 {
-	Tmtv_CameraInfo mCameraInfo;
+	int mCamId = 0;
 	Tmtv_DefectInfo mDefectInfo;
 	PATHSTR ImagePath = "";//文件路径
 	TINYSTR GrabTime = "";//采集时间 格式: 年-月-日-时:分: 秒. 例: 2016-03-22-12:00:00
-	int IsWarnning = 0;//是否有警告
-	int IsVIP = 0;//设置是否是重点
 	LONGSTR Reservechar;//保留
 };
 //==============================================================================
 ///</datastruct_info>
+
+struct Tmtv_BaseNetMessage
+{
+	unsigned long structSize = sizeof(Tmtv_BaseNetMessage);
+	int CheckCode = TMTV_CHECKCODE;//验证码, 防止通信干扰
+	enum {
+		TMTV_ADDCAM = 100,        //添加CameraInfo指定的未加载相机
+		TMTV_DELCAM = 101,        //删除CameraInfo指定的未加载相机
+		TMTV_STARTCAM = 102,      //启动CameraInfo指定的已加载相机
+		TMTV_STOPCAM = 103,       //暂定CameraInfo指定的已加载相机
+		TMTV_GETCAM = 104,        //查询CameraInfo指定的已加载相机的指定参数
+		TMTV_SETCAM = 105,        //设置CameraInfo指定的已加载相机的指定参数
+		TMTV_STARTALGO = 106,     //启动CameraInfo指定的算法
+		TMTV_STOPCALGO = 107,      //暂定CameraInfo指定的算法
+		TMTV_SETALGO = 108,      //暂定CameraInfo指定的算法
+		TMTV_GETALLCAM = 150,		//获取所有相机状态
+		TMTV_GETALLIMG = 151,		//获取所有相机最新图片
+
+		TMTV_ADDCAM_OK = 200,        //添加CameraInfo指定的未加载相机成功
+		TMTV_DELCAM_OK = 201,        //删除CameraInfo指定的未加载相机成功
+		TMTV_STARTCAM_OK = 202,      //启动CameraInfo指定的已加载相机成功
+		TMTV_STOPCAM_OK = 203,       //暂定CameraInfo指定的已加载相机成功
+		TMTV_GETCAM_OK = 204,        //查询CameraInfo指定的已加载相机的指定参数成功
+		TMTV_SETCAM_OK = 205,        //设置CameraInfo指定的已加载相机的指定参数成功
+		TMTV_STARTALGO_OK = 206,     //启动算法成功
+		TMTV_STOPALGO_OK = 207,      //暂定算法成功
+		TMTV_SETALGO_OK = 208,       //设定算法成功
+		TMTV_SENDALLCAMOK = 209,
+		TMTV_SENDALLIMGOK = 210,
+
+		TMTV_ADDCAM_FAIL = 240,      //添加CameraInfo指定的未加载相机未成功
+		TMTV_DELCAM_FAIL,      //删除CameraInfo指定的未加载相机未成功
+		TMTV_STARTCAM_FAIL,    //启动CameraInfo指定的已加载相机未成功
+		TMTV_STOPCAM_FAIL,     //暂定CameraInfo指定的已加载相机未成功
+		TMTV_GETCAM_FAIL,      //查询CameraInfo指定的已加载相机的指定参数未成功
+		TMTV_SETCAM_FAIL,      //设置CameraInfo指定的已加载相机的指定参数未成功
+		TMTV_STARTALGO_FAIL,   //启动算法未成功
+		TMTV_STOPALGO_FAIL,    //暂定算法未成功
+		TMTV_SETALGO_FAIL,       //设定算法成功
+
+		TMTV_INVALID = 260,          //返回非法的命令
+		TMTV_SNAPED = 298,           //推送实时mImgInfo图片
+		TMTV_DETECTED = 299,         //推送检测到的的mImgInfo图片+缺陷
+		TMTV_CAMINFO = 300,
+	};
+	int MsgType = 0;
+	HANDLE hAskHandle;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
+	HANDLE hAnswerHandle;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用	
+	sockaddr_in mAddr;		//告知接收方，我方的接收地址
+	sockaddr_in dstAddr;		//消息发送的目标地址
+	unsigned long ElementCount = 0;		//跟随的消息元素数量
+	unsigned long ElementLength = 0;   //跟随的消息单个元素长度
+};
+
+
 
 
 
@@ -227,7 +365,24 @@ struct Tmt_UserInfo
 {
 	LONGSTR UserName;		//用户名
 	LONGSTR PassWord;		//密码
+	LONGSTR mCamWatch;
+	LONGSTR mWeChat_id;
 	int AuthorityLevel = 0;	//权限等级
+};
+//==============================================================================
+///</datastruct_info>
+
+///<datastruct_info>
+//==============================================================================
+struct Tmt_ClientInfo //客户端信息
+{
+	NetIP mIpAddr;		//IP
+	int mport;		//port
+	int status;		//工作状态
+	enum {
+		TMT_CLIENT_RUNNING = 1,
+		TMT_CLIENT_CLOSE,
+	};
 };
 //==============================================================================
 ///</datastruct_info>

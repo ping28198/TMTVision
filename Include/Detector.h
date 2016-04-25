@@ -26,6 +26,7 @@
 #include "opencv2/video/background_segm.hpp"
 #include "CommonDefine.h"
 #include "VisionStruct.h"
+#include "CommonFunc.h"
 using namespace std;
 using namespace cv;
 //==============================================================================
@@ -44,17 +45,16 @@ public:
 	int m_imageHeight;
 	int m_imageWidth;
 	//不同算法参数结构不同,派生自Tmtv_AlgorithmInfo结构
-	long algorithmInfoSize;
-	Tmtv_AlgorithmInfo *p_AlgorithmInfo;
+	Tmtv_AlgorithmInfo m_AlgorithmInfo;
 	long m_DetectedNum;
 	Detector();
 	~Detector();
 	//初始化资源和掩码图像
-	bool Initial(Tmtv_AlgorithmInfo *pAlgorithmInfo);
+	bool Initial(Tmtv_AlgorithmInfo algorithmInfo);
 	//卸载资源和掩码图像
 	void Unitial();
 	//重设算法
-	void Reset(Tmtv_AlgorithmInfo *pAlgorithmInfo);
+	void Reset(Tmtv_AlgorithmInfo algorithmInfo);
 	//识别当前图像队列
 	virtual bool Detect(Mat& srcImageData, Mat& rectImageData, 
 		Tmtv_DefectInfo & defects,
@@ -69,9 +69,10 @@ public:
 
 ///<datastruct_info>
 //==============================================================================
-struct Tmtv_BackgroundDetectorInfo: Tmtv_AlgorithmInfo	//算法信息
+//仅用于算法内部
+struct Tmtv_BackgroundDetectorInfo : Tmtv_AlgorithmInfo	//算法信息
 {
-	int STRLEN = 260;
+	//MEGASTR Reservechar = {
 	int GAUSSIANSIZE = 5;
 	double GAUSSIANSIGMA = 0.5;
 	int MORPHSIZE1 = 3;
@@ -82,14 +83,14 @@ struct Tmtv_BackgroundDetectorInfo: Tmtv_AlgorithmInfo	//算法信息
 	int MORPHSIZE6 = 5;
 	int MORPHSIZE7 = 5;
 	int THEREHOLD = 30;
-	Tmtv_BackgroundDetectorInfo()
+    //}
+public:
+	Tmtv_BackgroundDetectorInfo() 
 	{
 		structSize = sizeof(Tmtv_BackgroundDetectorInfo);
-	};
-	~Tmtv_BackgroundDetectorInfo()
-	{
-		int a = 0;
 	}
+	Tmtv_BackgroundDetectorInfo(const Tmtv_AlgorithmInfo& algorithmInfo);
+	Tmtv_BackgroundDetectorInfo& operator= (const Tmtv_AlgorithmInfo& algorithmInfo);
 };
 //==============================================================================
 ///</datastruct_info>
@@ -102,12 +103,14 @@ class BackgroundDetector:public Detector
 public:
 	BackgroundDetector();
 	~BackgroundDetector();
+	//不同算法参数结构不同,派生自Tmtv_AlgorithmInfo结构
+	Tmtv_BackgroundDetectorInfo m_BackgroundDetectorInfo;
 	//初始化资源和掩码图像
-	bool Initial(Tmtv_AlgorithmInfo *pAlgorithmInfo);
+	bool Initial(Tmtv_AlgorithmInfo algorithmInfo);
 	//卸载资源和掩码图像
 	void Unitial();
 	//重设算法
-	void Reset(Tmtv_AlgorithmInfo *pAlgorithmInfo);
+	void Reset(Tmtv_AlgorithmInfo algorithmInfo);
 	
 
 	Ptr<BackgroundSubtractorMOG2> p_backgroundSubtractor;

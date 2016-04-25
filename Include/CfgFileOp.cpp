@@ -25,33 +25,33 @@ bool CfgFileOp::IsCommentChar(char c)
 
 void CfgFileOp::Trim(string & str)
 {
-	//if (str.empty()) return;
-	//unsigned int i, start_pos, end_pos;
-	//for (i = 0; i < str.size(); ++i) 
-	//{
-	//	if (!IsSpace(str[i]))
-	//	{
-	//		break;
-	//	}
-	//}
-	//if (i == str.size()) 
-	//{ // È«²¿ÊÇ¿Õ°××Ö·û´®
-	//	str = "";
-	//	return;
-	//}
+	if (str.empty()) return;
+	unsigned int i, start_pos, end_pos;
+	for (i = 0; i < str.size(); ++i) 
+	{
+		if (!IsSpace(str[i]))
+		{
+			break;
+		}
+	}
+	if (i == str.size()) 
+	{ // È«²¿ÊÇ¿Õ°××Ö·û´®
+		str = "";
+		return;
+	}
 
-	//start_pos = i;
+	start_pos = i;
 
-	//for (i = str.size() - 1; i >= 0; --i) 
-	//{
-	//	if (!IsSpace(str[i])) 
-	//	{
-	//		break;
-	//	}
-	//}
-	//end_pos = i;
+	for (i = str.size() - 1; i >= 0; --i) 
+	{
+		if (!IsSpace(str[i])) 
+		{
+			break;
+		}
+	}
+	end_pos = i;
 
-	//str = str.substr(start_pos, end_pos - start_pos + 1);
+	str = str.substr(start_pos, end_pos - start_pos + 1);
 }
 
 bool CfgFileOp::AnalyseLine(const string & line, string & key, string & value)

@@ -55,6 +55,8 @@ typedef char				NetIP[TMTV_IPSTRLEN];
 typedef char*			    StrPointer;
 typedef char				StrChar;
 typedef void*               HANDLE;
+
+
 //typedef unsigned long       DWORD;
 //==============================================================================
 ///</datastruct_info>
