@@ -54,5 +54,9 @@ class Image extends \yii\db\ActiveRecord
         ];
     }
 
+    public function getCamera()
+    {
+        return $this->hasOne(Camera::className(), ['id' => 'cam_id']);
+    }
 
 }

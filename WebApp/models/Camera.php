@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use app\models\Image;
 
 /**
  * This is the model class for table "camera".
@@ -58,5 +59,9 @@ class Camera extends \yii\db\ActiveRecord
             'algo_mask' => 'Algo Mask',
             'algo_status' => 'Algo Status',
         ];
+    }
+    public function getImages()
+    {
+        return $this->hasMany(Image::className(), ['cam_id' => 'id']);
     }
 }

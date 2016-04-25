@@ -20,8 +20,10 @@ class MonitorController extends \yii\web\Controller
 
     public function actionDetail($cam_id)
     {
-        $model = $this->findModel($cam_id);
-        $cam_images = $this->findAllImages($cam_id);
+        $camera = Camera::findOne($cam_id);
+        $cam_images = $camera->getImages()->all();
+        //$model = $this->findModel($cam_id);
+
         return $this->render('detail',[
             'cam_images'=>$cam_images
         ]);
