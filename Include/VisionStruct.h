@@ -276,7 +276,7 @@ struct Tmtv_BaseNetMessage
 	};
 	int MsgType = 0;
 	HANDLE hDstHandle;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
-	HANDLE hSrcHandle;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用	
+	HANDLE hSrcHandle;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用
 	NetIP mAddr;		//告知接收方，我方的接收地址
 	int mPort;
 	NetIP dstAddr;		//消息发送的目标地址
