@@ -45,19 +45,12 @@
 struct DbManagerSetting
 {
 public:
-	int m_SleepTime=0;
-	NetIP m_SendIp;
-	int m_SendPort = 5187;
-	NetIP m_RecvIp;
-	int m_RecvPort = 5188;
-	DbManagerSetting& operator= (const DbManagerSetting& DbMSetting)
-	{
-		m_SleepTime = DbMSetting.m_SleepTime;
-		strcpy_s(m_SendIp, TMTV_IPSTRLEN, DbMSetting.m_SendIp);
-		strcpy_s(m_RecvIp, TMTV_IPSTRLEN, DbMSetting.m_RecvIp);
-		m_SendPort = DbMSetting.m_SendPort;
-		m_RecvPort = DbMSetting.m_RecvPort;
-	}
+	SendServerSetting mSendSetting;
+	ReceiveServerSetting mRecvSetting;
+	int m_Sleeptime=0;
+	//DbManagerSetting& operator= (const DbManagerSetting& DbMSetting)
+	//{
+	//}
 };
 
 
@@ -231,6 +224,8 @@ public://成员函数，常用
 	bool LoadSetting();
 	bool SaveSetting();
 
+public://消息函数
+	bool ResponseAsk(Tmtv_BaseNetMessage &msg, int mType);
 
 public://线程函数
 	void Task();
@@ -242,7 +237,7 @@ private://私有函数
 	bool GetYearMonth(char* pData, int Datalength);
 	
 	int GetDefectsPosFromStr(char* str,int DfPos[][8]);
-	bool CreatImgTable(int CamId);
+	bool CreatImgTable();
 private://私有变量
 	MYSQL m_mysql;
 	int m_DbStatus;

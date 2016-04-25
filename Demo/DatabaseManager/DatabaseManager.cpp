@@ -8,7 +8,7 @@ CDatabaseManager::CDatabaseManager(): m_SendServer(this), m_ReceiveServer(this)
 
 CDatabaseManager::~CDatabaseManager()
 {
-	
+	DisConnectDb();
 }
 void CDatabaseManager::Initial()
 {
@@ -17,10 +17,14 @@ void CDatabaseManager::Initial()
 	ConnectDb();
 	//DisConnectDb();
 	LoadSetting();
-	SaveSetting();
-
-
-
+	m_ReceiveServer.Initial(m_Setting.mRecvSetting);
+	m_ReceiveServer.Create();
+	m_ReceiveServer.Resume();
+	m_SendServer.Initial(m_Setting.mSendSetting);
+	m_SendServer.Create();
+	m_SendServer.Resume();
+	Create();
+	Resume();
 }
 
 
@@ -54,8 +58,6 @@ int CDatabaseManager::AddCamToDb(Tmtv_CameraInfo &mCam)
 	MYSQL_RES *res=NULL;
 	MYSQL_ROW row;
 	MYSQL_FIELD *mfield=NULL;
-	unsigned long cols;
-	unsigned long rows;
 	char sqlcommand[256];
 	char a[256] = { 0 };
 	//正式版添加
@@ -118,9 +120,7 @@ int CDatabaseManager::AddCamToDb(Tmtv_CameraInfo &mCam)
 int CDatabaseManager::CheckCamInfo(Tmtv_CameraInfo& mCam)
 {
 	MYSQL_RES *res = NULL;
-	MYSQL_ROW row;
 	MYSQL_FIELD *mfield = NULL;
-	unsigned long rows;
 	char sqlcommand[256];
 	//sprintf(sqlcommand, "select * from %s where %s = %d",TMT_DB_TABLE_CAM,TMT_DB_CAM_ID,mCam.Indexnum);
 	//mysql_query(&m_mysql, sqlcommand);
@@ -360,12 +360,12 @@ bool CDatabaseManager::LoadSetting()
 	NetIP netip;
 	TmtSocket::GetAvailableNetIP(netip);
 	string mstr = mCfg.Read("SendIp", string(netip));
-	strcpy_s(m_Setting.m_SendIp, TMTV_IPSTRLEN, mstr.c_str());
+	strcpy_s(m_Setting.mSendSetting.m_LocalSendIP, TMTV_IPSTRLEN, mstr.c_str());
 	mstr = mCfg.Read("RecvIp", string(netip));
-	strcpy_s(m_Setting.m_RecvIp, TMTV_IPSTRLEN, mstr.c_str());
-	m_Setting.m_SleepTime = mCfg.Read("SleepTime", 0);
-	m_Setting.m_RecvPort = mCfg.Read("RecvPort", 5188);
-	m_Setting.m_SendPort = mCfg.Read("SendPort", 5187);
+	strcpy_s(m_Setting.mRecvSetting.m_LocalRecvIP, TMTV_IPSTRLEN, mstr.c_str());
+	m_Setting.m_Sleeptime = mCfg.Read("SleepTime", 0);
+	m_Setting.mRecvSetting.m_LocalRecvPort = mCfg.Read("RecvPort", TMT_DBSERVER_RECVPORT);
+	m_Setting.mSendSetting.m_LocalSendPort = mCfg.Read("SendPort", TMT_DBSERVER_SENDPORT);
 	return true;
 }
 
@@ -380,14 +380,28 @@ bool CDatabaseManager::SaveSetting()
 	{
 		DbServerLogger::mLogger.TraceWarning("配置文件%s不存在，将创建配置文件！", m.filename.c_str());
 	}
-	mCfg.Add("SendIp", string(m_Setting.m_SendIp));
-	mCfg.Add("RecvIp", string(m_Setting.m_RecvIp));
-	mCfg.Add("SleepTime", m_Setting.m_SleepTime);
-	mCfg.Add("RecvPort", m_Setting.m_RecvPort);
-	mCfg.Add("SendPort", m_Setting.m_SendPort);
-	
+	mCfg.Add("SendIp", string(m_Setting.mSendSetting.m_LocalSendIP));
+	mCfg.Add("RecvIp", string(m_Setting.mRecvSetting.m_LocalRecvIP));
+	mCfg.Add("SleepTime", m_Setting.m_Sleeptime);
+	mCfg.Add("RecvPort", m_Setting.mRecvSetting.m_LocalRecvPort);
+	mCfg.Add("SendPort", m_Setting.mSendSetting.m_LocalSendPort);
 	//string mstr = string(m_Setting.m_SendIp);
+	return true;
+}
 
+bool CDatabaseManager::ResponseAsk(Tmtv_BaseNetMessage &msg, int mType)
+{
+	Tmtv_BaseNetMessage mSendMsg;
+	memcpy_s(&mSendMsg.dstAddr, sizeof(sockaddr_in),&msg.mAddr,sizeof(sockaddr_in));
+	mSendMsg.hDstHandle = msg.hSrcHandle;
+	mSendMsg.MsgType = mType;
+	strcpy_s(mSendMsg.dstAddr, TMTV_IPSTRLEN, msg.mAddr);
+	mSendMsg.dstPort = msg.mPort;
+	strcpy_s(mSendMsg.mAddr, TMTV_IPSTRLEN, m_Setting.mRecvSetting.m_LocalRecvIP);
+	mSendMsg.mPort = m_Setting.mRecvSetting.m_LocalRecvPort;
+	MessageItem mMsgItem;
+	memcpy_s(mMsgItem.p_Buffer, MessageItem::MAXMSGSIZE, &mSendMsg, sizeof(Tmtv_BaseNetMessage));
+	m_SendServer.PushMsg(mMsgItem);
 	return true;
 }
 
@@ -459,15 +473,15 @@ bool CDatabaseManager::InsertImgInfoToDb(Tmtv_ImageInfo& mImginfo)
 	char mdate[64] = { 0 };
 	GetYearMonth(mdate, 64);
 	char tablename[128] = { 0 };
-	sprintf_s(tablename,128, "cam%d_image_%s", mImginfo.mCamId, mdate);
-	CreatImgTable(mImginfo.mCamId);
+	sprintf_s(tablename,128, "image_%s", mdate);
+	CreatImgTable();
 	char tmpstr[64] = { 0 };
 	for (int i = 0; i < mImginfo.mDefectInfo.DefectNum; i++)
 	{
 		sprintf_s(tmpstr, 64,"%d,%d,%d,%d,", mImginfo.mDefectInfo.DefectPos[i][0], mImginfo.mDefectInfo.DefectPos[i][1],
 			mImginfo.mDefectInfo.DefectPos[i][2], mImginfo.mDefectInfo.DefectPos[i][3]);
 		strcat_s(defectpos, 256,tmpstr);
-	}
+	}//使用json
 	sprintf_s(sqlcommand,512, "insert into %s (%s,%s,%s,%s,%s,%s,%s) values('%s','%s',%d,'%s',%d,%d,%d)", tablename,
 		TMT_DB_IMG_PATH, TMT_DB_IMG_GRABTIME, TMT_DB_IMG_DEFECTSNUM, TMT_DB_IMG_DEFECTSPOS, TMT_DB_IMG_HEIGHT, TMT_DB_IMG_WIDTH, TMT_DB_IMG_CAMID,
 		mImginfo.ImagePath, mImginfo.GrabTime, mImginfo.mDefectInfo.DefectNum,defectpos,mImginfo.mDefectInfo.ImgHeight, mImginfo.mDefectInfo.ImgWidth, mImginfo.mCamId);
@@ -498,9 +512,11 @@ bool CDatabaseManager::GetLastImgInfoFrmDb(Tmtv_ImageInfo& mImg)
 	GetYearMonth(mdate, 64);
 	char tablename[128] = { 0 };
 	char defectpos[256] = { 0 };
-	sprintf_s(tablename,64, "cam%d_image_%s", mImg.mCamId, mdate);
-	sprintf_s(sqlcommand,512, "select * from %s where %s = (select max(%s) from %s)",
-		tablename,TMT_DB_IMG_ID, TMT_DB_IMG_ID, tablename);
+	sprintf_s(tablename,64, "image_%s",mdate);
+	//sprintf_s(sqlcommand,512, "select * from %s where %s = (select max(%s) from %s)",
+	//	tablename,TMT_DB_IMG_ID, TMT_DB_IMG_ID, tablename);
+	sprintf_s(sqlcommand, 512, "select * from %s where %s = '%d' order by %s desc limit 1",
+		tablename, TMT_DB_IMG_CAMID, mImg.mCamId, TMT_DB_IMG_ID);
 	int IsOk = mysql_query(&m_mysql, sqlcommand);
 	MYSQL_RES *res = NULL;
 	MYSQL_ROW row;
@@ -512,7 +528,7 @@ bool CDatabaseManager::GetLastImgInfoFrmDb(Tmtv_ImageInfo& mImg)
 		{
 			if(row[1]) strcpy_s(mImg.ImagePath,TMTV_PATHSTRLEN, row[1]);
 			if (row[2]) strcpy_s(mImg.GrabTime, TMTV_TINYSTRLEN, row[2]);
-			if (row[4]) mImg.mDefectInfo.DefectNum = GetDefectsPosFromStr(row[4], mImg.mDefectInfo.DefectPos);
+			if (row[4]) mImg.mDefectInfo.DefectNum = GetDefectsPosFromStr(row[4], mImg.mDefectInfo.DefectPos);//使用json
 			if (row[5]) mImg.mDefectInfo.ImgWidth = atoi(row[5]);
 			if (row[6]) mImg.mDefectInfo.ImgHeight = atoi(row[6]);
 			if (res != NULL) mysql_free_result(res);
@@ -525,23 +541,11 @@ bool CDatabaseManager::GetLastImgInfoFrmDb(Tmtv_ImageInfo& mImg)
 
 bool CDatabaseManager::GetImginfoByDate(vector<Tmtv_ImageInfo> &mimgVec, int Camid,const char* mdate)
 {
-	TINYSTR mdate_tmp = {0};
 	char a[2] = {0};
 	if (mdate == NULL) return false;
-	int i = 0;
-	while (mdate[i]!= '\0')
-	{
-		if (isalnum(mdate[i]))
-		{
-			a[0] = mdate[i];
-			strcat(mdate_tmp,a);
-		}
-		i++;
-		if (i==TMTV_TINYSTRLEN) break;
-	}
-	mdate_tmp[6] = '\0';
 	char sqlcommand[512] = { 0 };
-	sprintf_s(sqlcommand,512, "select * from cam%d_image_%s where %s between '%s 00:00:00' and '%s 23:59:59'", Camid, mdate_tmp,TMT_DB_IMG_GRABTIME,mdate, mdate);
+	sprintf_s(sqlcommand,512, "select * from image_%s where %s = '%d' and %s between '%s 00:00:00' and '%s 23:59:59'", mdate,
+		TMT_DB_IMG_CAMID,Camid,TMT_DB_IMG_GRABTIME,mdate, mdate);
 	int IsOk = mysql_query(&m_mysql, sqlcommand);
 	MYSQL_RES *res = NULL;
 	MYSQL_ROW row;
@@ -555,7 +559,7 @@ bool CDatabaseManager::GetImginfoByDate(vector<Tmtv_ImageInfo> &mimgVec, int Cam
 		{
 			if (row[1]) strcpy_s(mImg.ImagePath, TMTV_PATHSTRLEN, row[1]);
 			if (row[2]) strcpy_s(mImg.GrabTime, TMTV_TINYSTRLEN,row[2]);
-			if (row[4]) mImg.mDefectInfo.DefectNum = GetDefectsPosFromStr(row[4], mImg.mDefectInfo.DefectPos);
+			if (row[4]) mImg.mDefectInfo.DefectNum = GetDefectsPosFromStr(row[4], mImg.mDefectInfo.DefectPos);//使用json
 			if (row[5]) mImg.mDefectInfo.ImgWidth = atoi(row[5]);
 			if (row[6]) mImg.mDefectInfo.ImgHeight = atoi(row[6]);
 			mimgVec.push_back(mImg);
@@ -565,13 +569,13 @@ bool CDatabaseManager::GetImginfoByDate(vector<Tmtv_ImageInfo> &mimgVec, int Cam
 	return true;
 }
 
-bool CDatabaseManager::CreatImgTable(int CamId)
+bool CDatabaseManager::CreatImgTable()
 {
 	char sqlcommand[512] = { 0 };
 	char mdate[64] = { 0 };
 	GetYearMonth(mdate, 64);
 	char tablename[128] = { 0 };
-	sprintf_s(tablename,64, "cam%d_image_%s", CamId, mdate);
+	sprintf_s(tablename,64, "image_%s", mdate);
 	sprintf_s(sqlcommand,512, "CREATE TABLE IF NOT EXISTS %s("
 		"%s int(11) NOT NULL AUTO_INCREMENT,"
 		"%s varchar(255) DEFAULT NULL,"
@@ -599,6 +603,31 @@ bool CDatabaseManager::CreatImgTable(int CamId)
 
 void CDatabaseManager::Task()
 {
+	MessageItem tmpMsgItem;
+	EnterCriticalSection(&(m_ReceiveServer.m_section));
+	bool isOK = m_ReceiveServer.PullMsg(tmpMsgItem);
+	LeaveCriticalSection(&(m_ReceiveServer.m_section));
+	if (!isOK)
+	{
+		Sleep(100);
+		return;
+	}
+	Tmtv_BaseNetMessage* pBaseMsg = (Tmtv_BaseNetMessage*)(tmpMsgItem.p_Buffer);
+	switch (pBaseMsg->MsgType)
+	{
+	case Tmtv_BaseNetMessage::TMTV_ADDCAM:
+		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmtv_CameraInfo)) return;
+		
+
+
+		break;
+	default:
+		break;
+	}
+
+
+
+
 
 }
 
@@ -607,7 +636,7 @@ bool CDatabaseManager::GetYearMonth(char* pData, int Datalength)
 	wchar_t tmp[32];
 	CCommonFunc::GetNowDate(tmp, 32);
 	CCommonFunc::UnicodeToAnsi(tmp, pData, Datalength);
-	pData[6] = '\0';
+	pData[8] = '\0';
 	return true;
 }
 

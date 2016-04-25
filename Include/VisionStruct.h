@@ -259,7 +259,7 @@ struct Tmtv_BaseNetMessage
 		TMTV_SENDALLCAMOK = 209,
 		TMTV_SENDALLIMGOK = 210,
 
-		TMTV_ADDCAM_FAIL = 240,      //添加CameraInfo指定的未加载相机未成功
+		TMTV_ADDCAM_FAIL = 240,		//添加CameraInfo指定的未加载相机未成功
 		TMTV_DELCAM_FAIL,      //删除CameraInfo指定的未加载相机未成功
 		TMTV_STARTCAM_FAIL,    //启动CameraInfo指定的已加载相机未成功
 		TMTV_STOPCAM_FAIL,     //暂定CameraInfo指定的已加载相机未成功
@@ -267,7 +267,7 @@ struct Tmtv_BaseNetMessage
 		TMTV_SETCAM_FAIL,      //设置CameraInfo指定的已加载相机的指定参数未成功
 		TMTV_STARTALGO_FAIL,   //启动算法未成功
 		TMTV_STOPALGO_FAIL,    //暂定算法未成功
-		TMTV_SETALGO_FAIL,       //设定算法成功
+		TMTV_SETALGO_FAIL,     //设定算法成功
 
 		TMTV_INVALID = 260,          //返回非法的命令
 		TMTV_SNAPED = 298,           //推送实时mImgInfo图片
@@ -275,10 +275,12 @@ struct Tmtv_BaseNetMessage
 		TMTV_CAMINFO = 300,
 	};
 	int MsgType = 0;
-	HANDLE hAskHandle;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
-	HANDLE hAnswerHandle;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用	
-	sockaddr_in mAddr;		//告知接收方，我方的接收地址
-	sockaddr_in dstAddr;		//消息发送的目标地址
+	HANDLE hDstHandle;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
+	HANDLE hSrcHandle;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用	
+	NetIP mAddr;		//告知接收方，我方的接收地址
+	int mPort;
+	NetIP dstAddr;		//消息发送的目标地址
+	int dstPort;
 	unsigned long ElementCount = 0;		//跟随的消息元素数量
 	unsigned long ElementLength = 0;   //跟随的消息单个元素长度
 };

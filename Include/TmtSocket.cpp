@@ -261,11 +261,11 @@ int TmtSocket::SendNetMsg(void *pBuffer)
 	Tmtv_BaseNetMessage* pMsg = (Tmtv_BaseNetMessage*)pBuffer;
 	if (pMsg->CheckCode != TMTV_CHECKCODE) return 0;
 	MsgLength = pMsg->structSize + pMsg->ElementCount*pMsg->ElementLength;
-	DstAddr = pMsg->dstAddr;
-
+	DstAddr.sin_addr.s_addr = inet_addr(pMsg->dstAddr);
+	DstAddr.sin_port = htons(pMsg->dstPort);
+	DstAddr.sin_family = AF_INET;
 	int sendnum = sendto(sock_send, (char*)pBuffer, MsgLength, 0, (SOCKADDR*)&DstAddr, len);
 	return sendnum;
-
 }
 
 int TmtSocket::RecvNetMsg(void *pBuffer, size_t bufLength)

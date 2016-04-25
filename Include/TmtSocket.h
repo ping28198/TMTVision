@@ -33,6 +33,14 @@
 //==============================================================================
 ///</header_info>
 
+#define TMT_CAMSERVER_SENDPORT 5184
+#define TMT_CAMSERVER_RECVPORT 5185
+#define TMT_DBSERVER_SENDPORT 5186
+#define TMT_DBSERVER_RECVPORT 5187
+#define TMT_CLIENT_SENDPORT 5188
+#define TMT_CLIENT_RECVPORT 5189
+
+
 ///<class_info>
 //==============================================================================
 //网络通讯Socket方法类
