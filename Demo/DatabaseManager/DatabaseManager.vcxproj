@@ -75,23 +75,33 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(MYSQL_PATH)\$(PlatformShortName)\lib;$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
+    <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(MYSQL_PATH)\$(PlatformShortName)\include;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(ProjectDir)..\..\Lib\jsoncpp\$(PlatformShortName)\vc14;$(ProjectDir)..\..\Lib\CryptLib\$(PlatformShortName)\vc14\$(Configuration);$(MYSQL_PATH)\$(PlatformShortName)\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <OutDir>$(ProjectDir)..\..\Bin\$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(MYSQL_PATH)\$(PlatformShortName)\lib;$(PATH)</ExecutablePath>
-    <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(MYSQL_PATH)\$(PlatformShortName)\include</IncludePath>
-    <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(ProjectDir)..\..\Lib\CryptLib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(MYSQL_PATH)\$(PlatformShortName)\lib;$(NETFXKitsDir)Lib\um\x64;$(ProjectDir)..\..\Lib\jsoncpp\x64</LibraryPath>
+    <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(MYSQL_PATH)\$(PlatformShortName)\lib;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH)</ExecutablePath>
+    <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(MYSQL_PATH)\$(PlatformShortName)\include;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(ProjectDir)..\..\Lib\jsoncpp\$(PlatformShortName)\vc14;$(ProjectDir)..\..\Lib\CryptLib\$(PlatformShortName)\vc14\$(Configuration);$(MYSQL_PATH)\$(PlatformShortName)\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <OutDir>$(ProjectDir)..\..\Bin\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(PlatformName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(MYSQL_PATH)\$(PlatformShortName)\lib;$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
+    <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(MYSQL_PATH)\$(PlatformShortName)\include;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(ProjectDir)..\..\Lib\jsoncpp\$(PlatformShortName)\vc14;$(ProjectDir)..\..\Lib\CryptLib\$(PlatformShortName)\vc4\$(Configuration);$(MYSQL_PATH)\$(PlatformShortName)\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <OutDir>$(ProjectDir)..\..\Bin\$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(MYSQL_PATH)\$(PlatformShortName)\lib;$(PATH)</ExecutablePath>
-    <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(MYSQL_PATH)\$(PlatformShortName)\include</IncludePath>
-    <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(ProjectDir)..\..\Lib\CryptLib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(MYSQL_PATH)\$(PlatformShortName)\lib;$(NETFXKitsDir)Lib\um\x64;$(ProjectDir)..\..\Lib\jsoncpp\x64</LibraryPath>
+    <ExecutablePath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\bin;$(MYSQL_PATH)\$(PlatformShortName)\lib;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH)</ExecutablePath>
+    <IncludePath>$(OPENCV_PATH)\build\include;$(OPENCV_PATH)\build\include\opencv;$(OPENCV_PATH)\build\include\opencv2;$(MYSQL_PATH)\$(PlatformShortName)\include;$(ProjectDir)..\..\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(OPENCV_PATH)\build\$(PlatformShortName)\vc14\lib;$(ProjectDir)..\..\Lib\jsoncpp\$(PlatformShortName)\vc14;$(ProjectDir)..\..\Lib\CryptLib\$(PlatformShortName)\vc4\$(Configuration);$(MYSQL_PATH)\$(PlatformShortName)\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <OutDir>$(ProjectDir)..\..\Bin\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(PlatformName)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -205,6 +215,7 @@
     <ClInclude Include="..\..\Include\CfgFileOp.h" />
     <ClInclude Include="..\..\Include\CommonDefine.h" />
     <ClInclude Include="..\..\Include\CommonFunc.h" />
+    <ClInclude Include="..\..\Include\CommonInclude.h" />
     <ClInclude Include="..\..\Include\TmtConfig.h" />
     <ClInclude Include="..\..\Include\logger.h" />
     <ClInclude Include="..\..\Include\ObjToString.h" />

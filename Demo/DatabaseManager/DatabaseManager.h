@@ -1,7 +1,7 @@
 #pragma once
 #include "CommonInclude.h"
 #include"mysql.h"
-#include "TmtConfig.h"
+
 #pragma comment( lib, "libmysql.lib")
 
 #define TMT_DB_DATABASE			"tmt_database"
@@ -235,7 +235,8 @@ public://线程函数
 
 private://私有函数
 	bool GetYearMonth(char* pData, int Datalength);
-	
+	int GetDefectsPosFromJson(int DfPos[][8], char *JsonStr, int DefectsNum);
+	int ConvertDefectsToJson(char* JsonStr, int bufferlength, int DfPos[][8], int DefectsNum);
 	int GetDefectsPosFromStr(char* str,int DfPos[][8]);
 	bool CreatImgTable();
 private://私有变量

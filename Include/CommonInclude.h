@@ -11,16 +11,19 @@
 #include "CommonDefine.h"
 #include "VisionStruct.h"
 #include "CommonFunc.h"
-#include "logger.h"
-#include "CfgFileOp.h"
+#include "logger.h"//写日志
+
 #include "CvImage.h"
-#include "Thread.h"
-#include "Detector.h"
-#include "MemoryFile.h"
+#include "Thread.h"//线程类
+#include "Detector.h"//算法头文件
+#include "MemoryFile.h"//文件读写
 #include "Queue.h"
 #include "DirWatcher.h"
-#include "TmtCrypt.h"
-#include "XMLOperator.h"
+#include "TmtCrypt.h"//字符串加密，界面
+#include "XMLOperator.h"//xml读写
+#include "JsonCPPHeader/json.h"//json格式
+#include "TmtConfig.h"//ini配置文件格式
+#include "CfgFileOp.h"//ini配置文件格式
 #include "ObjToString.h"
 #include "SendServer.h"
 #include "ReceiveServer.h"
