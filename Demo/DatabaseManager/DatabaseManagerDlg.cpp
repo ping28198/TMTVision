@@ -98,7 +98,7 @@ BOOL CDatabaseManagerDlg::OnInitDialog()
 	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
-
+	DbServerLogger::mLogger.TraceKeyInfo("start------------------------------------");
 	// TODO: 在此添加额外的初始化代码
 	m_Dbmanager.Initial();
 	Tmtv_CameraInfo mCam;
@@ -112,11 +112,11 @@ BOOL CDatabaseManagerDlg::OnInitDialog()
 	bool bb = m_Dbmanager.AddCamToDb(mCam);
 	if (bb)
 	{
-		DbServerLogger::mLogger.TraceKeyInfo("insert ok");
+		DbServerLogger::mLogger.TraceKeyInfo("cam insert ok");
 	}
 	else
 	{
-		DbServerLogger::mLogger.TraceKeyInfo("insert fail");
+		DbServerLogger::mLogger.TraceKeyInfo("cam insert fail");
 	}
 	mCam.Indexnum = 2;
 	bool a = m_Dbmanager.CheckCamInfo(mCam);
@@ -144,11 +144,6 @@ BOOL CDatabaseManagerDlg::OnInitDialog()
 
 	vector<Tmtv_ImageInfo> mimgvec;
 	m_Dbmanager.GetImginfoByDate(mimgvec, 2, "2016-04-20");
-
-
-
-
-
 	m_Dbmanager.DisConnectDb();
 
 

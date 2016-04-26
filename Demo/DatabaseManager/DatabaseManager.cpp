@@ -8,15 +8,15 @@ CDatabaseManager::CDatabaseManager(): m_SendServer(this), m_ReceiveServer(this)
 
 CDatabaseManager::~CDatabaseManager()
 {
-	DisConnectDb();
+	DbMDestory();
 }
 void CDatabaseManager::Initial()
 {
 	InitializeCriticalSection(&m_section);
+	LoadSetting();
 	mysql_init(&m_mysql);
 	ConnectDb();
 	//DisConnectDb();
-	LoadSetting();
 	m_ReceiveServer.Initial(m_Setting.mRecvSetting);
 	m_ReceiveServer.Create();
 	m_ReceiveServer.Resume();
@@ -28,9 +28,20 @@ void CDatabaseManager::Initial()
 }
 
 
+void CDatabaseManager::DbMDestory()
+{
+	SaveSetting();
+	Destroy();
+	m_ReceiveServer.Destroy();
+	m_SendServer.Destroy();
+	DisConnectDb();
+}
+
+
+
 bool CDatabaseManager::ConnectDb()
 {
-	bool IsOk = mysql_real_connect(&m_mysql, LOCAL_HOST, "root", "bkdtmt", "tmt_database", 3306, NULL, 0);
+	bool IsOk = mysql_real_connect(&m_mysql,m_Setting.MysqlServerHost, "ren", "tmt123", "tmt_database", m_Setting.MysqlServerPort, NULL, 0);
 	if (IsOk)
 	{
 		DbServerLogger::mLogger.TraceInfo("链接数据库成功！");
@@ -363,6 +374,9 @@ bool CDatabaseManager::LoadSetting()
 	strcpy_s(m_Setting.mSendSetting.m_LocalSendIP, TMTV_IPSTRLEN, mstr.c_str());
 	mstr = mCfg.Read("RecvIp", string(netip));
 	strcpy_s(m_Setting.mRecvSetting.m_LocalRecvIP, TMTV_IPSTRLEN, mstr.c_str());
+	mstr = mCfg.Read("MysqlServerHost", string("Localhost"));
+	strcpy_s(m_Setting.MysqlServerHost, TMTV_IPSTRLEN, mstr.c_str());
+	m_Setting.MysqlServerPort = mCfg.Read("MysqlServerPort", 3306);
 	m_Setting.m_Sleeptime = mCfg.Read("SleepTime", 0);
 	m_Setting.mRecvSetting.m_LocalRecvPort = mCfg.Read("RecvPort", TMT_DBSERVER_RECVPORT);
 	m_Setting.mSendSetting.m_LocalSendPort = mCfg.Read("SendPort", TMT_DBSERVER_SENDPORT);
@@ -385,23 +399,23 @@ bool CDatabaseManager::SaveSetting()
 	mCfg.Add("SleepTime", m_Setting.m_Sleeptime);
 	mCfg.Add("RecvPort", m_Setting.mRecvSetting.m_LocalRecvPort);
 	mCfg.Add("SendPort", m_Setting.mSendSetting.m_LocalSendPort);
+	mCfg.Add("MysqlServerPort", m_Setting.MysqlServerPort);
+	mCfg.Add("MysqlServerHost", m_Setting.MysqlServerHost);
+
 	//string mstr = string(m_Setting.m_SendIp);
 	return true;
 }
 
-bool CDatabaseManager::ResponseAsk(Tmtv_BaseNetMessage &msg, int mType)
+bool CDatabaseManager::ResponseAsk(MessageItem &mMsgItem,Tmtv_BaseNetMessage &src_msg, int mType)
 {
 	Tmtv_BaseNetMessage mSendMsg;
-	memcpy_s(&mSendMsg.dstAddr, sizeof(sockaddr_in),&msg.mAddr,sizeof(sockaddr_in));
-	mSendMsg.hDstHandle = msg.hSrcHandle;
+	mSendMsg.hDstHandle = src_msg.hSrcHandle;
 	mSendMsg.MsgType = mType;
-	strcpy_s(mSendMsg.dstAddr, TMTV_IPSTRLEN, msg.mAddr);
-	mSendMsg.dstPort = msg.mPort;
+	strcpy_s(mSendMsg.dstAddr, TMTV_IPSTRLEN, src_msg.mAddr);
+	mSendMsg.dstPort = src_msg.mPort;
 	strcpy_s(mSendMsg.mAddr, TMTV_IPSTRLEN, m_Setting.mRecvSetting.m_LocalRecvIP);
 	mSendMsg.mPort = m_Setting.mRecvSetting.m_LocalRecvPort;
-	MessageItem mMsgItem;
 	memcpy_s(mMsgItem.p_Buffer, MessageItem::MAXMSGSIZE, &mSendMsg, sizeof(Tmtv_BaseNetMessage));
-	m_SendServer.PushMsg(mMsgItem);
 	return true;
 }
 
@@ -468,25 +482,57 @@ bool CDatabaseManager::UpdateClientStatusDb(const Tmt_ClientInfo & mClientInfo)
 bool CDatabaseManager::InsertImgInfoToDb(Tmtv_ImageInfo& mImginfo)
 {
 	char sqlcommand[512] = {0};
-	char defectpos[256] = {0};
+	LONGSTR defectpos = {0};
 	int IsOk = 0;
 	char mdate[64] = { 0 };
 	GetYearMonth(mdate, 64);
 	char tablename[128] = { 0 };
 	sprintf_s(tablename,128, "image_%s", mdate);
 	CreatImgTable();
-	char tmpstr[64] = { 0 };
-	for (int i = 0; i < mImginfo.mDefectInfo.DefectNum; i++)
-	{
-		sprintf_s(tmpstr, 64,"%d,%d,%d,%d,", mImginfo.mDefectInfo.DefectPos[i][0], mImginfo.mDefectInfo.DefectPos[i][1],
-			mImginfo.mDefectInfo.DefectPos[i][2], mImginfo.mDefectInfo.DefectPos[i][3]);
-		strcat_s(defectpos, 256,tmpstr);
-	}//使用json
+	//char tmpstr[64] = { 0 };
+	//for (int i = 0; i < mImginfo.mDefectInfo.DefectNum; i++)
+	//{
+	//	sprintf_s(tmpstr, 64,"%d,%d,%d,%d,", mImginfo.mDefectInfo.DefectPos[i][0], mImginfo.mDefectInfo.DefectPos[i][1],
+	//		mImginfo.mDefectInfo.DefectPos[i][2], mImginfo.mDefectInfo.DefectPos[i][3]);
+	//	strcat_s(defectpos, 256,tmpstr);
+	//}//使用json
+	ConvertDefectsToJson(defectpos, TMTV_LONGSTRLEN, mImginfo.mDefectInfo.DefectPos, mImginfo.mDefectInfo.DefectNum);
 	sprintf_s(sqlcommand,512, "insert into %s (%s,%s,%s,%s,%s,%s,%s) values('%s','%s',%d,'%s',%d,%d,%d)", tablename,
 		TMT_DB_IMG_PATH, TMT_DB_IMG_GRABTIME, TMT_DB_IMG_DEFECTSNUM, TMT_DB_IMG_DEFECTSPOS, TMT_DB_IMG_HEIGHT, TMT_DB_IMG_WIDTH, TMT_DB_IMG_CAMID,
 		mImginfo.ImagePath, mImginfo.GrabTime, mImginfo.mDefectInfo.DefectNum,defectpos,mImginfo.mDefectInfo.ImgHeight, mImginfo.mDefectInfo.ImgWidth, mImginfo.mCamId);
 	IsOk = mysql_query(&m_mysql, sqlcommand);
 	return !IsOk;
+}
+
+bool CDatabaseManager::GetCaminfoFromDb(Tmtv_CameraInfo& mCam)
+{
+	char sqlcommand[512] = { 0 };
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW row;
+	sprintf_s(sqlcommand, 256, "select * from %s where %s = '%s'", TMT_DB_TABLE_CAM, TMT_DB_CAM_ID, mCam.Indexnum);
+	int IsOk = mysql_query(&m_mysql, sqlcommand);
+	res = mysql_store_result(&m_mysql);
+	if (res)
+	{
+		row = mysql_fetch_row(res);
+		if (row)
+		{
+			strcpy_s(mCam.CameraName, TMTV_SHORTSTRLEN, row[2]);
+			strcpy_s(mCam.CameraPath, TMTV_PATHSTRLEN, row[3]);
+			strcpy_s(mCam.CameraHost, TMTV_IPSTRLEN, row[4]);
+			_CRT_DOUBLE crt_dbl;
+			_atodbl(&crt_dbl, row[5]);
+			mCam.CameraPos[0] = crt_dbl.x;
+			_atodbl(&crt_dbl, row[6]);
+			mCam.CameraPos[1] = crt_dbl.x;
+			mCam.AlgorithmInfo.WarnningLevel = atoi(row[7]);
+			mCam.Status = atoi(row[8]);
+			strcpy_s(mCam.AlgorithmInfo.MaskImgPath, TMTV_PATHSTRLEN, row[9]);
+			mCam.AlgorithmInfo.mAlgoStatus = atoi(row[10]);
+			return true;
+		}
+	}
+	return false;
 }
 
 bool CDatabaseManager::UpdateCamInfoDb(Tmtv_CameraInfo& mCam)
@@ -528,7 +574,7 @@ bool CDatabaseManager::GetLastImgInfoFrmDb(Tmtv_ImageInfo& mImg)
 		{
 			if(row[1]) strcpy_s(mImg.ImagePath,TMTV_PATHSTRLEN, row[1]);
 			if (row[2]) strcpy_s(mImg.GrabTime, TMTV_TINYSTRLEN, row[2]);
-			if (row[4]) mImg.mDefectInfo.DefectNum = GetDefectsPosFromStr(row[4], mImg.mDefectInfo.DefectPos);//使用json
+			if (row[4]) mImg.mDefectInfo.DefectNum = GetDefectsPosFromJson(mImg.mDefectInfo.DefectPos, row[4], 0);//GetDefectsPosFromStr(row[4], mImg.mDefectInfo.DefectPos);//使用json
 			if (row[5]) mImg.mDefectInfo.ImgWidth = atoi(row[5]);
 			if (row[6]) mImg.mDefectInfo.ImgHeight = atoi(row[6]);
 			if (res != NULL) mysql_free_result(res);
@@ -539,13 +585,22 @@ bool CDatabaseManager::GetLastImgInfoFrmDb(Tmtv_ImageInfo& mImg)
 	return false;
 }
 
-bool CDatabaseManager::GetImginfoByDate(vector<Tmtv_ImageInfo> &mimgVec, int Camid,const char* mdate)
+bool CDatabaseManager::GetImginfoByDate(vector<Tmtv_ImageInfo> &mimgVec, int Camid,const char* Date)
 {
-	char a[2] = {0};
-	if (mdate == NULL) return false;
+	if (Date == NULL) return false;
+	SHORTSTR mdate = { 0 };
+	int j = 0;
+	for (size_t i = 0; i < strlen(Date); i++)
+	{
+		if (isdigit(Date[i]) != 0)
+		{
+			mdate[j] = Date[i];
+			j++;
+		}
+	}
+	mdate[8] = 0;
 	char sqlcommand[512] = { 0 };
-	sprintf_s(sqlcommand,512, "select * from image_%s where %s = '%d' and %s between '%s 00:00:00' and '%s 23:59:59'", mdate,
-		TMT_DB_IMG_CAMID,Camid,TMT_DB_IMG_GRABTIME,mdate, mdate);
+	sprintf_s(sqlcommand,512, "select * from image_%s where %s = '%d'", mdate,TMT_DB_IMG_CAMID,Camid);
 	int IsOk = mysql_query(&m_mysql, sqlcommand);
 	MYSQL_RES *res = NULL;
 	MYSQL_ROW row;
@@ -559,12 +614,51 @@ bool CDatabaseManager::GetImginfoByDate(vector<Tmtv_ImageInfo> &mimgVec, int Cam
 		{
 			if (row[1]) strcpy_s(mImg.ImagePath, TMTV_PATHSTRLEN, row[1]);
 			if (row[2]) strcpy_s(mImg.GrabTime, TMTV_TINYSTRLEN,row[2]);
-			if (row[4]) mImg.mDefectInfo.DefectNum = GetDefectsPosFromStr(row[4], mImg.mDefectInfo.DefectPos);//使用json
+			if (row[4]) mImg.mDefectInfo.DefectNum = GetDefectsPosFromJson(mImg.mDefectInfo.DefectPos, row[4], 0);//GetDefectsPosFromStr(row[4], mImg.mDefectInfo.DefectPos);//使用json
 			if (row[5]) mImg.mDefectInfo.ImgWidth = atoi(row[5]);
 			if (row[6]) mImg.mDefectInfo.ImgHeight = atoi(row[6]);
 			mimgVec.push_back(mImg);
 			row = mysql_fetch_row(res);
 		} 
+	}
+	return true;
+}
+
+bool CDatabaseManager::GetImginfoByTime(vector<Tmtv_ImageInfo> &mimgVec, int Camid, const char* mtime_old, const char* mtime_new)
+{
+	SHORTSTR mdate = {0};
+	int j = 0;
+	for (size_t i = 0; i < strlen(mtime_new) ; i++)
+	{
+		if (isdigit(mtime_new[i])!=0)
+		{
+			mdate[j] = mtime_new[i];
+			j++;
+		}
+	}
+	mdate[8] = 0;
+	char sqlcommand[512] = { 0 };
+	sprintf_s(sqlcommand, 512, "select * from image_%s where %s = '%d' and %s between '%s' and '%s'", mdate, 
+		TMT_DB_IMG_CAMID, Camid,TMT_DB_IMG_GRABTIME,mtime_old,mtime_new);
+	int IsOk = mysql_query(&m_mysql, sqlcommand);
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW row;
+	Tmtv_ImageInfo mImg;
+	mimgVec.swap(vector<Tmtv_ImageInfo>());
+	res = mysql_use_result(&m_mysql);
+	if (res)
+	{
+		row = mysql_fetch_row(res);
+		while (row)
+		{
+			if (row[1]) strcpy_s(mImg.ImagePath, TMTV_PATHSTRLEN, row[1]);
+			if (row[2]) strcpy_s(mImg.GrabTime, TMTV_TINYSTRLEN, row[2]);
+			if (row[4]) mImg.mDefectInfo.DefectNum = GetDefectsPosFromJson(mImg.mDefectInfo.DefectPos, row[4], 0);//GetDefectsPosFromStr(row[4], mImg.mDefectInfo.DefectPos);//使用json
+			if (row[5]) mImg.mDefectInfo.ImgWidth = atoi(row[5]);
+			if (row[6]) mImg.mDefectInfo.ImgHeight = atoi(row[6]);
+			mimgVec.push_back(mImg);
+			row = mysql_fetch_row(res);
+		}
 	}
 	return true;
 }
@@ -604,6 +698,7 @@ bool CDatabaseManager::CreatImgTable()
 void CDatabaseManager::Task()
 {
 	MessageItem tmpMsgItem;
+	MessageItem tmpSendMsgItem;
 	EnterCriticalSection(&(m_ReceiveServer.m_section));
 	bool isOK = m_ReceiveServer.PullMsg(tmpMsgItem);
 	LeaveCriticalSection(&(m_ReceiveServer.m_section));
@@ -613,13 +708,206 @@ void CDatabaseManager::Task()
 		return;
 	}
 	Tmtv_BaseNetMessage* pBaseMsg = (Tmtv_BaseNetMessage*)(tmpMsgItem.p_Buffer);
+	Tmtv_CameraInfo* pCam;
+	Tmtv_ImageInfo* pImg;
+	int b;
+	vector<Tmt_ClientInfo>::iterator itvc;
+	vector<Tmtv_ImageInfo> mImgVec;
+	vector<Tmtv_ImageInfo>::iterator itimg;
+	Tmtv_BaseNetMessage mBaseMsg;
 	switch (pBaseMsg->MsgType)
 	{
 	case Tmtv_BaseNetMessage::TMTV_ADDCAM:
 		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmtv_CameraInfo)) return;
+		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		if (AddCamToDb(*pCam))
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_ADDCAM_OK);//消息发送给请求方
+			memcpy_s(tmpSendMsgItem.p_Buffer+sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_CameraInfo), pCam,sizeof(Tmtv_CameraInfo));
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 1;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmtv_CameraInfo);
+			m_SendServer.PushMsg(tmpSendMsgItem);
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hDstHandle = 0;//消息传给客户端
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hSrcHandle = 0;
+			for (itvc = m_ClientInfoVec.begin(); itvc != m_ClientInfoVec.end();itvc++)
+			{
+				strcpy_s(((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstAddr, TMTV_IPSTRLEN, itvc->mIpAddr);
+				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
+				m_SendServer.PushMsg(tmpSendMsgItem);
+			}
+			GetActiveClientInfoFrmDb(m_ClientInfoVec);//更新本地活动相机列表
+		}
+		else
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_ADDCAM_FAIL);//失败消息传给请求方
+			memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_CameraInfo), pCam, sizeof(Tmtv_CameraInfo));
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 1;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmtv_CameraInfo);
+			m_SendServer.PushMsg(tmpSendMsgItem);
+		}
+		break;
+	case Tmtv_BaseNetMessage::TMTV_CHECKCAM:
+		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmtv_CameraInfo)) return;
+		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		b = CheckCamInfo(*pCam);
+		if (b == CamCheckOK)
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_CHECKCAM_OK);
+			memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_CameraInfo), pCam, sizeof(Tmtv_CameraInfo));
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 1;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmtv_CameraInfo);
+			m_SendServer.PushMsg(tmpSendMsgItem);
+		}
+		else
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_CHECKCAM_FAIL);
+			//memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_CameraInfo), pCam, sizeof(Tmtv_CameraInfo));
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 1;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = 64;
+			switch (b)
+			{
+			case CheckStatus::CamNameExist:
+				strcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), 64, "相机描述重复！");
+				break;
+			case CheckStatus::CamPathExist:
+				strcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), 64, "相机目录重复！");
+				break;
+			default:
+				strcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), 64, "未知错误！");
+				break;
+			}
+		}
+		break;
+	case Tmtv_BaseNetMessage::TMTV_SNAPED:
+		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmtv_ImageInfo)) return;
+		pImg = (Tmtv_ImageInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		InsertImgInfoToDb(*pImg);
+		for (itvc = m_ClientInfoVec.begin(); itvc != m_ClientInfoVec.end();itvc++)
+		{
+			mBaseMsg.MsgType = Tmtv_BaseNetMessage::TMTV_SNAPED;
+			strcpy_s(mBaseMsg.dstAddr, TMTV_IPSTRLEN, itvc->mIpAddr);
+			mBaseMsg.dstPort = itvc->mport;
+			strcpy_s(mBaseMsg.mAddr, TMTV_IPSTRLEN, m_Setting.mRecvSetting.m_LocalRecvIP);
+			mBaseMsg.mPort = m_Setting.mRecvSetting.m_LocalRecvPort;
+			mBaseMsg.ElementCount = 1;
+			mBaseMsg.ElementLength = sizeof(Tmtv_ImageInfo);
+			memcpy_s(tmpSendMsgItem.p_Buffer, sizeof(Tmtv_BaseNetMessage), &mBaseMsg, sizeof(Tmtv_BaseNetMessage));
+			memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_ImageInfo), pImg, sizeof(Tmtv_ImageInfo));
+			m_SendServer.PushMsg(tmpSendMsgItem);
+		}
+		break;
+	case Tmtv_BaseNetMessage::TMTV_GETRANGEIMG:
+		if (pBaseMsg->ElementCount != 2) return;
+		GetImginfoByTime(mImgVec, pBaseMsg->m_Param, tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage),
+			tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage) + pBaseMsg->ElementLength);
+		ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_GETRANGEIMG_OK);
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = (mImgVec.size()>((MessageItem::MAXMSGSIZE-sizeof(Tmtv_BaseNetMessage))/sizeof(Tmtv_ImageInfo)-2))?
+			(MessageItem::MAXMSGSIZE / sizeof(Tmtv_ImageInfo) - 5): mImgVec.size();
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = (mImgVec.size()>0)?sizeof(Tmtv_ImageInfo):0;
+		b = 0;
+		for (itimg = mImgVec.begin(); itimg != mImgVec.end(); itimg++)
+		{
+			memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage) + b*sizeof(Tmtv_ImageInfo), sizeof(Tmtv_ImageInfo),
+				&(*itimg), sizeof(Tmtv_ImageInfo));
+			b++;
+			if (b == ((MessageItem::MAXMSGSIZE - sizeof(Tmtv_BaseNetMessage)) / sizeof(Tmtv_ImageInfo) - 2))
+			{
+				m_SendServer.PushMsg(tmpSendMsgItem);
+				b = 0;
+			}
+		}
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = b;
+		m_SendServer.PushMsg(tmpSendMsgItem);
+		break;
+	case Tmtv_BaseNetMessage::TMTV_STARTCAM:
+		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		pCam->Indexnum = pBaseMsg->m_Param;
 		
+		if (GetCaminfoFromDb(*pCam))
+		{
+			pCam->Status = Tmtv_CameraInfo::TMTV_RUNNINGCAM;
+			if (UpdateCamInfoDb(*pCam))
+			{
+				ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTCAM_OK);
+			}
+			else
+			{
+				ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTCAM_FAIL);
+			}
+		}
+		else
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTCAM_FAIL);
+		}
+		m_SendServer.PushMsg(tmpSendMsgItem);
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hDstHandle = 0;//消息传给客户端
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hSrcHandle = 0;
+		for (itvc = m_ClientInfoVec.begin(); itvc != m_ClientInfoVec.end(); itvc++)
+		{
+			strcpy_s(((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstAddr, TMTV_IPSTRLEN, itvc->mIpAddr);
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
+			m_SendServer.PushMsg(tmpSendMsgItem);
+		}
+		break;
+	case Tmtv_BaseNetMessage::TMTV_STOPCAM:
+		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		pCam->Indexnum = pBaseMsg->m_Param;
 
+		if (GetCaminfoFromDb(*pCam))
+		{
+			pCam->Status = Tmtv_CameraInfo::TMTV_STOPEDCAM;
+			if (UpdateCamInfoDb(*pCam))
+			{
+				ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STOPCAM_OK);
+			}
+			else
+			{
+				ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STOPCAM_FAIL);
+			}
+		}
+		else
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STOPCAM_FAIL);
+		}
+		m_SendServer.PushMsg(tmpSendMsgItem);
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hDstHandle = 0;//消息传给客户端
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hSrcHandle = 0;
+		for (itvc = m_ClientInfoVec.begin(); itvc != m_ClientInfoVec.end(); itvc++)
+		{
+			strcpy_s(((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstAddr, TMTV_IPSTRLEN, itvc->mIpAddr);
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
+			m_SendServer.PushMsg(tmpSendMsgItem);
+		}
+		break;
+	case Tmtv_BaseNetMessage::TMTV_STARTALGO:
+		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		pCam->Indexnum = pBaseMsg->m_Param;
 
+		if (GetCaminfoFromDb(*pCam))
+		{
+			pCam->AlgorithmInfo.mAlgoStatus = Tmtv_AlgorithmInfo::TMTV_STARTWARN;
+			if (UpdateCamInfoDb(*pCam))
+			{
+				ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTALGO_OK);
+			}
+			else
+			{
+				ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTALGO_FAIL);
+			}
+		}
+		else
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTALGO_FAIL);
+		}
+		m_SendServer.PushMsg(tmpSendMsgItem);
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hDstHandle = 0;//消息传给客户端
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hSrcHandle = 0;
+		for (itvc = m_ClientInfoVec.begin(); itvc != m_ClientInfoVec.end(); itvc++)
+		{
+			strcpy_s(((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstAddr, TMTV_IPSTRLEN, itvc->mIpAddr);
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
+			m_SendServer.PushMsg(tmpSendMsgItem);
+		}
 		break;
 	default:
 		break;
@@ -660,14 +948,15 @@ int CDatabaseManager::ConvertDefectsToJson(char* JsonStr,int bufferlength, int D
 	char mchar[16] = { 0 };
 	for (int i = 0; i < DefectsNum; i++)
 	{
-		sprintf_s(mchar, "\"%d\"", DfPos[i][0]);
-		append_value["x"] = mchar;
-		sprintf_s(mchar, "\"%d\"", DfPos[i][1]);
-		append_value["y"] = mchar;
-		sprintf_s(mchar, "\"%d\"", DfPos[i][2]);
-		append_value["width"] = mchar;
-		sprintf_s(mchar, "\"%d\"", DfPos[i][3]);
-		append_value["height"] = mchar;
+		sprintf_s(mchar, "%d", DfPos[i][0]);
+		append_value["x"] = DfPos[i][0];//mchar;
+		sprintf_s(mchar, "%d", DfPos[i][1]);
+		append_value["y"] = DfPos[i][1];// mchar;
+		sprintf_s(mchar, "%d", DfPos[i][2]);
+		append_value["width"] = DfPos[i][2];// mchar;
+		sprintf_s(mchar, "%d", DfPos[i][3]);
+		append_value["height"] = DfPos[i][3];// mchar;
+		add_value.append(append_value);
 	}
 	Json::FastWriter writer;
 	std::string json_append_file = writer.write(root);

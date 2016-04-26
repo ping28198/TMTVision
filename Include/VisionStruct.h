@@ -246,6 +246,8 @@ struct Tmtv_BaseNetMessage
 		TMTV_SETALGO = 108,      //暂定CameraInfo指定的算法
 		TMTV_GETALLCAM = 150,		//获取所有相机状态
 		TMTV_GETALLIMG = 151,		//获取所有相机最新图片
+		TMTV_GETRANGEIMG = 152,		//获取指定时间范围内的
+		TMTV_CHECKCAM,
 
 		TMTV_ADDCAM_OK = 200,        //添加CameraInfo指定的未加载相机成功
 		TMTV_DELCAM_OK = 201,        //删除CameraInfo指定的未加载相机成功
@@ -256,8 +258,10 @@ struct Tmtv_BaseNetMessage
 		TMTV_STARTALGO_OK = 206,     //启动算法成功
 		TMTV_STOPALGO_OK = 207,      //暂定算法成功
 		TMTV_SETALGO_OK = 208,       //设定算法成功
-		TMTV_SENDALLCAMOK = 209,
-		TMTV_SENDALLIMGOK = 210,
+		TMTV_GETALLCAM_OK = 209,
+		TMTV_GETALLIMG_OK = 210,
+		TMTV_GETRANGEIMG_OK,
+		TMTV_CHECKCAM_OK,
 
 		TMTV_ADDCAM_FAIL = 240,		//添加CameraInfo指定的未加载相机未成功
 		TMTV_DELCAM_FAIL,      //删除CameraInfo指定的未加载相机未成功
@@ -268,13 +272,19 @@ struct Tmtv_BaseNetMessage
 		TMTV_STARTALGO_FAIL,   //启动算法未成功
 		TMTV_STOPALGO_FAIL,    //暂定算法未成功
 		TMTV_SETALGO_FAIL,     //设定算法成功
+		TMTV_GETALLCAM_FAIL,
+		TMTV_GETALLIMG_FAIL,
+		TMTV_GETRANGEIMG_FAIL,
+		TMTV_CHECKCAM_FAIL,
 
 		TMTV_INVALID = 260,          //返回非法的命令
 		TMTV_SNAPED = 298,           //推送实时mImgInfo图片
 		TMTV_DETECTED = 299,         //推送检测到的的mImgInfo图片+缺陷
 		TMTV_CAMINFO = 300,
+		TMTV_TEXTINFO = 301,
 	};
-	int MsgType = 0;
+	int MsgType = 0;	//消息类型
+	int m_Param = 0;	//附加参数
 	HANDLE hDstHandle;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
 	HANDLE hSrcHandle;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用
 	NetIP mAddr;		//告知接收方，我方的接收地址
