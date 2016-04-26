@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\MonitorForm;
 use Yii;
 use app\models\camera;
 use app\models\image;
@@ -14,8 +15,21 @@ class MonitorController extends \yii\web\Controller
 {
     public function actionIndex()
     {
-        $a = new image();
-        return $this->render('index');
+        //$a = new image();
+        $model = new MonitorForm();
+        if($model->load(Yii::$app->request->post())&&$model->validate())
+        {
+            return $this->render('detail',[
+                'model'=>$model
+            ]);
+        }
+        else
+        {
+            return $this->render('index',[
+                'model'=>$model
+            ]);
+        }
+
     }
 
     public function actionDetail($cam_id,$date="")
