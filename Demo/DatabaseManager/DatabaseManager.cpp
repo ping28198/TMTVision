@@ -624,11 +624,6 @@ void CDatabaseManager::Task()
 	default:
 		break;
 	}
-
-
-
-
-
 }
 
 bool CDatabaseManager::GetYearMonth(char* pData, int Datalength)
@@ -638,6 +633,46 @@ bool CDatabaseManager::GetYearMonth(char* pData, int Datalength)
 	CCommonFunc::UnicodeToAnsi(tmp, pData, Datalength);
 	pData[8] = '\0';
 	return true;
+}
+
+int CDatabaseManager::GetDefectsPosFromJson(int DfPos[][8], char *JsonStr, int DefectsNum)
+{
+	Json::Reader reader;
+	Json::Value root;
+	reader.parse(JsonStr, JsonStr + strlen(JsonStr), root, false);
+	Json::Value add_value = root["defects"];
+	for (int i = 0; i < add_value.size(); ++i)
+	{
+		Json::Value temp_value = add_value[i];
+		DfPos[i][0]=temp_value["x"].asInt();
+		DfPos[i][1] = temp_value["y"].asInt();
+		DfPos[i][2] = temp_value["width"].asInt();
+		DfPos[i][3] = temp_value["height"].asInt();
+	}
+	return add_value.size();
+}
+
+int CDatabaseManager::ConvertDefectsToJson(char* JsonStr,int bufferlength, int DfPos[][8], int DefectsNum)
+{
+	Json::Value root;
+	Json::Value& add_value = root["defects"];
+	Json::Value append_value;
+	char mchar[16] = { 0 };
+	for (int i = 0; i < DefectsNum; i++)
+	{
+		sprintf_s(mchar, "\"%d\"", DfPos[i][0]);
+		append_value["x"] = mchar;
+		sprintf_s(mchar, "\"%d\"", DfPos[i][1]);
+		append_value["y"] = mchar;
+		sprintf_s(mchar, "\"%d\"", DfPos[i][2]);
+		append_value["width"] = mchar;
+		sprintf_s(mchar, "\"%d\"", DfPos[i][3]);
+		append_value["height"] = mchar;
+	}
+	Json::FastWriter writer;
+	std::string json_append_file = writer.write(root);
+	strcpy_s(JsonStr, bufferlength, json_append_file.c_str());
+	return DefectsNum;
 }
 
 Logger DbServerLogger::mLogger("DbServerLog\\");
