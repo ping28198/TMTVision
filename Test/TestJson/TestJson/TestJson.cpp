@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include <F:\Tdevelop\TMT\TMTVision\Lib\jsoncpp\include\json\json.h>
+#include <E:\git\TMTVision\Include\JsonCPPHeader\json.h>
 
 #include <fstream>
 #include <string>
@@ -44,15 +44,17 @@ void writejson()
 
 	Json::Reader reader;
 	Json::Value root;
-	if (!reader.parse(ifs, root, false))
-	{
-		return ;
-	}
-
-	Json::Value& add_value = root["area"];
+	//if (!reader.parse(ifs, root, false))
+	//{
+	//	return ;
+	//}
+	int a[3];
+	a[0] = 1;
+	a[1] = 2;
+	Json::Value& add_value = root["defects"];
 	Json::Value append_value;
-	append_value["x"] = "99";
-	append_value["y"] = "88";
+	append_value["x"] = a[0];
+	append_value["y"] = a[1];
 	append_value["width"] = "77";
 	append_value["height"] = "66";
 	add_value.append(append_value);
