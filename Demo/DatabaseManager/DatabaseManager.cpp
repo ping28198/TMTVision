@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "DatabaseManager.h"
+#include "DatabaseManagerDlg.h"
 
-CDatabaseManager::CDatabaseManager(): m_SendServer(this), m_ReceiveServer(this)
+CDatabaseManager::CDatabaseManager(void *pParent): m_SendServer(this), m_ReceiveServer(this)
 {
 	m_DbStatus = DB_DISCONNECT;
+	this->pParent = (CDatabaseManagerDlg *)pParent;
 }
 
 CDatabaseManager::~CDatabaseManager()
@@ -25,6 +27,9 @@ void CDatabaseManager::Initial()
 	m_SendServer.Resume();
 	Create();
 	Resume();
+	EnterCriticalSection(&m_section);
+	pParent->UpdateDbData();
+	LeaveCriticalSection(&m_section);
 }
 
 
@@ -209,7 +214,36 @@ bool CDatabaseManager::GetActiveClientInfoFrmDb(vector<Tmt_ClientInfo> &mClientV
 		row = mysql_fetch_row(res);
 		while (row)
 		{
+			mClient.ClientID = atoi(row[0]);
 			sprintf_s(mClient.mIpAddr,TMTV_IPSTRLEN, row[1]);
+			mClient.mport = atoi(row[2]);
+			mClient.status = atoi(row[3]);
+			mClientVec.push_back(mClient);
+			row = mysql_fetch_row(res);
+		}
+	}
+	if (res != NULL) mysql_free_result(res);
+	return true;
+}
+
+bool CDatabaseManager::GetAllClientInfoFrmDb(vector<Tmt_ClientInfo> &mClientVec)
+{
+	mClientVec.clear();
+	char sqlcommand[256];
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW row;
+	Tmt_ClientInfo mClient;
+	sprintf_s(sqlcommand, 256, "select * from %s where 1=1", TMT_DB_TABLE_CLIENT, TMT_DB_CLIENT_STATUS);
+	mysql_query(&m_mysql, sqlcommand);
+	res = mysql_store_result(&m_mysql);
+	if (res)
+	{
+		mClientVec.swap(vector<Tmt_ClientInfo>());
+		row = mysql_fetch_row(res);
+		while (row)
+		{
+			mClient.ClientID = atoi(row[0]);
+			sprintf_s(mClient.mIpAddr, TMTV_IPSTRLEN, row[1]);
 			mClient.mport = atoi(row[2]);
 			mClient.status = atoi(row[3]);
 			mClientVec.push_back(mClient);
@@ -756,6 +790,7 @@ void CDatabaseManager::Task()
 				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
 				m_SendServer.PushMsg(tmpSendMsgItem);
 			}
+			pParent->UpdateDbData();
 		}
 		else
 		{
@@ -809,6 +844,7 @@ void CDatabaseManager::Task()
 			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
 			m_SendServer.PushMsg(tmpSendMsgItem);
 		}
+		pParent->UpdateDbData();
 		break;
 	case Tmtv_BaseNetMessage::TMTV_GETCAM:
 		pCam= (Tmtv_CameraInfo*)(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
@@ -843,6 +879,7 @@ void CDatabaseManager::Task()
 		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmtv_CameraInfo);
 		memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_CameraInfo), pCam, sizeof(Tmtv_CameraInfo));
 		m_SendServer.PushMsg(tmpSendMsgItem);
+		pParent->UpdateDbData();
 		break;
 	case Tmtv_BaseNetMessage::TMTV_CHECKCAM:
 		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmtv_CameraInfo)) return;
@@ -1019,6 +1056,7 @@ void CDatabaseManager::Task()
 			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
 			m_SendServer.PushMsg(tmpSendMsgItem);
 		}
+		pParent->UpdateDbData();
 		break;
 	case Tmtv_BaseNetMessage::TMTV_STOPCAM:
 		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
@@ -1049,6 +1087,7 @@ void CDatabaseManager::Task()
 			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
 			m_SendServer.PushMsg(tmpSendMsgItem);
 		}
+		pParent->UpdateDbData();
 		break;
 	case Tmtv_BaseNetMessage::TMTV_STARTALGO:
 		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
@@ -1079,6 +1118,7 @@ void CDatabaseManager::Task()
 			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTALGO_FAIL);
 		}
 		m_SendServer.PushMsg(tmpSendMsgItem);
+		pParent->UpdateDbData();
 		break;
 	case Tmtv_BaseNetMessage::TMTV_STOPCALGO:
 		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
@@ -1109,6 +1149,7 @@ void CDatabaseManager::Task()
 			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTALGO_FAIL);
 		}
 		m_SendServer.PushMsg(tmpSendMsgItem);
+		pParent->UpdateDbData();
 		break;
 	case Tmtv_BaseNetMessage::TMTV_SETALGO:
 		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmtv_AlgorithmInfo)) return;
@@ -1154,6 +1195,7 @@ void CDatabaseManager::Task()
 			memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_AlgorithmInfo), pAlgo, sizeof(Tmtv_AlgorithmInfo));
 			m_SendServer.PushMsg(tmpSendMsgItem);
 		}
+		pParent->UpdateDbData();
 		break;
 	case Tmtv_BaseNetMessage::TMTV_ADDCLIENT:
 		if(pBaseMsg->ElementCount !=1 || pBaseMsg->ElementLength!=sizeof(Tmt_ClientInfo)) break;
@@ -1173,6 +1215,7 @@ void CDatabaseManager::Task()
 		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmt_ClientInfo);
 		m_SendServer.PushMsg(tmpSendMsgItem);
 		GetActiveClientInfoFrmDb(m_ClientInfoVec);
+		pParent->UpdateDbData();
 		break;
 	case Tmtv_BaseNetMessage::TMTV_STOPCLIENT:
 		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmt_ClientInfo)) break;
@@ -1192,6 +1235,7 @@ void CDatabaseManager::Task()
 		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmt_ClientInfo);
 		m_SendServer.PushMsg(tmpSendMsgItem);
 		GetActiveClientInfoFrmDb(m_ClientInfoVec);
+		pParent->UpdateDbData();
 		break;
 	default:
 		break;
