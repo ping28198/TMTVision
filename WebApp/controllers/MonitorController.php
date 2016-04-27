@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\MonitorForm;
 use Yii;
 use app\models\camera;
 use app\models\image;
@@ -14,17 +15,32 @@ class MonitorController extends \yii\web\Controller
 {
     public function actionIndex()
     {
-        $a = new image();
-        return $this->render('index');
+        //$a = new image();
+        $model = new MonitorForm();
+        if($model->load(Yii::$app->request->post())&&$model->validate())
+        {
+            return $this->render('detail',[
+                'model'=>$model
+            ]);
+        }
+        else
+        {
+            return $this->render('index',[
+                'model'=>$model
+            ]);
+        }
+
     }
 
-    public function actionDetail($cam_id)
+    public function actionDetail($cam_id,$date="")
     {
-        $camera = Camera::findOne($cam_id);
-        $cam_images = $camera->getImages()->all();
+        //$camera = Camera::findOne($cam_id);
+        //$cam_images = $camera->getImages()->all();
         //$model = $this->findModel($cam_id);
-
+        //$cam_images = Image::find()->where(["cam_id"=>$cam_id])->all();
+        $cam_images = $this->findAllImages($cam_id,$date);
         return $this->render('detail',[
+            //'camera'=>$camera,
             'cam_images'=>$cam_images
         ]);
     }
@@ -62,16 +78,15 @@ class MonitorController extends \yii\web\Controller
      * 查找某一个相机下的所有图像
      * @param $cam_id
      */
-    private function findAllImages($cam_id)
+    private function findAllImages($cam_id,$date="")
     {
-        $table_name = Image::tableName();
-//        $all_images = Image::findBySql("
-//SELECT * FROM `camera`,{$table_name}
-//WHERE `{$table_name}`.`cam_id`={$cam_id}
-//AND `camera`.`id` = `{$table_name}`.`cam_id`
-//")->all();
-        //TODO:这里需要改，增加关联 参考地址：http://www.yiiframework.com/doc-2.0/guide-db-active-record.html#relational-data
-        $all_images = Image::find()->joinWith(['camera'])->where(['cam_id' => $cam_id])->all();
+        $table_name = Image::tableName($date);
+        $all_images = Image::findBySql("
+        SELECT * FROM {$table_name}
+        WHERE `cam_id`={$cam_id}
+        ")->all();
+
+        //$all_images = Image::find()->joinWith(['camera'])->where(['cam_id' => $cam_id])->all();
         return $all_images;
     }
 

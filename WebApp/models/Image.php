@@ -22,7 +22,13 @@ class Image extends \yii\db\ActiveRecord
      */
     public static function tableName($suffix="")
     {
-        return 'image'.$suffix;
+        if($suffix!="")
+        {
+            return 'image'.'_'.$suffix;
+        }else{
+            return 'image';
+        }
+
     }
 
     /**
