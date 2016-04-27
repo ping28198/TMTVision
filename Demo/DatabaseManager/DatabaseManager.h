@@ -84,6 +84,7 @@ public://数据库操作
 	// 返回值:   int  // 
 	// 参数:   Tmtv_CameraInfo & mCam  //
 	//************************************
+	bool DelCamFromDB(int mCamID);
 	int CheckCamInfo(Tmtv_CameraInfo& mCam);
 	//************************************
 	// 作用:  添加客户端

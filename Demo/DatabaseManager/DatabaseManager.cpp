@@ -92,6 +92,7 @@ int CDatabaseManager::AddCamToDb(Tmtv_CameraInfo &mCam)
 	if (rt>0)
 	{
 		if (res != NULL) mysql_free_result(res);
+		mCam.Indexnum = rt;
 		return rt;
 	}
 	sprintf_s(sqlcommand,256, "insert into camera (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
@@ -111,7 +112,6 @@ int CDatabaseManager::AddCamToDb(Tmtv_CameraInfo &mCam)
 	}
 	sprintf(sqlcommand, "select * from %s where %s='%s'",TMT_DB_TABLE_CAM, TMT_DB_CAM_CAMNAME,mCam.CameraName);
 	IsOk = mysql_query(&m_mysql, sqlcommand);
-
 	if (IsOk==0)
 	{
 		res = mysql_store_result(&m_mysql);
@@ -126,8 +126,25 @@ int CDatabaseManager::AddCamToDb(Tmtv_CameraInfo &mCam)
 		}
 	}
 	if (res != NULL) mysql_free_result(res);
+	mCam.Indexnum = rt;
 	return rt;
 }
+
+bool CDatabaseManager::DelCamFromDB(int mCamID)
+{
+	char sqlcommand[256];
+	sprintf_s(sqlcommand, 256, "select * from %s where %s = '%s'", TMT_DB_TABLE_CAM, TMT_DB_CAM_ID, mCamID);
+	int IsOk = mysql_query(&m_mysql, sqlcommand);
+	if (IsOk==0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 int CDatabaseManager::CheckCamInfo(Tmtv_CameraInfo& mCam)
 {
 	MYSQL_RES *res = NULL;
@@ -710,17 +727,21 @@ void CDatabaseManager::Task()
 	Tmtv_BaseNetMessage* pBaseMsg = (Tmtv_BaseNetMessage*)(tmpMsgItem.p_Buffer);
 	Tmtv_CameraInfo* pCam;
 	Tmtv_ImageInfo* pImg;
+	Tmt_ClientInfo* pClient;
+	Tmtv_AlgorithmInfo* pAlgo;
 	int b;
 	vector<Tmt_ClientInfo>::iterator itvc;
 	vector<Tmtv_ImageInfo> mImgVec;
 	vector<Tmtv_ImageInfo>::iterator itimg;
+	vector<Tmtv_CameraInfo> mCamVec;
+	vector<Tmtv_CameraInfo>::iterator itcam;
 	Tmtv_BaseNetMessage mBaseMsg;
 	switch (pBaseMsg->MsgType)
 	{
 	case Tmtv_BaseNetMessage::TMTV_ADDCAM:
 		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmtv_CameraInfo)) return;
 		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
-		if (AddCamToDb(*pCam))
+		if (AddCamToDb(*pCam)>0)
 		{
 			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_ADDCAM_OK);//消息发送给请求方
 			memcpy_s(tmpSendMsgItem.p_Buffer+sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_CameraInfo), pCam,sizeof(Tmtv_CameraInfo));
@@ -735,7 +756,6 @@ void CDatabaseManager::Task()
 				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
 				m_SendServer.PushMsg(tmpSendMsgItem);
 			}
-			GetActiveClientInfoFrmDb(m_ClientInfoVec);//更新本地活动相机列表
 		}
 		else
 		{
@@ -745,6 +765,84 @@ void CDatabaseManager::Task()
 			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmtv_CameraInfo);
 			m_SendServer.PushMsg(tmpSendMsgItem);
 		}
+		break;
+	case Tmtv_BaseNetMessage::TMTV_DELCAM:
+		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		pCam->Indexnum = pBaseMsg->m_Param;
+		if (!GetCaminfoFromDb(*pCam)) 
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_DELCAM_FAIL);
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 0;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = 0;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->m_Param = pBaseMsg->m_Param;
+			m_SendServer.PushMsg(tmpSendMsgItem);
+			break;
+		}
+		if (pCam->Status != Tmtv_CameraInfo::TMTV_STOPEDCAM)
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_DELCAM_FAIL);
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 0;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = 0;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->m_Param = pBaseMsg->m_Param;
+			m_SendServer.PushMsg(tmpSendMsgItem);
+			break;
+		}
+		if (!DelCamFromDB(pCam->Indexnum))
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_DELCAM_FAIL);
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 0;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = 0;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->m_Param = pBaseMsg->m_Param;
+			m_SendServer.PushMsg(tmpSendMsgItem);
+			break;
+		}
+		ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_DELCAM_OK);//失败消息传给请求方
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 0;
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = 0;
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->m_Param = pBaseMsg->m_Param;
+		m_SendServer.PushMsg(tmpSendMsgItem);
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hDstHandle = 0;//消息传给客户端
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hSrcHandle = 0;
+		for (itvc = m_ClientInfoVec.begin(); itvc != m_ClientInfoVec.end(); itvc++)
+		{
+			strcpy_s(((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstAddr, TMTV_IPSTRLEN, itvc->mIpAddr);
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
+			m_SendServer.PushMsg(tmpSendMsgItem);
+		}
+		break;
+	case Tmtv_BaseNetMessage::TMTV_GETCAM:
+		pCam= (Tmtv_CameraInfo*)(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		pCam->Indexnum = pBaseMsg->m_Param;
+		if (GetCaminfoFromDb(*pCam))
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_GETCAM_OK);//成功的消息传给请求方
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 1;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmtv_CameraInfo);
+		}
+		else
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_GETCAM_FAIL);//失败消息传给请求方
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 0;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = 0;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->m_Param = pBaseMsg->m_Param;
+		}
+		m_SendServer.PushMsg(tmpSendMsgItem);
+		break;
+	case Tmtv_BaseNetMessage::TMTV_SETCAM:
+		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmtv_CameraInfo)) return;
+		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		if (UpdateCamInfoDb(*pCam))
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_GETCAM_OK);//成功的消息传给请求方
+		}
+		else
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_GETCAM_FAIL);//失败消息传给请求方
+		}
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 1;
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmtv_CameraInfo);
+		memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_CameraInfo), pCam, sizeof(Tmtv_CameraInfo));
+		m_SendServer.PushMsg(tmpSendMsgItem);
 		break;
 	case Tmtv_BaseNetMessage::TMTV_CHECKCAM:
 		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmtv_CameraInfo)) return;
@@ -794,7 +892,26 @@ void CDatabaseManager::Task()
 			memcpy_s(tmpSendMsgItem.p_Buffer, sizeof(Tmtv_BaseNetMessage), &mBaseMsg, sizeof(Tmtv_BaseNetMessage));
 			memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_ImageInfo), pImg, sizeof(Tmtv_ImageInfo));
 			m_SendServer.PushMsg(tmpSendMsgItem);
-		}
+		};
+		break;
+	case Tmtv_BaseNetMessage::TMTV_DETECTED:
+		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmtv_ImageInfo)) return;
+		pImg = (Tmtv_ImageInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		InsertImgInfoToDb(*pImg);
+		for (itvc = m_ClientInfoVec.begin(); itvc != m_ClientInfoVec.end(); itvc++)
+		{
+			mBaseMsg.MsgType = Tmtv_BaseNetMessage::TMTV_DETECTED;
+			strcpy_s(mBaseMsg.dstAddr, TMTV_IPSTRLEN, itvc->mIpAddr);
+			mBaseMsg.dstPort = itvc->mport;
+			strcpy_s(mBaseMsg.mAddr, TMTV_IPSTRLEN, m_Setting.mRecvSetting.m_LocalRecvIP);
+			mBaseMsg.mPort = m_Setting.mRecvSetting.m_LocalRecvPort;
+			mBaseMsg.ElementCount = 1;
+			mBaseMsg.ElementLength = sizeof(Tmtv_ImageInfo);
+			memcpy_s(tmpSendMsgItem.p_Buffer, sizeof(Tmtv_BaseNetMessage), &mBaseMsg, sizeof(Tmtv_BaseNetMessage));
+			memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_ImageInfo), pImg, sizeof(Tmtv_ImageInfo));
+			m_SendServer.PushMsg(tmpSendMsgItem);
+		};
+
 		break;
 	case Tmtv_BaseNetMessage::TMTV_GETRANGEIMG:
 		if (pBaseMsg->ElementCount != 2) return;
@@ -818,6 +935,60 @@ void CDatabaseManager::Task()
 		}
 		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = b;
 		m_SendServer.PushMsg(tmpSendMsgItem);
+		break;
+	case Tmtv_BaseNetMessage::TMTV_GETALLIMG:
+		if (GetLastImginfoAllCam(mImgVec))
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_GETALLIMG_OK);
+		}
+		else
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_GETALLIMG_FAIL);
+		}
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = (mImgVec.size() > ((MessageItem::MAXMSGSIZE - sizeof(Tmtv_BaseNetMessage)) / sizeof(Tmtv_ImageInfo) - 2)) ?
+			(MessageItem::MAXMSGSIZE / sizeof(Tmtv_ImageInfo) - 5) : mImgVec.size();
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = (mImgVec.size() > 0) ? sizeof(Tmtv_ImageInfo) : 0;
+		b = 0;
+		for (itimg = mImgVec.begin(); itimg != mImgVec.end(); itimg++)
+		{
+			memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage) + b*sizeof(Tmtv_ImageInfo), sizeof(Tmtv_ImageInfo),
+				&(*itimg), sizeof(Tmtv_ImageInfo));
+			b++;
+			if (b == ((MessageItem::MAXMSGSIZE - sizeof(Tmtv_BaseNetMessage)) / sizeof(Tmtv_ImageInfo) - 2))
+			{
+				m_SendServer.PushMsg(tmpSendMsgItem);
+				b = 0;
+			}
+		}
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = b;
+		m_SendServer.PushMsg(tmpSendMsgItem);
+		break;
+	case Tmtv_BaseNetMessage::TMTV_GETALLCAM:
+		if (GetAllCamInfoFrmDb(mCamVec))
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_GETALLCAM_OK);
+		}
+		else
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_GETALLCAM_FAIL);
+		}
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = (mCamVec.size() > ((MessageItem::MAXMSGSIZE - sizeof(Tmtv_BaseNetMessage)) / sizeof(Tmtv_CameraInfo) - 2)) ?
+			(MessageItem::MAXMSGSIZE / sizeof(Tmtv_CameraInfo) - 5) : mCamVec.size();
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = (mCamVec.size() > 0) ? sizeof(Tmtv_CameraInfo) : 0;
+		b = 0;
+		for (itcam = mCamVec.begin(); itcam != mCamVec.end(); itcam++)
+		{
+			memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage) + b*sizeof(Tmtv_CameraInfo), sizeof(Tmtv_CameraInfo),
+				&(*itcam), sizeof(Tmtv_CameraInfo));
+			b++;
+			if (b == ((MessageItem::MAXMSGSIZE - sizeof(Tmtv_BaseNetMessage)) / sizeof(Tmtv_CameraInfo) - 2))
+			{
+				m_SendServer.PushMsg(tmpSendMsgItem);
+				b = 0;
+			}
+		}
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = b;
+		m_SendServer.PushMsg(tmpSendMsgItem);	
 		break;
 	case Tmtv_BaseNetMessage::TMTV_STARTCAM:
 		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
@@ -889,6 +1060,14 @@ void CDatabaseManager::Task()
 			if (UpdateCamInfoDb(*pCam))
 			{
 				ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTALGO_OK);
+				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hDstHandle = 0;//消息传给客户端
+				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hSrcHandle = 0;
+				for (itvc = m_ClientInfoVec.begin(); itvc != m_ClientInfoVec.end(); itvc++)
+				{
+					strcpy_s(((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstAddr, TMTV_IPSTRLEN, itvc->mIpAddr);
+					((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
+					m_SendServer.PushMsg(tmpSendMsgItem);
+				}
 			}
 			else
 			{
@@ -900,14 +1079,119 @@ void CDatabaseManager::Task()
 			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTALGO_FAIL);
 		}
 		m_SendServer.PushMsg(tmpSendMsgItem);
-		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hDstHandle = 0;//消息传给客户端
-		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hSrcHandle = 0;
-		for (itvc = m_ClientInfoVec.begin(); itvc != m_ClientInfoVec.end(); itvc++)
+		break;
+	case Tmtv_BaseNetMessage::TMTV_STOPCALGO:
+		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		pCam->Indexnum = pBaseMsg->m_Param;
+
+		if (GetCaminfoFromDb(*pCam))
 		{
-			strcpy_s(((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstAddr, TMTV_IPSTRLEN, itvc->mIpAddr);
-			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
+			pCam->AlgorithmInfo.mAlgoStatus = Tmtv_AlgorithmInfo::TMTV_NOWARN;
+			if (UpdateCamInfoDb(*pCam))
+			{
+				ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTALGO_OK);
+				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hDstHandle = 0;//消息传给客户端
+				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hSrcHandle = 0;
+				for (itvc = m_ClientInfoVec.begin(); itvc != m_ClientInfoVec.end(); itvc++)
+				{
+					strcpy_s(((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstAddr, TMTV_IPSTRLEN, itvc->mIpAddr);
+					((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
+					m_SendServer.PushMsg(tmpSendMsgItem);
+				}
+			}
+			else
+			{
+				ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTALGO_FAIL);
+			}
+		}
+		else
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTALGO_FAIL);
+		}
+		m_SendServer.PushMsg(tmpSendMsgItem);
+		break;
+	case Tmtv_BaseNetMessage::TMTV_SETALGO:
+		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmtv_AlgorithmInfo)) return;
+		pAlgo = (Tmtv_AlgorithmInfo*)(pBaseMsg + sizeof(Tmtv_BaseNetMessage));
+		pCam = (Tmtv_CameraInfo*)(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		pCam->Indexnum = pBaseMsg->m_Param;
+		if (GetCaminfoFromDb(*pCam))
+		{
+			memcpy_s(&(pCam->AlgorithmInfo), sizeof(Tmtv_AlgorithmInfo), pAlgo, sizeof(Tmtv_AlgorithmInfo));
+			if (UpdateCamInfoDb(*pCam))
+			{
+				ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_SETALGO_OK);
+				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 1;
+				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmtv_AlgorithmInfo);
+				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->m_Param = pBaseMsg->m_Param;
+				memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_AlgorithmInfo), pAlgo, sizeof(Tmtv_AlgorithmInfo));
+				m_SendServer.PushMsg(tmpSendMsgItem);
+				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hDstHandle = 0;//消息传给客户端
+				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->hSrcHandle = 0;
+				for (itvc = m_ClientInfoVec.begin(); itvc != m_ClientInfoVec.end(); itvc++)
+				{
+					strcpy_s(((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstAddr, TMTV_IPSTRLEN, itvc->mIpAddr);
+					((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->dstPort = itvc->mport;
+					m_SendServer.PushMsg(tmpSendMsgItem);
+				}
+			}
+			else
+			{
+				ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTALGO_FAIL);
+				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 1;
+				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmtv_AlgorithmInfo);
+				((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->m_Param = pBaseMsg->m_Param;
+				memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_AlgorithmInfo), pAlgo, sizeof(Tmtv_AlgorithmInfo));
+				m_SendServer.PushMsg(tmpSendMsgItem);
+			}
+		}
+		else
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STARTALGO_FAIL);
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 1;
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmtv_AlgorithmInfo);
+			((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->m_Param = pBaseMsg->m_Param;
+			memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmtv_AlgorithmInfo), pAlgo, sizeof(Tmtv_AlgorithmInfo));
 			m_SendServer.PushMsg(tmpSendMsgItem);
 		}
+		break;
+	case Tmtv_BaseNetMessage::TMTV_ADDCLIENT:
+		if(pBaseMsg->ElementCount !=1 || pBaseMsg->ElementLength!=sizeof(Tmt_ClientInfo)) break;
+		pClient = (Tmt_ClientInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		InsertClientInfoToDb(*pClient);
+		pClient->status = Tmt_ClientInfo::TMT_CLIENT_RUNNING;
+		if (UpdateClientStatusDb(*pClient))
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_ADDCLIENT_OK);
+		}
+		else
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_ADDCLIENT_FAIL);
+		}
+		memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmt_ClientInfo), pClient, sizeof(Tmt_ClientInfo));
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 1;
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmt_ClientInfo);
+		m_SendServer.PushMsg(tmpSendMsgItem);
+		GetActiveClientInfoFrmDb(m_ClientInfoVec);
+		break;
+	case Tmtv_BaseNetMessage::TMTV_STOPCLIENT:
+		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmt_ClientInfo)) break;
+		pClient = (Tmt_ClientInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		InsertClientInfoToDb(*pClient);
+		pClient->status = Tmt_ClientInfo::TMT_CLIENT_CLOSE;
+		if (UpdateClientStatusDb(*pClient))
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STOPCLIENT_OK);
+		}
+		else
+		{
+			ResponseAsk(tmpSendMsgItem, *pBaseMsg, Tmtv_BaseNetMessage::TMTV_STOPCLIENT_FAIL);
+		}
+		memcpy_s(tmpSendMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage), sizeof(Tmt_ClientInfo), pClient, sizeof(Tmt_ClientInfo));
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 1;
+		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmt_ClientInfo);
+		m_SendServer.PushMsg(tmpSendMsgItem);
+		GetActiveClientInfoFrmDb(m_ClientInfoVec);
 		break;
 	default:
 		break;
@@ -965,3 +1249,6 @@ int CDatabaseManager::ConvertDefectsToJson(char* JsonStr,int bufferlength, int D
 }
 
 Logger DbServerLogger::mLogger("DbServerLog\\");
+
+
+

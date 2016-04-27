@@ -235,35 +235,40 @@ struct Tmtv_BaseNetMessage
 	unsigned long structSize = sizeof(Tmtv_BaseNetMessage);
 	int CheckCode = TMTV_CHECKCODE;//验证码, 防止通信干扰
 	enum {
-		TMTV_ADDCAM = 100,        //添加CameraInfo指定的未加载相机
-		TMTV_DELCAM = 101,        //删除CameraInfo指定的未加载相机
-		TMTV_STARTCAM = 102,      //启动CameraInfo指定的已加载相机
-		TMTV_STOPCAM = 103,       //暂定CameraInfo指定的已加载相机
-		TMTV_GETCAM = 104,        //查询CameraInfo指定的已加载相机的指定参数
+		TMTV_ADDCAM = 100,        //添加CameraInfo指定的未加载相机,
+		TMTV_DELCAM = 101,        //删除m_Param指定的未加载相机
+		TMTV_STARTCAM = 102,      //启动m_Param指定的已加载相机
+		TMTV_STOPCAM = 103,       //暂定m_Param指定的已加载相机
+		TMTV_GETCAM = 104,        //查询m_Param指定的已加载相机的指定参数
 		TMTV_SETCAM = 105,        //设置CameraInfo指定的已加载相机的指定参数
-		TMTV_STARTALGO = 106,     //启动CameraInfo指定的算法
-		TMTV_STOPCALGO = 107,      //暂定CameraInfo指定的算法
-		TMTV_SETALGO = 108,      //暂定CameraInfo指定的算法
-		TMTV_GETALLCAM = 150,		//获取所有相机状态
-		TMTV_GETALLIMG = 151,		//获取所有相机最新图片
-		TMTV_GETRANGEIMG = 152,		//获取指定时间范围内的
-		TMTV_CHECKCAM,
+		TMTV_STARTALGO = 106,     //启动m_Param指定的相机的算法
+		TMTV_STOPCALGO = 107,      //暂定m_Param指定的相机的算法
+		TMTV_SETALGO = 108,      //设定由m_Param指定相机，AlgorithmInfo指定的算法
+		TMTV_GETALLCAM ,		//获取所有相机状态
+		TMTV_GETALLIMG,		//获取所有相机最新图片
+		TMTV_GETRANGEIMG,		//获取指定时间范围内的，两个时间字符串，2016-04-27 12:02:45  ,  2016-04-27 12:52:45
+		TMTV_CHECKCAM,			//检查由CameraInfo指定的相机参数是否有和现有相机冲突
+		TMTV_ADDCLIENT,			//添加（启用）由ClientInfo指定的客户端
+		TMTV_STOPCLIENT,		//停用由ClientInfo指定的客户端
+
 
 		TMTV_ADDCAM_OK = 200,        //添加CameraInfo指定的未加载相机成功
-		TMTV_DELCAM_OK = 201,        //删除CameraInfo指定的未加载相机成功
-		TMTV_STARTCAM_OK = 202,      //启动CameraInfo指定的已加载相机成功
-		TMTV_STOPCAM_OK = 203,       //暂定CameraInfo指定的已加载相机成功
-		TMTV_GETCAM_OK = 204,        //查询CameraInfo指定的已加载相机的指定参数成功
-		TMTV_SETCAM_OK = 205,        //设置CameraInfo指定的已加载相机的指定参数成功
-		TMTV_STARTALGO_OK = 206,     //启动算法成功
-		TMTV_STOPALGO_OK = 207,      //暂定算法成功
-		TMTV_SETALGO_OK = 208,       //设定算法成功
-		TMTV_GETALLCAM_OK = 209,
-		TMTV_GETALLIMG_OK = 210,
+		TMTV_DELCAM_OK ,        //删除CameraInfo指定的未加载相机成功
+		TMTV_STARTCAM_OK ,      //启动CameraInfo指定的已加载相机成功
+		TMTV_STOPCAM_OK ,       //暂定CameraInfo指定的已加载相机成功
+		TMTV_GETCAM_OK ,        //查询CameraInfo指定的已加载相机的指定参数成功
+		TMTV_SETCAM_OK ,        //设置CameraInfo指定的已加载相机的指定参数成功
+		TMTV_STARTALGO_OK,     //启动算法成功
+		TMTV_STOPALGO_OK,      //暂定算法成功
+		TMTV_SETALGO_OK,       //设定算法成功
+		TMTV_GETALLCAM_OK,
+		TMTV_GETALLIMG_OK,
 		TMTV_GETRANGEIMG_OK,
 		TMTV_CHECKCAM_OK,
+		TMTV_ADDCLIENT_OK,
+		TMTV_STOPCLIENT_OK,
 
-		TMTV_ADDCAM_FAIL = 240,		//添加CameraInfo指定的未加载相机未成功
+		TMTV_ADDCAM_FAIL = 300,		//添加CameraInfo指定的未加载相机未成功
 		TMTV_DELCAM_FAIL,      //删除CameraInfo指定的未加载相机未成功
 		TMTV_STARTCAM_FAIL,    //启动CameraInfo指定的已加载相机未成功
 		TMTV_STOPCAM_FAIL,     //暂定CameraInfo指定的已加载相机未成功
@@ -277,27 +282,26 @@ struct Tmtv_BaseNetMessage
 		TMTV_GETRANGEIMG_FAIL,
 		TMTV_CHECKCAM_FAIL,
 
-		TMTV_INVALID = 260,          //返回非法的命令
-		TMTV_SNAPED = 298,           //推送实时mImgInfo图片
-		TMTV_DETECTED = 299,         //推送检测到的的mImgInfo图片+缺陷
-		TMTV_CAMINFO = 300,
-		TMTV_TEXTINFO = 301,
+		TMTV_ADDCLIENT_FAIL,
+		TMTV_STOPCLIENT_FAIL,
+
+		TMTV_INVALID = 400,          //返回非法的命令
+		TMTV_SNAPED ,           //推送实时mImgInfo图片
+		TMTV_DETECTED ,         //推送检测到的的mImgInfo图片+缺陷
+		TMTV_CAMINFO ,
+		TMTV_TEXTINFO ,
 	};
 	int MsgType = 0;	//消息类型
 	int m_Param = 0;	//附加参数
-	HANDLE hDstHandle;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
-	HANDLE hSrcHandle;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用
-	NetIP mAddr;		//告知接收方，我方的接收地址
-	int mPort;
-	NetIP dstAddr;		//消息发送的目标地址
-	int dstPort;
+	HANDLE hDstHandle =0;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
+	HANDLE hSrcHandle =0;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用
+	NetIP mAddr="";		//告知接收方，我方的接收地址
+	int mPort=0;
+	NetIP dstAddr="";		//消息发送的目标地址
+	int dstPort=0;
 	unsigned long ElementCount = 0;		//跟随的消息元素数量
 	unsigned long ElementLength = 0;   //跟随的消息单个元素长度
 };
-
-
-
-
 
 ///<datastruct_info>
 //==============================================================================
@@ -388,6 +392,7 @@ struct Tmt_UserInfo
 //==============================================================================
 struct Tmt_ClientInfo //客户端信息
 {
+	int ClientID = 0;
 	NetIP mIpAddr;		//IP
 	int mport;		//port
 	int status;		//工作状态
