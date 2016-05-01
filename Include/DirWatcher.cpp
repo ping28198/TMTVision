@@ -118,31 +118,31 @@ bool DirWatcher::Watch(PATHWSTR& fileName, TINYWSTR& fileTime, DWORD& action)
 	OutputDebugString(L"<DirWatcher::Watch() No action.>\n");
 	return false;
 }
-
-//µ÷ÊÔº¯Êý,ÏÔÊ¾¶ÔÏóÐÅÏ¢
-//×Ö±³¾°ÑÕÉ«·¶Î§: 40--49        ×ÖÑÕÉ«: 30--39
-//	40 : ºÚ                           30 : ºÚ
-//	41 : ºì                           31 : ºì
-//	42 : ÂÌ                           32 : ÂÌ
-//	43 : »Æ                           33 : »Æ
-//	44 : À¶                           34 : À¶
-//	45 : ×Ï                           35 : ×Ï
-//	46 : ÉîÂÌ                         36 : ÉîÂÌ
-//	47 : °×É«                         37 : °×É«
-void DirWatcher::ToString(MEGAWSTR & string, int method, int color)
-{
-	string[0] = 0;
-	if (1)
-	{
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatch m_path=\"%s\">\n", m_path);
-	}
-	if (color >= 30 && color <= 39)
-	{
-		MEGAWSTR testString = { 0 };
-		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
-		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
-	}
-}
+//
+////µ÷ÊÔº¯Êý,ÏÔÊ¾¶ÔÏóÐÅÏ¢
+////×Ö±³¾°ÑÕÉ«·¶Î§: 40--49        ×ÖÑÕÉ«: 30--39
+////	40 : ºÚ                           30 : ºÚ
+////	41 : ºì                           31 : ºì
+////	42 : ÂÌ                           32 : ÂÌ
+////	43 : »Æ                           33 : »Æ
+////	44 : À¶                           34 : À¶
+////	45 : ×Ï                           35 : ×Ï
+////	46 : ÉîÂÌ                         36 : ÉîÂÌ
+////	47 : °×É«                         37 : °×É«
+//void DirWatcher::ToString(MEGAWSTR & string, int method, int color)
+//{
+//	string[0] = 0;
+//	if (1)
+//	{
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatch m_path=\"%s\">\n", m_path);
+//	}
+//	if (color >= 30 && color <= 39)
+//	{
+//		MEGAWSTR testString = { 0 };
+//		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
+//		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
+//	}
+//}
 
 
 
@@ -156,7 +156,7 @@ bool DirWatchServer::RegPath(PATHWSTR path, DWORD action)
 	m_fileNameQueue.Clear();
 	int rtVal= DirWatcher::RegPath(path, action);
 	LeaveCriticalSection(&m_section);
-	return rtVal;
+	return rtVal; 
 }
 //Ö´ÐÐÇ°Ç¿ÖÆÍ£Ö¹Ïß³Ì, Í£Ö¹¼à¿ØÎÄ¼þ¼Ð
 void DirWatchServer::FreePath()
@@ -224,59 +224,59 @@ void DirWatchServer::Task()
 		LeaveCriticalSection(&m_section);
 	}
 }
-
-//µ÷ÊÔº¯Êý,ÏÔÊ¾¶ÔÏóÐÅÏ¢
-//×Ö±³¾°ÑÕÉ«·¶Î§: 40--49        ×ÖÑÕÉ«: 30--39
-//	40 : ºÚ                           30 : ºÚ
-//	41 : ºì                           31 : ºì
-//	42 : ÂÌ                           32 : ÂÌ
-//	43 : »Æ                           33 : »Æ
-//	44 : À¶                           34 : À¶
-//	45 : ×Ï                           35 : ×Ï
-//	46 : ÉîÂÌ                         36 : ÉîÂÌ
-//	47 : °×É«                         37 : °×É«
-void DirWatchServer::ToString(MEGAWSTR & string, int method, int color)
-{
-	string[0] = 0;
-	if (method==0)
-	{
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatchServer m_path=\"%s\">\n", m_path);
-		for (int i = m_fileNameQueue.GetLength() - 1; i >= 0; i--)
-		{
-			CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s  <m_fileNameQueue(%d)=\"%s\" %d %d>\n",
-				string,
-				i,
-				m_fileNameQueue.GetData(i)->m_fileName,
-				m_fileNameQueue.GetData(i)->m_fileAction, 
-				m_fileNameQueue.GetData(i)->m_fileProcessed);
-		}
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</DirWatchServer>\n", string);
-	}
-	else if (method == 1)
-	{
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatchServer m_path=\"%s\" Num=%d>\n",
-			m_path, m_fileNameQueue.GetLength());
-	}
-	else if (method == 2)
-	{
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatchServer m_path=\"%s\" Num=%d>\n", 
-			m_path, m_fileNameQueue.GetLength());
-		int i = m_fileNameQueue.GetLength() - 1;
-		if(!m_fileNameQueue.IsEmpty())
-		{
-			CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s  <m_fileNameQueue(%d)=\"%s\" %d %d>\n",
-				string,
-				i,
-				m_fileNameQueue.GetTail()->m_fileName,
-				m_fileNameQueue.GetData(i)->m_fileAction, 
-				m_fileNameQueue.GetTail()->m_fileProcessed);
-		}
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</DirWatchServer>\n", string);
-	}
-	if (color >= 30 && color <= 39)
-	{
-		MEGAWSTR testString = { 0 };
-		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
-		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
-	}
-}
+//
+////µ÷ÊÔº¯Êý,ÏÔÊ¾¶ÔÏóÐÅÏ¢
+////×Ö±³¾°ÑÕÉ«·¶Î§: 40--49        ×ÖÑÕÉ«: 30--39
+////	40 : ºÚ                           30 : ºÚ
+////	41 : ºì                           31 : ºì
+////	42 : ÂÌ                           32 : ÂÌ
+////	43 : »Æ                           33 : »Æ
+////	44 : À¶                           34 : À¶
+////	45 : ×Ï                           35 : ×Ï
+////	46 : ÉîÂÌ                         36 : ÉîÂÌ
+////	47 : °×É«                         37 : °×É«
+//void DirWatchServer::ToString(MEGAWSTR & string, int method, int color)
+//{
+//	string[0] = 0;
+//	if (method==0)
+//	{
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatchServer m_path=\"%s\">\n", m_path);
+//		for (int i = m_fileNameQueue.GetLength() - 1; i >= 0; i--)
+//		{
+//			CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s  <m_fileNameQueue(%d)=\"%s\" %d %d>\n",
+//				string,
+//				i,
+//				m_fileNameQueue.GetData(i)->m_fileName,
+//				m_fileNameQueue.GetData(i)->m_fileAction, 
+//				m_fileNameQueue.GetData(i)->m_fileProcessed);
+//		}
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</DirWatchServer>\n", string);
+//	}
+//	else if (method == 1)
+//	{
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatchServer m_path=\"%s\" Num=%d>\n",
+//			m_path, m_fileNameQueue.GetLength());
+//	}
+//	else if (method == 2)
+//	{
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<DirWatchServer m_path=\"%s\" Num=%d>\n", 
+//			m_path, m_fileNameQueue.GetLength());
+//		int i = m_fileNameQueue.GetLength() - 1;
+//		if(!m_fileNameQueue.IsEmpty())
+//		{
+//			CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s  <m_fileNameQueue(%d)=\"%s\" %d %d>\n",
+//				string,
+//				i,
+//				m_fileNameQueue.GetTail()->m_fileName,
+//				m_fileNameQueue.GetData(i)->m_fileAction, 
+//				m_fileNameQueue.GetTail()->m_fileProcessed);
+//		}
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</DirWatchServer>\n", string);
+//	}
+//	if (color >= 30 && color <= 39)
+//	{
+//		MEGAWSTR testString = { 0 };
+//		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
+//		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
+//	}
+//}

@@ -10,6 +10,7 @@ int Mod(int i,int j)
 	}
 	return tmp; 
 }
+
 ///<class_info>
 //==============================================================================
 //功能描述:简单线程类,可派生重载任务函数 
@@ -46,7 +47,7 @@ Thread::Thread(HANDLE  hParent)//2.0
 	m_nThreadID = m_nThreadID + 1;//2.0
 	m_waiteTime = 0;
 	m_includeTaskTime = false;//3.1
-	m_ThStatus = enExit;
+	m_ThStatus = TH_EXIT;
 }
 //析构时设置参数等待线程主函数返回,需要等待1秒
 Thread::~Thread(void)
@@ -57,7 +58,7 @@ Thread::~Thread(void)
 	{
 		::CloseHandle(m_hEvt);
 	}
-	m_ThStatus = enExit;
+	m_ThStatus = TH_EXIT;
 	::DeleteCriticalSection(&m_section);
 }
 //线程功能
@@ -70,9 +71,9 @@ void Thread::ThreadMain(void* thisObj)
 	{
 		double taskTime = 0;//3.1
 		//任务处理部分
-		pThisObj->m_ThStatus = Thread::enSuspend;
+		pThisObj->m_ThStatus = Thread::TH_SUSPEND;
 		::WaitForSingleObject(pThisObj->m_hEvt, INFINITE);//中断2:挂起
-		pThisObj->m_ThStatus = Thread::enRunning;
+		pThisObj->m_ThStatus = Thread::TH_RUNNING;
 		//::EnterCriticalSection(&pThisObj->m_section);
 
 		if (pThisObj->m_includeTaskTime)//3.1
@@ -110,7 +111,7 @@ void Thread::ThreadMain(void* thisObj)
 		}
 		Sleep(MAX(pThisObj->m_waiteTime - taskTime, 0));//3.1
 	}
-	pThisObj->m_ThStatus = Thread::enExit;
+	pThisObj->m_ThStatus = Thread::TH_EXIT;
 	OutputDebugString(L"<\\Thread::ThreadMain()>\n");
 }
 //创建线程
@@ -127,7 +128,7 @@ void  Thread::Create(int times, long waiteTime, bool includeTaskTime)//2.0
 		m_waiteTime = MAX(waiteTime, 0);
 		m_includeTaskTime = includeTaskTime;//3.1
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
-		if (m_hThread != 0) m_ThStatus = enAvialable;
+		if (m_hThread != 0) m_ThStatus = TH_AVIALABLE;
 		OutputDebugString(L"<Thread::Create()>\n");
 	}
 }
@@ -154,7 +155,7 @@ void  Thread::Destroy(void)//中断0:退出
 {
 	m_bExit = true;
 	Sleep(m_waiteTime+100);
-	m_ThStatus = enExit;
+	m_ThStatus = TH_EXIT;
 	OutputDebugString(L"<Thread::Destroy()>\n");
 }
 //调用WindowsAPI强制结束当前线程
@@ -226,9 +227,9 @@ void TaskThread::ThreadMain(void* thisObj)
 		//任务处理部分
 		if (pThisObj->p_Task)//中断1:释放
 		{
-			pThisObj->m_ThStatus = Thread::enSuspend;
+			pThisObj->m_ThStatus = Thread::TH_SUSPEND;
 			::WaitForSingleObject(pThisObj->m_hEvt, INFINITE);//中断2:挂起
-			pThisObj->m_ThStatus = Thread::enRunning;
+			pThisObj->m_ThStatus = Thread::TH_RUNNING;
 
 			//::EnterCriticalSection(&pThisObj->m_section);
 			if (pThisObj->m_includeTaskTime)//3.1
@@ -246,7 +247,7 @@ void TaskThread::ThreadMain(void* thisObj)
 		}
 		else
 		{
-			pThisObj->m_ThStatus = Thread::enAvialable;
+			pThisObj->m_ThStatus = Thread::TH_AVIALABLE;
 			::ResetEvent(pThisObj->m_hEvt);
 			::WaitForSingleObject(pThisObj->m_hEvt, INFINITE);//中断2:挂起
 		}
@@ -257,7 +258,7 @@ void TaskThread::ThreadMain(void* thisObj)
 		Sleep(MAX(pThisObj->m_waiteTime - taskTime, 0));//3.1
 	}
 	pThisObj->p_Task = 0;
-	pThisObj->m_ThStatus = Thread::enExit;
+	pThisObj->m_ThStatus = Thread::TH_EXIT;
 	OutputDebugString(L"<\\TaskThread::ThreadMain()>\n");
 }
 //创建线程
@@ -273,7 +274,7 @@ void TaskThread::Create(int times, long waiteTime, bool includeTaskTime)
 		m_waiteTime = MAX(waiteTime, 0);
 		m_includeTaskTime = includeTaskTime;//3.1
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
-		if (m_hThread != 0) m_ThStatus = enAvialable;
+		if (m_hThread != 0) m_ThStatus = TH_AVIALABLE;
 		OutputDebugString(L"<TaskThread::Create()>\n");
 	}
 }
@@ -359,11 +360,11 @@ void TaskThreadEx::ThreadMain(void* thisObj)
 				pThisObj->m_TastList[pThisObj->p_TaskListHead].pPara);
 		}
 		//任务处理部分
-		pThisObj->m_ThStatus = Thread::enSuspend;
+		pThisObj->m_ThStatus = Thread::TH_SUSPEND;
 		::WaitForSingleObject(pThisObj->m_hEvt, INFINITE);//中断2:挂起
 		if (pThisObj->p_Task)//中断1:释放
 		{
-			pThisObj->m_ThStatus = Thread::enRunning;
+			pThisObj->m_ThStatus = Thread::TH_RUNNING;
 			OutputDebugString(L"ThreadMain RunTask\n");
 
 			//::EnterCriticalSection(&pThisObj->m_section);
@@ -386,7 +387,7 @@ void TaskThreadEx::ThreadMain(void* thisObj)
 		}
 		else
 		{
-			pThisObj->m_ThStatus = Thread::enAvialable;
+			pThisObj->m_ThStatus = Thread::TH_AVIALABLE;
 			//为满足任务获取环节,当前任务为空时,扫描任务队列头,而不挂起
 			//::ResetEvent(pThisObj->m_hEvt);
 			//::WaitForSingleObject(pThisObj->m_hEvt, INFINITE);//中断2:挂起
@@ -398,7 +399,7 @@ void TaskThreadEx::ThreadMain(void* thisObj)
 		Sleep(MAX(pThisObj->m_waiteTime - taskTime, 0));//3.1
 	}
 	pThisObj->p_Task = 0;
-	pThisObj->m_ThStatus = Thread::enExit;
+	pThisObj->m_ThStatus = Thread::TH_EXIT;
 	OutputDebugString(L"<\\TaskThreadEx::ThreadMain()>\n");
 }
 //创建线程
@@ -414,7 +415,7 @@ void TaskThreadEx::Create(int times, long waiteTime, bool includeTaskTime)
 		m_waiteTime = MAX(waiteTime, 0);
 		m_includeTaskTime = includeTaskTime;//3.1
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
-		if (m_hThread != 0) m_ThStatus = enAvialable;
+		if (m_hThread != 0) m_ThStatus = TH_AVIALABLE;
 		OutputDebugString(L"<TaskThreadEx::Create()>\n");
 	}
 }
