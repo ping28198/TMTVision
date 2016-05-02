@@ -154,8 +154,6 @@ public:
 
 	/// Thread status
 	THSTATUS m_ThStatus;
-	/// Thread Setting
-	ThSetting m_ThSetting;
 	/// 声明时创建资源
 	Thread(HANDLE  hParent = 0);
 	/// 析构时设置参数等待线程主函数返回,需要等待1秒
