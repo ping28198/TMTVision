@@ -45,7 +45,7 @@ Thread::Thread(HANDLE  hParent)//2.0
 	m_times = -1;
 	m_hParent = hParent;//2.0
 	m_nThreadID = m_nThreadID + 1;//2.0
-	m_waiteTime = 0;
+	m_waitTime = 0;
 	m_includeTaskTime = false;//3.1
 	m_ThStatus = TH_EXIT;
 }
@@ -109,7 +109,7 @@ void Thread::ThreadMain(void* thisObj)
 		{
 			pThisObj->m_times--;
 		}
-		Sleep(MAX(pThisObj->m_waiteTime - taskTime, 0));//3.1
+		Sleep(MAX(pThisObj->m_waitTime - taskTime, 0));//3.1
 	}
 	pThisObj->m_ThStatus = Thread::TH_EXIT;
 	OutputDebugString(L"<\\Thread::ThreadMain()>\n");
@@ -125,7 +125,7 @@ void  Thread::Create(int times, long waiteTime, bool includeTaskTime)//2.0
 	{
 		m_times = times;
 		m_bExit = false;
-		m_waiteTime = MAX(waiteTime, 0);
+		m_waitTime = MAX(waiteTime, 0);
 		m_includeTaskTime = includeTaskTime;//3.1
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
 		if (m_hThread != 0) m_ThStatus = TH_AVIALABLE;
@@ -154,7 +154,7 @@ void  Thread::Suspend(void)//中断2:挂起
 void  Thread::Destroy(void)//中断0:退出
 {
 	m_bExit = true;
-	Sleep(m_waiteTime+100);
+	Sleep(m_waitTime+100);
 	m_ThStatus = TH_EXIT;
 	OutputDebugString(L"<Thread::Destroy()>\n");
 }
@@ -255,7 +255,7 @@ void TaskThread::ThreadMain(void* thisObj)
 		{
 			pThisObj->m_times--;
 		}
-		Sleep(MAX(pThisObj->m_waiteTime - taskTime, 0));//3.1
+		Sleep(MAX(pThisObj->m_waitTime - taskTime, 0));//3.1
 	}
 	pThisObj->p_Task = 0;
 	pThisObj->m_ThStatus = Thread::TH_EXIT;
@@ -271,7 +271,7 @@ void TaskThread::Create(int times, long waiteTime, bool includeTaskTime)
 	if (m_hThread == 0)
 	{
 		m_times = times;
-		m_waiteTime = MAX(waiteTime, 0);
+		m_waitTime = MAX(waiteTime, 0);
 		m_includeTaskTime = includeTaskTime;//3.1
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
 		if (m_hThread != 0) m_ThStatus = TH_AVIALABLE;
@@ -396,7 +396,7 @@ void TaskThreadEx::ThreadMain(void* thisObj)
 		{
 			pThisObj->m_times--;
 		}
-		Sleep(MAX(pThisObj->m_waiteTime - taskTime, 0));//3.1
+		Sleep(MAX(pThisObj->m_waitTime - taskTime, 0));//3.1
 	}
 	pThisObj->p_Task = 0;
 	pThisObj->m_ThStatus = Thread::TH_EXIT;
@@ -412,7 +412,7 @@ void TaskThreadEx::Create(int times, long waiteTime, bool includeTaskTime)
 	if (m_hThread == 0)
 	{
 		m_times = times;
-		m_waiteTime = MAX(waiteTime, 0);
+		m_waitTime = MAX(waiteTime, 0);
 		m_includeTaskTime = includeTaskTime;//3.1
 		m_hThread = (HANDLE)_beginthread(ThreadMain, 0, this);
 		if (m_hThread != 0) m_ThStatus = TH_AVIALABLE;

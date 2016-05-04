@@ -1,62 +1,60 @@
-﻿///<proj_info>
-//==============================================================================
-// 项目名 : 智能监控
-// 文件名 : Queue.h
-// 作  者 : 王磊
-// 用  途 : 简单循环队列模板类
-// 版  权 : 霍比特人
-//==============================================================================
-///</proj_info>
+﻿///////////////////////////////////////////////////
+/** \file Queue.h
+ *  \brief Simple template circle queue,not support newed data
+ *
+ *  \note
+ *
+ ** Status:
+ *  
+ *       Store as an array
+ *           ┏━━━━━┓
+ *      ┏━▶┃  Item × ┃◀━p_DataList
+ *      ┃   ┃  Item × ┃
+ *      ┃   ┃  Item × ┃
+ *
+ *     as a  ┃  Item 1  ┃      ◀━┛
+ *     ring  ┃     :    ┃
+ *      ┃   ┃     :    ┃
+ *      ┃   ┃  Item N  ┃◀━p_Tail┏━AddTail: do not accept if IsFull()
+ *      ┃   ┃  Item × ┃      ◀━┛   /ForcTail: accept if IsFull()
+ *      ┗━ ┃  Item × ┃
+ *           ┗━━━━━┛
+ *
+ *     Index ┃  Item 0  ┃◀━p_Head┏━DelHead
+ *
+ *  \author Leon Contact: towanglei@163.com
+ *  \copyright TMTeam
+ *  \version 3.0
+ *  \History:
+ *     Leon 2016/05/02 17:35 Fix comments\n
+ *     3.0 : Leon 2016/04/02 17:35 Debug
+ *     1.0 : Leon 2013/02/20 17:35 build
+ */
+///////////////////////////////////////////////////
 
-///<ver_info>
-// 版本记录	
-//==============================================================================
-//版本号  开发人员      时间      描述
-//1.0     王磊        2013.2.20   创建
-//2.0     王磊        2016.4.2   整合旧版本
-//==============================================================================
-///</ver_info>
-
-///<algorithm_info>
-//==============================================================================
-//功能描述: 简单循环队列模板类
-//         
-//         Store as an array
-//        ┏━━━━━┓
-//   ┏━▶┃  Item × ┃◀━p_DataList
-//   ┃   ┃  Item × ┃
-//   ┃   ┃  Item × ┃
-//  Index ┃  Item 0  ┃◀━ p_Head┏━DelHead()
-//  as a  ┃  Item 1  ┃       ◀━┛
-//  ring  ┃     :    ┃
-//   ┃   ┃     :    ┃
-//   ┃   ┃  Item N  ┃◀━ p_Tail┏━AddTail(): do not accept if IsFull()
-//   ┃   ┃  Item × ┃       ◀━┛   /ForcTail(): accept if IsFull()
-//   ┗━ ┃  Item × ┃
-//        ┗━━━━━┛
-//
-//==============================================================================
-///</algorithm_info>
-
-///<class_info>
-//==============================================================================
-//功能描述:简单循环队列模板类
-//         队列保存数据(非指针),添加调用数据时采用赋值操作
-//         支持无赋值运算的数据类型
-//         由于不包含复杂调用,所有方法写在头文件中
+///////////////////////////////////////////////////
+/** \class Queue : 
+ *  \brief Simple template circle queue,not support newed data
+ *  \author Leon Contact: towanglei@163.com
+ *  \version 1.0
+ *  \date 2016/05/03 0:03
+ */
 #pragma once
 template <typename T>
 class Queue
 {
 public:
-	enum {DEFAULTNUM = 32};
-	//队列数据
+	enum {DEFAULTNUM = 32 ///< 默认数据量
+	};
+	/// 队列数据空间
 	T* p_DataList;
+	/// 队列数据数量
 	int m_DataNum;
-	//队列头尾
+	/// 队列头指针
 	int p_Head;
+	/// 队列尾指针
 	int p_Tail;
-	//构造函数创建队列并初始化为空,暂不支持拷贝
+	/// 构造函数创建队列并初始化为空,暂不支持拷贝
 	Queue()//int dataNum=DEFAULTNUM)
 	{
 		p_Head=0;
@@ -64,6 +62,7 @@ public:
 		p_DataList=0;
 		m_DataNum=0;
 	}
+	/// 析构
 	~Queue(void)
 	{
 		if (p_DataList!=0)
@@ -72,6 +71,7 @@ public:
 			p_DataList=0;
 		}
 	}
+	/// 初始化资源
 	void Initial(int dataNum = DEFAULTNUM)
 	{
 		if (p_DataList != 0)
@@ -85,6 +85,7 @@ public:
 		p_DataList = new T[dataNum];
 		m_DataNum = dataNum;
 	}
+	/// 卸载资源
 	void Unitial()
 	{
 		if (p_DataList != 0)
@@ -96,7 +97,7 @@ public:
 		p_Tail = 0;
 		m_DataNum = 0;
 	}
-	//方法
+	/// 设置最大存储数据量
 	int SetSize(int dataNum)
 	{
 		if (p_DataList != 0)
@@ -111,10 +112,12 @@ public:
 		m_DataNum = dataNum;
 		return m_DataNum;
 	}
+	/// 获取最大存储数据量
 	int GetSize()
 	{
 		return m_DataNum;
 	}
+	/// 获取有效数据数量
 	int GetLength()
 	{
 		int num=p_Tail-p_Head;
@@ -122,21 +125,24 @@ public:
 		return num;
 		//return m_DataNum;
 	}
+	/// 清空数据
 	void Clear()
 	{
 		p_Head=0;
 		p_Tail=0;
 		//m_DataNum=0;
 	}
+	/// 是否为空
 	bool IsEmpty()
 	{
 		return p_Head==p_Tail;
 	}
+	/// 是否存满
 	bool IsFull()
 	{
 		return p_Head-p_Tail==1||(p_Head==0&&p_Tail==m_DataNum-1);
 	}
-	//删除头数据
+	/// 删除头数据
 	bool DelHead()
 	{
 		if (IsEmpty()) return false;
@@ -149,7 +155,7 @@ public:
 		}
 		return true;
 	}
-	//保护头数据前提下添加尾数据
+	/// 保护头数据前提下添加尾数据
 	bool AddTail(const T& data)
 	{
 		if (IsFull()) return false;
@@ -162,7 +168,7 @@ public:
 		}
 		return true;
 	}
-	//强制添加尾数据
+	/// 强制添加尾数据
 	bool ForcTail(const T& data)
 	{
 		if (IsFull()) DelHead();
@@ -175,7 +181,7 @@ public:
 		}
 		return true;
 	}
-	//获得尾数据
+	/// 获得尾数据
 	bool GetTail(T& data)
 	{
 		if (IsEmpty()) return false;
@@ -188,7 +194,7 @@ public:
 //data=*(p_DataList+m_DataNum-1);
 		return true;
 	}
-	//获得尾数据
+	/// 获得尾数据
 	T* GetTail()
 	{
 		if (IsEmpty()) return 0;
@@ -202,7 +208,7 @@ public:
 		//memcpy(&data,(p_DataList+m_DataNum-1),sizeof(T));
 		//data=*(p_DataList+m_DataNum-1);
 	}
-	//获得头数据
+	/// 获得头数据
 	bool GetHead(T& data)
 	{
 		if (IsEmpty()) return false;
@@ -210,7 +216,7 @@ public:
 		//data=*(p_DataList+p_Head);
 		return true;
 	}
-	//获得头数据
+	/// 获得头数据
 	T* GetHead()
 	{
 		if (IsEmpty()) return 0;
@@ -219,7 +225,7 @@ public:
 		//data=*(p_DataList+p_Head);
 		//return true;
 	}
-	//获得数据
+	/// 获得正向计数数据
 	bool GetData(T& data,int index)
 	{
 		if (IsEmpty()) return false;
@@ -231,7 +237,7 @@ public:
 		//data=*(p_DataList+pRead);
 		return true;
 	}
-	//获得数据
+	/// 获得正向计数数据
 	T* GetData(int index)
 	{
 		if (IsEmpty()) return 0;
@@ -244,7 +250,7 @@ public:
 		//data=*(p_DataList+pRead);
 		//return true;
 	}
-	//获得数据
+	/// 获得反向计数数据
 	bool GetLast(T& data,int index)
 	{
 		if (IsEmpty()) return false;
@@ -256,7 +262,7 @@ public:
 		data=*(p_DataList+pRead);
 		return true;
 	}
-	//获得数据
+	/// 获得反向计数据
 	T* GetLast(int index)
 	{
 		if (IsEmpty()) return 0;
@@ -270,5 +276,4 @@ public:
 		//return true;
 	}
 };
-//==============================================================================
-///</class_info>
+///////////////////////////////////////////////////

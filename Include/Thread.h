@@ -3,6 +3,7 @@
  *  \brief Thread Class and TaskThread Class
  *
  *  \note
+ *
  ** Status:
  *
  *              Thread()━▶ ┏━━━━━━━┓ ◀━~Thread()
@@ -32,7 +33,7 @@
  *          Destroy()invalide ┃          ▲
  *          ForceEnd() valide ▼          ┃
  *                          ┏━━━━━━━┓
- *                          ┃  TH_SUSPEND   ┃
+ *                          ┃  TH_SUSPEND  ┃
  *                          ┗━━━━━━━┛
  *
  *  \author Leon Contact: towanglei@163.com
@@ -40,8 +41,8 @@
  *  \version 3.1
  *  \History:
  *     2016/04/29 21:17 Fix comments.\n
- *     3.0 : Leon 2016/03/29 06:00 Add m_includeTaskTime = true/false means task time include in m_waiteTime or not.\n
- *     2.0 : Leon 2016/03/29 06:00 Add m_hParent,m_nThreadID,m_waiteTime.\n
+ *     3.0 : Leon 2016/03/29 06:00 Add m_includeTaskTime = true/false means task time include in m_waitTime or not.\n
+ *     2.0 : Leon 2016/03/29 06:00 Add m_hParent,m_nThreadID,m_waitTime.\n
  *     1.0 : Leon 2014/05/01 19:03 build.
  *
  */
@@ -102,7 +103,7 @@ public:
 protected:
 	bool m_bExit;
 	int m_times;
-	long m_waiteTime;
+	long m_waitTime;
 	bool m_includeTaskTime;//3.1
 public:
 	//////////////////////////////////////////////////
