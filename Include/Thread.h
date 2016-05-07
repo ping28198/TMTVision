@@ -102,7 +102,7 @@ public:
 	HANDLE  m_hEvt;
 protected:
 	bool m_bExit;
-	int m_times;
+	long m_times;
 	long m_waitTime;
 	bool m_includeTaskTime;//3.1
 public:
@@ -165,7 +165,7 @@ private:
 	static void ThreadMain(void* thisObj);
 public:
 	/// 创建线程
-	void  Create(int times = -1, long waiteTime = 0, bool includeTaskTime = false);
+	void  Create(long times = -1, long waiteTime = 0, bool includeTaskTime = false);
 	/// 继续执行挂起的线程
 	void  Resume(void);
 	/// 挂起线程
