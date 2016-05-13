@@ -38,9 +38,10 @@
  *
  *  \author Leon Contact: towanglei@163.com
  *  \copyright TMTeam
- *  \version 3.1
+ *  \version 3.2
  *  \History:
- *     2016/04/29 21:17 Fix comments.\n
+ *     2016/05/12 12:03 Add more details of time management: m_actualWaitTime.\n
+ *     3.1 : 2016/04/29 21:17 Fix comments.\n
  *     3.0 : Leon 2016/03/29 06:00 Add m_includeTaskTime = true/false means task time include in m_waitTime or not.\n
  *     2.0 : Leon 2016/03/29 06:00 Add m_hParent,m_nThreadID,m_waitTime.\n
  *     1.0 : Leon 2014/05/01 19:03 build.
@@ -93,20 +94,21 @@ class Thread
 {
 //类功能
 public:
-	/// 线程计数ID :线程对象声明后+1,析构不改变
+	/// Thread ID，+1 after construct
 	static DWORD m_nThreadID;//2.0
 	/// 对象类型记录ID
 	const int m_classID = 0;//3.0
-	HANDLE  m_hThread;
-	HANDLE  m_hParent;//2.0
-	HANDLE  m_hEvt;
+	HANDLE  m_hThread;///< Thread handle
+	HANDLE  m_hParent;///< Parent handle
+	HANDLE  m_hEvt;///< Suspend event
 protected:
-	bool m_bExit;
-	long m_times;
-	long m_waitTime;
-	bool m_includeTaskTime;//3.1
+	bool m_bExit;///< Exit flag
+	long m_times;///< Run times,-1 means infinite
+	long m_waitTime;///< Expected time(ms) from task end/start to next task start 
+	double m_taskTime;///< 3.1 Actual task time(ms) from task start to end
+	bool m_includeTaskTime;///< If m_waitTime include task time, false/true is end/start to start
 public:
-	//////////////////////////////////////////////////
+
 	/** \enum THSTATUS
 	 *  \brief Thread status 
 	 *
@@ -151,13 +153,12 @@ public:
 		TH_RUNNING, ///< Running thread
 		TH_SUSPEND ///< Suspend thread 
 	};
-	//////////////////////////////////////////////////
 
 	/// Thread status
 	THSTATUS m_ThStatus;
-	/// 声明时创建资源
+	/// Create source when construct
 	Thread(HANDLE  hParent = 0);
-	/// 析构时设置参数等待线程主函数返回,需要等待1秒
+	/// Destruct use ForceEnd()
 	~Thread(void);
 //线程功能
 private:

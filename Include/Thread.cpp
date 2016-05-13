@@ -46,13 +46,15 @@ Thread::Thread(HANDLE  hParent)//2.0
 	m_hParent = hParent;//2.0
 	m_nThreadID = m_nThreadID + 1;//2.0
 	m_waitTime = 0;
+	m_taskTime = 0;
 	m_includeTaskTime = false;//3.1
 	m_ThStatus = TH_EXIT;
 }
 //析构时设置参数等待线程主函数返回,需要等待1秒
 Thread::~Thread(void)
 {
-	Destroy();
+	//Destroy();
+	ForceEnd();
 	Sleep(1000);//等待线程主函数退出并销毁线程
 	if (m_hEvt != 0)
 	{
@@ -109,13 +111,14 @@ void Thread::ThreadMain(void* thisObj)
 		{
 			pThisObj->m_times--;
 		}
+		pThisObj->m_taskTime = taskTime;
 		Sleep(MAX(pThisObj->m_waitTime - taskTime, 0));//3.1
 	}
 	pThisObj->m_ThStatus = Thread::TH_EXIT;
 	OutputDebugString(L"<\\Thread::ThreadMain()>\n");
 }
 //创建线程
-void  Thread::Create(int times, long waiteTime, bool includeTaskTime)//2.0
+void  Thread::Create(long times, long waiteTime, bool includeTaskTime)//2.0
 {
 	if (m_hEvt == 0)
 	{
