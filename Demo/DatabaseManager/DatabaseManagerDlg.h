@@ -4,6 +4,7 @@
 
 #pragma once
 #include "DatabaseManager.h"
+#include "afxcmn.h"
 
 // CDatabaseManagerDlg 对话框
 class CDatabaseManagerDlg : public CDialogEx
@@ -16,10 +17,15 @@ public:
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_DATABASEMANAGER_DIALOG };
 #endif
+public:
+	CDatabaseManager *m_pDbmanager;
 
-	protected:
+	void UpdateDbData();
+
+
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
-	CDatabaseManager m_Dbmanager;
+	
 
 // 实现
 protected:
@@ -33,4 +39,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedOk();
+	CListCtrl m_CamStatusList;
+	CListCtrl m_ClientList;
 };

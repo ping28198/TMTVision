@@ -55,9 +55,101 @@ CDatabaseManagerDlg::CDatabaseManagerDlg(CWnd* pParent /*=NULL*/)
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
+void CDatabaseManagerDlg::UpdateDbData()
+{
+	vector<Tmtv_CameraInfo> mCamVec;
+	vector<Tmt_ClientInfo> mClientVec;
+	vector<Tmtv_CameraInfo>::iterator itcam;
+	vector<Tmt_ClientInfo>::iterator itclt;
+	m_pDbmanager->GetAllCamInfoFrmDb(mCamVec);
+	m_pDbmanager->GetAllClientInfoFrmDb(mClientVec);
+	int nRow = 0;
+	int mindex = 0;
+	CListCtrl* pList = &m_CamStatusList;
+	pList->DeleteAllItems();
+	PATHWSTR wstr;
+	for (itcam = mCamVec.begin(); itcam != mCamVec.end();itcam++)
+	{
+		swprintf_s(wstr, L"%d", itcam->Indexnum);
+		nRow = pList->InsertItem(mindex, wstr);
+		CCommonFunc::AnsiToUnicode(itcam->CameraName, wstr, TMTV_PATHSTRLEN);
+		pList->SetItemText(nRow, 1, wstr);
+		CCommonFunc::AnsiToUnicode(itcam->CameraPath, wstr, TMTV_PATHSTRLEN);
+		pList->SetItemText(nRow, 2, wstr);
+		CCommonFunc::AnsiToUnicode(itcam->CameraHost, wstr, TMTV_PATHSTRLEN);
+		pList->SetItemText(nRow, 3, wstr);
+		swprintf_s(wstr, L"%f",itcam->CameraPos[0]);
+		pList->SetItemText(nRow, 4, wstr);
+		swprintf_s(wstr, L"%f", itcam->CameraPos[1]);
+		pList->SetItemText(nRow, 5, wstr);
+		swprintf_s(wstr, L"%d", itcam->AlgorithmInfo.WarnningLevel);
+		pList->SetItemText(nRow, 6, wstr);
+		switch (itcam->Status)
+		{
+		case Tmtv_CameraInfo::TMTV_RUNNINGCAM:
+			swprintf_s(wstr, L"运行");
+			break;
+		case Tmtv_CameraInfo::TMTV_STOPEDCAM:
+			swprintf_s(wstr, L"停止");
+			break;
+		default:
+			swprintf_s(wstr, L"未知");
+			break;
+		}
+		pList->SetItemText(nRow, 7, wstr);
+		CCommonFunc::AnsiToUnicode(itcam->AlgorithmInfo.MaskImgPath, wstr, TMTV_PATHSTRLEN);
+		pList->SetItemText(nRow, 8, wstr);
+		switch (itcam->AlgorithmInfo.mAlgoStatus)
+		{
+		case Tmtv_AlgorithmInfo::TMTV_STARTWARN:
+			swprintf_s(wstr, L"运行");
+			break;
+		case Tmtv_AlgorithmInfo::TMTV_NOWARN:
+			swprintf_s(wstr, L"停止");
+			break;
+		case Tmtv_AlgorithmInfo::TMTV_PREWARN:
+			swprintf_s(wstr, L"启动中");
+			break;
+		default:
+			swprintf_s(wstr, L"未知");
+			break;
+		}
+		pList->SetItemText(nRow, 9, wstr);
+		mindex++;
+	}
+	nRow = 0;
+	mindex = 0;
+	pList = &m_ClientList;
+	pList->DeleteAllItems();
+	for (itclt = mClientVec.begin(); itclt != mClientVec.end(); itclt++)
+	{
+		swprintf_s(wstr, L"%d", itclt->ClientID);
+		nRow = pList->InsertItem(mindex, wstr);
+		CCommonFunc::AnsiToUnicode(itclt->mIpAddr, wstr, TMTV_IPSTRLEN);
+		pList->SetItemText(nRow, 1, wstr);
+		swprintf_s(wstr, L"%d", itclt->mport);
+		pList->SetItemText(nRow, 2, wstr);
+		switch (itclt->status)
+		{
+		case Tmt_ClientInfo::TMT_CLIENT_RUNNING:
+			swprintf_s(wstr, L"在线");
+			break;
+		case Tmt_ClientInfo::TMT_CLIENT_CLOSE:
+			swprintf_s(wstr, L"离线");
+			break;
+		default:
+			swprintf_s(wstr, L"离线");
+			break;
+		}
+		pList->SetItemText(nRow, 3, wstr);
+	}
+}
+
 void CDatabaseManagerDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_CAMSTATUS_LIST, m_CamStatusList);
+	DDX_Control(pDX, IDC_CLIENT_LIST, m_ClientList);
 }
 
 BEGIN_MESSAGE_MAP(CDatabaseManagerDlg, CDialogEx)
@@ -98,58 +190,101 @@ BOOL CDatabaseManagerDlg::OnInitDialog()
 	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
-
+	DbServerLogger::mLogger.TraceKeyInfo("start------------------------------------");
 	// TODO: 在此添加额外的初始化代码
-	m_Dbmanager.Initial();
-	Tmtv_CameraInfo mCam;
-	mCam.Indexnum = 3;
-	sprintf(mCam.CameraName, "name0");
-	sprintf(mCam.CameraPath, "d:\\aB");
-	sprintf(mCam.CameraHost, "192.168.1.1");
-	mCam.CameraPos[0] = 11;
-	mCam.CameraPos[1] = 22;
-	sprintf(mCam.AlgorithmInfo.MaskImgPath, "d:\\a\\b");
-	bool bb = m_Dbmanager.AddCamToDb(mCam);
-	if (bb)
-	{
-		DbServerLogger::mLogger.TraceKeyInfo("insert ok");
-	}
-	else
-	{
-		DbServerLogger::mLogger.TraceKeyInfo("insert fail");
-	}
-	mCam.Indexnum = 2;
-	bool a = m_Dbmanager.CheckCamInfo(mCam);
-	//m_Dbmanager.GetClientInfoFrmDb();
-	Tmt_ClientInfo mclient;
-	sprintf(mclient.mIpAddr, "192.168.0.1");
-	mclient.mport = 5012;
-	mclient.status = 0;
-	m_Dbmanager.UpdateClientStatusDb(mclient);
-	a = m_Dbmanager.UpdateCamInfoDb(mCam);
 
-	Tmtv_ImageInfo mimg;
-	sprintf(mimg.GrabTime, "2016-04-20 12:23:20");
-	sprintf(mimg.ImagePath, "d:\\a");
-	mimg.mCamId = 2;
-	mimg.mDefectInfo.DefectNum = 1;
-	mimg.mDefectInfo.DefectPos[0][0] = 100;
-	mimg.mDefectInfo.DefectPos[0][1] = 200;
-	mimg.mDefectInfo.DefectPos[0][2] = 300;
-	mimg.mDefectInfo.DefectPos[0][3] = 400;
-	a = m_Dbmanager.InsertImgInfoToDb(mimg);
-	Tmtv_ImageInfo mimg2;
-	mimg2.mCamId = 2;
-	a = m_Dbmanager.GetLastImgInfoFrmDb(mimg2);
 
-	vector<Tmtv_ImageInfo> mimgvec;
-	m_Dbmanager.GetImginfoByDate(mimgvec, 2, "2016-04-20");
+	LONG mStyle;
+	mStyle = GetWindowLong(m_CamStatusList.m_hWnd, GWL_STYLE);//获取当前窗口风
+	mStyle &= ~LVS_TYPEMASK;
+	mStyle |= LVS_REPORT;
+	SetWindowLong(m_CamStatusList.m_hWnd, GWL_STYLE, mStyle);
+	DWORD dwStyle = m_CamStatusList.GetExtendedStyle();
+	dwStyle |= LVS_EX_FULLROWSELECT;
+	//dwStyle |= LVS_EX_CHECKBOXES;
+	dwStyle |= LVS_EX_GRIDLINES;
+	dwStyle |= LVS_EX_GRIDLINES;//网格线（只适用与报表风格的listctrl）
+	m_CamStatusList.SetExtendedStyle(dwStyle); //设置扩展样式
+
+	m_CamStatusList.InsertColumn(0, _T("相机ID"), LVCFMT_CENTER, 50);        //添加列标题 
+	m_CamStatusList.InsertColumn(1, _T("相机描述"), LVCFMT_CENTER, 70);
+	m_CamStatusList.InsertColumn(2, _T("相机路径"), LVCFMT_CENTER, 60);
+	m_CamStatusList.InsertColumn(3, _T("主机地址"), LVCFMT_CENTER, 80);
+	m_CamStatusList.InsertColumn(4, _T("纬度坐标"), LVCFMT_CENTER, 60);
+	m_CamStatusList.InsertColumn(5, _T("经度坐标"), LVCFMT_CENTER, 60);
+	m_CamStatusList.InsertColumn(6, _T("警告等级"), LVCFMT_CENTER, 60);
+	m_CamStatusList.InsertColumn(7, _T("相机状态"), LVCFMT_CENTER, 60);
+	m_CamStatusList.InsertColumn(8, _T("掩码图像位置"), LVCFMT_CENTER, 70);
+	m_CamStatusList.InsertColumn(9, _T("算法状态"), LVCFMT_CENTER, 60);
+
+
+	mStyle = GetWindowLong(m_ClientList.m_hWnd, GWL_STYLE);//获取当前窗口风
+	mStyle &= ~LVS_TYPEMASK;
+	mStyle |= LVS_REPORT;
+	SetWindowLong(m_ClientList.m_hWnd, GWL_STYLE, mStyle);
+	dwStyle = m_ClientList.GetExtendedStyle();
+	dwStyle |= LVS_EX_FULLROWSELECT;
+	//dwStyle |= LVS_EX_CHECKBOXES;
+	dwStyle |= LVS_EX_GRIDLINES;
+	dwStyle |= LVS_EX_GRIDLINES;//网格线（只适用与报表风格的listctrl）
+	m_ClientList.SetExtendedStyle(dwStyle); //设置扩展样式
+
+	m_ClientList.InsertColumn(0, _T("ID"), LVCFMT_CENTER, 50);
+	m_ClientList.InsertColumn(1, _T("主机地址"), LVCFMT_CENTER, 90);
+	m_ClientList.InsertColumn(2, _T("端口"), LVCFMT_CENTER, 50);
+	m_ClientList.InsertColumn(3, _T("状态"), LVCFMT_CENTER, 50);
 
 
 
 
 
-	m_Dbmanager.DisConnectDb();
+
+	m_pDbmanager = new CDatabaseManager(this);
+	m_pDbmanager->Initial();
+	//Tmtv_CameraInfo mCam;
+	//mCam.Indexnum = 3;
+	//sprintf(mCam.CameraName, "name0");
+	//sprintf(mCam.CameraPath, "d:\\aB");
+	//sprintf(mCam.CameraHost, "192.168.1.1");
+	//mCam.CameraPos[0] = 11;
+	//mCam.CameraPos[1] = 22;
+	//sprintf(mCam.AlgorithmInfo.MaskImgPath, "d:\\a\\b");
+	//bool bb = m_Dbmanager.AddCamToDb(mCam);
+	//if (bb)
+	//{
+	//	DbServerLogger::mLogger.TraceKeyInfo("cam insert ok");
+	//}
+	//else
+	//{
+	//	DbServerLogger::mLogger.TraceKeyInfo("cam insert fail");
+	//}
+	//mCam.Indexnum = 2;
+	//bool a = m_Dbmanager.CheckCamInfo(mCam);
+	////m_Dbmanager.GetClientInfoFrmDb();
+	//Tmt_ClientInfo mclient;
+	//sprintf(mclient.mIpAddr, "192.168.0.1");
+	//mclient.mport = 5012;
+	//mclient.status = 0;
+	//m_Dbmanager.UpdateClientStatusDb(mclient);
+	//a = m_Dbmanager.UpdateCamInfoDb(mCam);
+
+	//Tmtv_ImageInfo mimg;
+	//sprintf(mimg.GrabTime, "2016-04-20 12:23:20");
+	//sprintf(mimg.ImagePath, "d:\\a");
+	//mimg.mCamId = 2;
+	//mimg.mDefectInfo.DefectNum = 1;
+	//mimg.mDefectInfo.DefectPos[0][0] = 100;
+	//mimg.mDefectInfo.DefectPos[0][1] = 200;
+	//mimg.mDefectInfo.DefectPos[0][2] = 300;
+	//mimg.mDefectInfo.DefectPos[0][3] = 400;
+	//a = m_Dbmanager.InsertImgInfoToDb(mimg);
+	//Tmtv_ImageInfo mimg2;
+	//mimg2.mCamId = 2;
+	//a = m_Dbmanager.GetLastImgInfoFrmDb(mimg2);
+
+	//vector<Tmtv_ImageInfo> mimgvec;
+	//m_Dbmanager.GetImginfoByDate(mimgvec, 2, "2016-04-20");
+	//m_Dbmanager.DisConnectDb();
 
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE

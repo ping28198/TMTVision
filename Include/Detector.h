@@ -22,13 +22,23 @@
 //==============================================================================
 //添加所需的头文件
 #pragma once
-#include "cv.h"
-#include "opencv2/video/background_segm.hpp"
+//#include "cv.h"
+//#include "opencv2/core.hpp"
 #include "CommonDefine.h"
 #include "VisionStruct.h"
 #include "CommonFunc.h"
-using namespace std;
+//opencv头文件
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "cv.h"
+#include "opencv2/video/background_segm.hpp"
+
+//标准模板头文件
+#include <map>
+#include <vector>
+
 using namespace cv;
+using namespace std;
 //==============================================================================
 ///</header_info>
 
@@ -41,7 +51,7 @@ public:
 	enum {SETTINGSIZE = 1024,PERDETECTNUM=8};
 public:
 	//预先准备的掩码图像
-	Mat *p_maskImageData;
+	cv::Mat *p_maskImageData;
 	int m_imageHeight;
 	int m_imageWidth;
 	//不同算法参数结构不同,派生自Tmtv_AlgorithmInfo结构
@@ -56,7 +66,7 @@ public:
 	//重设算法
 	void Reset(Tmtv_AlgorithmInfo algorithmInfo);
 	//识别当前图像队列
-	virtual bool Detect(Mat& srcImageData, Mat& rectImageData, 
+	virtual bool Detect(cv::Mat& srcImageData, cv::Mat& rectImageData,
 		Tmtv_DefectInfo & defects,
 		void* paras=0, long paraSize=0)=0;
 	//识别当前图像队列
@@ -113,14 +123,14 @@ public:
 	void Reset(Tmtv_AlgorithmInfo algorithmInfo);
 	
 
-	Ptr<BackgroundSubtractorMOG2> p_backgroundSubtractor;
+	cv::Ptr<cv::BackgroundSubtractorMOG2> p_backgroundSubtractor;
 	struct RunningPara
 	{
 		double minArea;
 		double learnRatio;
 	};
 	//识别当前图像队列
-	bool Detect(Mat& srcImageData, Mat& rectImageData,
+	bool Detect(cv::Mat& srcImageData, cv::Mat& rectImageData,
 		Tmtv_DefectInfo & defects,
 		void* paras = 0, long paraSize = 0);
 	//识别当前图像队列

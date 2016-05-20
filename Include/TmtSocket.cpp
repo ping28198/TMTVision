@@ -327,35 +327,35 @@ int TmtSocket::ReleaseSocket()
 	return 1;
 }
 
-void TmtSocket::ToString(MEGAWSTR & string, int method, int color)
-{
-	NetIPW m_RemoteRecvIPW = { 0 };
-	NetIPW m_LocalSendIPW = { 0 };
-	NetIPW m_LocalRecvIPW = { 0 };
-	CCommonFunc::AnsiToUnicode(m_RemoteRecvIP, m_RemoteRecvIPW, TMTV_IPSTRLEN);
-	CCommonFunc::AnsiToUnicode(m_LocalSendIP, m_LocalSendIPW, TMTV_IPSTRLEN);
-	CCommonFunc::AnsiToUnicode(m_LocalRecvIP, m_LocalRecvIPW, TMTV_IPSTRLEN);
-
-	string[0] = 0;
-	if (1)
-	{
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<TmtSocket>\n");
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<m_RemoteRecvIP=\"%s\" m_RemoteRecvPort=%d>\n",
-			string, m_RemoteRecvIPW, m_RemoteRecvPort);
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<m_LocalSendIP=\"%s\" m_LocalSendPort=%d>\n",
-			string, m_LocalSendIPW, m_LocalSendPort);
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<m_LocalRecvIP=\"%s\" m_LocalRecvPort=%d>\n",
-			string, m_LocalRecvIPW, m_LocalRecvPort);
-		//CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<pBuffer>\n\"%s\"\n</pBuffer>\n", string, pBuffer);
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</TmtSocket>\n", string);
-	} 
-	if (color >= 30 && color <= 39)
-	{
-		MEGAWSTR testString = { 0 };
-		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
-		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
-	}
-}
+//void TmtSocket::ToString(MEGAWSTR & string, int method, int color)
+//{
+//	NetIPW m_RemoteRecvIPW = { 0 };
+//	NetIPW m_LocalSendIPW = { 0 };
+//	NetIPW m_LocalRecvIPW = { 0 };
+//	CCommonFunc::AnsiToUnicode(m_RemoteRecvIP, m_RemoteRecvIPW, TMTV_IPSTRLEN);
+//	CCommonFunc::AnsiToUnicode(m_LocalSendIP, m_LocalSendIPW, TMTV_IPSTRLEN);
+//	CCommonFunc::AnsiToUnicode(m_LocalRecvIP, m_LocalRecvIPW, TMTV_IPSTRLEN);
+//
+//	string[0] = 0;
+//	if (1)
+//	{
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<TmtSocket>\n");
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<m_RemoteRecvIP=\"%s\" m_RemoteRecvPort=%d>\n",
+//			string, m_RemoteRecvIPW, m_RemoteRecvPort);
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<m_LocalSendIP=\"%s\" m_LocalSendPort=%d>\n",
+//			string, m_LocalSendIPW, m_LocalSendPort);
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<m_LocalRecvIP=\"%s\" m_LocalRecvPort=%d>\n",
+//			string, m_LocalRecvIPW, m_LocalRecvPort);
+//		//CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s<pBuffer>\n\"%s\"\n</pBuffer>\n", string, pBuffer);
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</TmtSocket>\n", string);
+//	} 
+//	if (color >= 30 && color <= 39)
+//	{
+//		MEGAWSTR testString = { 0 };
+//		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
+//		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
+//	}
+//}
 
 
 TmtSocketServer::TmtSocketServer(int bufferSize)
@@ -410,24 +410,24 @@ void TmtSocketServer::Task(void)
 	}
 }
 
-void TmtSocketServer::ToString(MEGAWSTR & string, int method, int color)
-{
-	string[0] = 0;
-	MEGAWSTR tmpStr1 = {0};
-	TmtSocket::ToString(tmpStr1, 0, 0);
-	MEGAWSTR tmpStr2 = { 0 };
-	ObjToString::ToString(tmpStr2, (void*)pBuffer, m_BufferSize, method, 0);
-	if (method >= 0 && method <= 2)
-	{
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<TmtSocketServer>\n");
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpStr1);
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpStr2);
-		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</TmtSocketServer>\n", string);
-	}
-	if (color >= 30 && color <= 39)
-	{
-		MEGAWSTR testString = { 0 };
-		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
-		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
-	}
-}
+//void TmtSocketServer::ToString(MEGAWSTR & string, int method, int color)
+//{
+//	string[0] = 0;
+//	MEGAWSTR tmpStr1 = {0};
+//	TmtSocket::ToString(tmpStr1, 0, 0);
+//	MEGAWSTR tmpStr2 = { 0 };
+//	ObjToString::ToString(tmpStr2, (void*)pBuffer, m_BufferSize, method, 0);
+//	if (method >= 0 && method <= 2)
+//	{
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"<TmtSocketServer>\n");
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpStr1);
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s%s", string, tmpStr2);
+//		CCommonFunc::SafeWStringPrintf(string, TMTV_HUGESTRLEN, L"%s</TmtSocketServer>\n", string);
+//	}
+//	if (color >= 30 && color <= 39)
+//	{
+//		MEGAWSTR testString = { 0 };
+//		CCommonFunc::SafeWStringPrintf(testString, TMTV_HUGESTRLEN, L"\033[;%dm%s\033[0m\n", color, string);
+//		CCommonFunc::SafeWStringCpy(string, TMTV_HUGESTRLEN, testString);
+//	}
+//}

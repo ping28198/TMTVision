@@ -1,62 +1,100 @@
-﻿///<proj_info>
-//==============================================================================
-// 项目名 : 智能监控
-// 文件名 : Queue.h
-// 作  者 : 王磊
-// 用  途 : 简单循环队列模板类
-// 版  权 : 霍比特人
-//==============================================================================
-///</proj_info>
+﻿///////////////////////////////////////////////////
+/** \file Queue.h
+ *  \brief Simple template circle queue,not support newed data
+ *
+ *  \note
+ *
+ ** Status:
+ *  
+ *       Store as an array
+ *           ┏━━━━━┓
+ *      ┏━▶┃  Item × ┃◀━p_DataList
+ *      ┃   ┃  Item × ┃
+ *      ┃   ┃  Item × ┃
+ *     Index ┃  Item 0  ┃◀━p_Head┏━DelHead
+ *     as a  ┃  Item 1  ┃      ◀━┛
+ *     ring  ┃     :    ┃
+ *      ┃   ┃     :    ┃
+ *      ┃   ┃  Item N  ┃◀━p_Tail┏━AddTail: do not accept if IsFull()
+ *      ┃   ┃  Item × ┃      ◀━┛   /ForcTail: accept if IsFull()
+ *      ┗━ ┃  Item × ┃
+ *           ┗━━━━━┛
+ *
+ *
+ *  \author Leon Contact: towanglei@163.com
+ *  \copyright TMTeam
+ *  \version 4.1beta
+ *  \History:
+ *     Leon 2016/05/17 17:00 Add Err code and try-catch block.\n
+ *     4.0beta : Leon 2016/05/17 17:00 Priority use T::operator= if has(memcopy if not),when deep copy data in.\n
+ *     3.1 : Leon 2016/05/02 17:35 Fix comments\n
+ *     3.0 : Leon 2016/04/02 17:35 Debug
+ *     1.0 : Leon 2013/02/20 17:35 build
+ */
+///////////////////////////////////////////////////
 
-///<ver_info>
-// 版本记录	
-//==============================================================================
-//版本号  开发人员      时间      描述
-//1.0     王磊        2013.2.20   创建
-//2.0     王磊        2016.4.2   整合旧版本
-//==============================================================================
-///</ver_info>
-
-///<algorithm_info>
-//==============================================================================
-//功能描述: 简单循环队列模板类
-//         
-//         Store as an array
-//        ┏━━━━━┓
-//   ┏━▶┃  Item × ┃◀━p_DataList
-//   ┃   ┃  Item × ┃
-//   ┃   ┃  Item × ┃
-//  Index ┃  Item 0  ┃◀━ p_Head┏━DelHead()
-//  as a  ┃  Item 1  ┃       ◀━┛
-//  ring  ┃     :    ┃
-//   ┃   ┃     :    ┃
-//   ┃   ┃  Item N  ┃◀━ p_Tail┏━AddTail(): do not accept if IsFull()
-//   ┃   ┃  Item × ┃       ◀━┛   /ForcTail(): accept if IsFull()
-//   ┗━ ┃  Item × ┃
-//        ┗━━━━━┛
-//
-//==============================================================================
-///</algorithm_info>
-
-///<class_info>
-//==============================================================================
-//功能描述:简单循环队列模板类
-//         队列保存数据(非指针),添加调用数据时采用赋值操作
-//         支持无赋值运算的数据类型
-//         由于不包含复杂调用,所有方法写在头文件中
 #pragma once
+#include <exception>
+using namespace std;
+#ifndef QUE_ERR
+#define QUE_NORMAL     (int)0
+#define QUE_ERR        (int)-1000
+#define QUE_ERR_MEMOUT (int)QUE_ERR-1
+#define QUE_ERR_LOCKED (int)QUE_ERR-2
+#endif
+///////////////////////////////////////////////////
+/** \fn  CopyData
+ *  \brief Priority use T::operator= if has(memcopy if not),when deep copy data in.
+ *  \param[in] T& src
+ *  \param[out] T& dst
+ *  \return bool
+ */
+template <typename T>
+bool CopyData(T& dst,const T& src)
+{
+	__if_exists(T::operator=)
+	{
+		dst = src;
+	}
+	__if_not_exists(T::operator=)
+	{
+		memcpy_s(&dst, sizeof(T), &src, sizeof(T));
+	}
+	return true;
+    return false;
+}
+///////////////////////////////////////////////////
+
+///////////////////////////////////////////////////
+/** \class Queue : 
+ *  \brief Simple template circle queue,not support newed data
+ *  \author Leon Contact: towanglei@163.com
+ *  \version 1.0
+ *  \date 2016/05/03 0:03
+ */
 template <typename T>
 class Queue
 {
-public:
-	enum {DEFAULTNUM = 32};
-	//队列数据
+private:
+	enum {DEFAULTNUM = 32 ///< 默认数据量
+	};
+	/// 队列数据空间
 	T* p_DataList;
+	/// 队列数据数量
 	int m_DataNum;
-	//队列头尾
+	/// 队列头指针
 	int p_Head;
+	/// 队列尾指针
 	int p_Tail;
-	//构造函数创建队列并初始化为空,暂不支持拷贝
+	/// 错误码
+	int m_ErrCode = QUE_NORMAL;
+public:
+	int GetErrCode() 
+	{
+		return m_ErrCode
+	}
+public:
+	/// 构造函数创建队列并初始化为空,暂不支持拷贝
 	Queue()//int dataNum=DEFAULTNUM)
 	{
 		p_Head=0;
@@ -64,211 +102,444 @@ public:
 		p_DataList=0;
 		m_DataNum=0;
 	}
-	~Queue(void)
+	/// 析构
+	virtual ~Queue(void)
 	{
-		if (p_DataList!=0)
+		try
 		{
-			delete[] p_DataList;
-			p_DataList=0;
+			if (p_DataList!=0)
+			{
+				delete[] p_DataList;
+				p_DataList=0;
+			}
+		}
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
 		}
 	}
-	void Initial(int dataNum = DEFAULTNUM)
+	/// 初始化资源
+	virtual bool Initial(int dataNum = DEFAULTNUM)
 	{
-		if (p_DataList != 0)
+		m_ErrCode = QUE_NORMAL;
+		try
 		{
-			delete[] p_DataList;
-			p_DataList = 0;
+			if (p_DataList != 0)
+			{
+				delete[] p_DataList;
+				p_DataList = 0;
+			}
+			p_Head = 0;
+			p_Tail = 0;
+			if (dataNum<1) dataNum = DEFAULTNUM;
+			p_DataList = new T[dataNum];
+			m_DataNum = dataNum;
 		}
-		p_Head = 0;
-		p_Tail = 0;
-		if (dataNum<1) dataNum = DEFAULTNUM;
-		p_DataList = new T[dataNum];
-		m_DataNum = dataNum;
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
+		return true;
 	}
-	void Unitial()
+	/// 卸载资源
+	virtual bool Unitial()
 	{
-		if (p_DataList != 0)
+		m_ErrCode = QUE_NORMAL;
+		try
 		{
-			delete[] p_DataList;
-			p_DataList = 0;
+			if (p_DataList != 0)
+			{
+				delete[] p_DataList;
+				p_DataList = 0;
+			}
+			p_Head = 0;
+			p_Tail = 0;
+			m_DataNum = 0;
 		}
-		p_Head = 0;
-		p_Tail = 0;
-		m_DataNum = 0;
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
+		return true;
 	}
-	//方法
-	int SetSize(int dataNum)
+	/// 设置最大存储数据量
+	virtual int SetSize(int dataNum)
 	{
-		if (p_DataList != 0)
+		m_ErrCode = QUE_NORMAL;
+		try
 		{
-			delete[] p_DataList;
-			p_DataList = 0;
+			if (p_DataList != 0)
+			{
+				delete[] p_DataList;
+				p_DataList = 0;
+			}
+			p_Head = 0;
+			p_Tail = 0;
+			if (dataNum<1) dataNum = DEFAULTNUM;
+			p_DataList = new T[dataNum];
+			m_DataNum = dataNum;
 		}
-		p_Head = 0;
-		p_Tail = 0;
-		if (dataNum<1) dataNum = DEFAULTNUM;
-		p_DataList = new T[dataNum];
-		m_DataNum = dataNum;
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return QUE_ERR_MEMOUT;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return QUE_ERR_MEMOUT;
+		}
 		return m_DataNum;
 	}
-	int GetSize()
+	/// 获取最大存储数据量
+	virtual int GetSize()
 	{
 		return m_DataNum;
 	}
-	int GetLength()
+	/// 获取有效数据数量
+	virtual int GetLength()
 	{
 		int num=p_Tail-p_Head;
 		num=num<0?num+m_DataNum:num;
 		return num;
 		//return m_DataNum;
 	}
-	void Clear()
+	/// 清空数据
+	virtual void Clear()
 	{
 		p_Head=0;
 		p_Tail=0;
 		//m_DataNum=0;
 	}
-	bool IsEmpty()
+	/// 是否为空
+	virtual bool IsEmpty()
 	{
 		return p_Head==p_Tail;
 	}
-	bool IsFull()
+	/// 是否存满
+	virtual bool IsFull()
 	{
-		return p_Head-p_Tail==1||(p_Head==0&&p_Tail==m_DataNum-1);
+		return (p_Head-p_Tail==1||(p_Head==0&&p_Tail==m_DataNum-1));
 	}
-	//删除头数据
-	bool DelHead()
+	/// 删除头数据
+	virtual bool DelHead()
 	{
-		if (IsEmpty()) return false;
-		//p_Head
-		//delete p_Head;
-		p_Head++;
-		if (p_Head>=m_DataNum)
+		m_ErrCode = QUE_NORMAL;
+		try
 		{
-			p_Head-=m_DataNum;
+			if (IsEmpty()) return false;
+			//p_Head
+			//delete p_Head;
+			p_Head++;
+			if (p_Head>=m_DataNum)
+			{
+				p_Head-=m_DataNum;
+			}
+		}
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
 		}
 		return true;
 	}
-	//保护头数据前提下添加尾数据
-	bool AddTail(const T& data)
+	/// 保护头数据前提下添加尾数据
+	virtual bool AddTail(const T& data)
 	{
-		if (IsFull()) return false;
-		memcpy((p_DataList+p_Tail),&data,sizeof(T));
-		//*(p_DataList+p_Tail)=data;
-		p_Tail++;
-		if (p_Tail>=m_DataNum)
+		m_ErrCode = QUE_NORMAL;
+		try
 		{
-			p_Tail-=m_DataNum;
+			if (IsFull()) return false;
+			//Priority use T::operator= if has(memcopy if not),when deep copy data in.
+			CopyData(*(p_DataList + p_Tail), data);
+			//memcpy((p_DataList+p_Tail),&data,sizeof(T));
+			//*(p_DataList+p_Tail)=data;
+			p_Tail++;
+			if (p_Tail>=m_DataNum)
+			{
+				p_Tail-=m_DataNum;
+			}
+		}
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
 		}
 		return true;
 	}
-	//强制添加尾数据
-	bool ForcTail(const T& data)
+	/// 强制添加尾数据
+	virtual bool ForcTail(const T& data)
 	{
-		if (IsFull()) DelHead();
-		memcpy((p_DataList+p_Tail),&data,sizeof(T));
-		//*(p_DataList+p_Tail)=data;
-		p_Tail++;
-		if (p_Tail>=m_DataNum)
+		m_ErrCode = QUE_NORMAL;
+		try
 		{
-			p_Tail-=m_DataNum;
+			if (IsFull()) DelHead();
+			//Priority use T::operator= if has(memcopy if not),when deep copy data in.
+			CopyData(*(p_DataList + p_Tail), data);
+			//memcpy((p_DataList+p_Tail),&data,sizeof(T));
+			//*(p_DataList+p_Tail)=data;
+			p_Tail++;
+			if (p_Tail>=m_DataNum)
+			{
+				p_Tail-=m_DataNum;
+			}
+		}
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
 		}
 		return true;
 	}
-	//获得尾数据
-	bool GetTail(T& data)
+	/// 获得尾数据
+	virtual bool GetTail(T& data)
 	{
-		if (IsEmpty()) return false;
-		if (p_Tail>0)
+		m_ErrCode = QUE_NORMAL;
+		try
 		{
-			memcpy(&data,(p_DataList+p_Tail-1),sizeof(T));
-			//data=*(p_DataList+p_Tail-1);
+			if (IsEmpty()) return false;
+			if (p_Tail>0)
+			{
+				//Priority use T::operator= if has(memcopy if not),when deep copy data in.
+				return CopyData(data, *(p_DataList + p_Tail-1));
+				//memcpy(&data,(p_DataList+p_Tail-1),sizeof(T));
+				//data=*(p_DataList+p_Tail-1);
+			}
+			else
+			{
+				//Priority use T::operator= if has(memcopy if not),when deep copy data in.
+				return CopyData(data, *(p_DataList + m_DataNum - 1));
+				//memcpy(&data, (p_DataList + m_DataNum - 1), sizeof(T));
+				//data=*(p_DataList+m_DataNum-1);
+			}
+			//return true;
 		}
-		else memcpy(&data,(p_DataList+m_DataNum-1),sizeof(T));
-//data=*(p_DataList+m_DataNum-1);
-		return true;
-	}
-	//获得尾数据
-	T* GetTail()
-	{
-		if (IsEmpty()) return 0;
-		if (p_Tail>0)
+		catch (int& e)
 		{
-			//memcpy(&data,(p_DataList+p_Tail-1),sizeof(T));
-			//data=*(p_DataList+p_Tail-1);
-			return (p_DataList+p_Tail-1);
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
 		}
-		else return (p_DataList+m_DataNum-1);
-		//memcpy(&data,(p_DataList+m_DataNum-1),sizeof(T));
-		//data=*(p_DataList+m_DataNum-1);
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
 	}
-	//获得头数据
-	bool GetHead(T& data)
+	/// 获得尾数据
+	virtual T* GetTail()
 	{
-		if (IsEmpty()) return false;
-		memcpy(&data,(p_DataList+p_Head),sizeof(T));
-		//data=*(p_DataList+p_Head);
-		return true;
+		m_ErrCode = QUE_NORMAL;
+		try
+		{
+			if (IsEmpty()) return 0;
+			if (p_Tail > 0)
+			{
+				//memcpy(&data,(p_DataList+p_Tail-1),sizeof(T));
+				//data=*(p_DataList+p_Tail-1);
+				return (p_DataList + p_Tail - 1);
+			}
+			else return (p_DataList + m_DataNum - 1);
+			//memcpy(&data,(p_DataList+m_DataNum-1),sizeof(T));
+			//data=*(p_DataList+m_DataNum-1);
+		}
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return 0;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return 0;
+		}
 	}
-	//获得头数据
-	T* GetHead()
+	/// 获得头数据
+	virtual bool GetHead(T& data)
 	{
-		if (IsEmpty()) return 0;
-		return (p_DataList+p_Head);
-		//memcpy(&data,(p_DataList+p_Head),sizeof(T));
-		//data=*(p_DataList+p_Head);
-		//return true;
+		m_ErrCode = QUE_NORMAL;
+		try
+		{
+			if (IsEmpty()) return false;
+			//Priority use T::operator= if has(memcopy if not),when deep copy data in.
+			return CopyData(data, *(p_DataList + p_Head));
+			//memcpy(&data,(p_DataList+p_Head),sizeof(T));
+			//data=*(p_DataList+p_Head);
+			//return true;
+		}
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
 	}
-	//获得数据
-	bool GetData(T& data,int index)
+	/// 获得头数据
+	virtual T* GetHead()
 	{
-		if (IsEmpty()) return false;
-		if (index>=GetLength()|| index<0) return false;
-		int pRead=p_Head+index-1;
-		if (pRead>=m_DataNum) pRead-=m_DataNum;
-		if (pRead<0) pRead+=m_DataNum;
-		memcpy(&data,(p_DataList+pRead),sizeof(T));
-		//data=*(p_DataList+pRead);
-		return true;
+		m_ErrCode = QUE_NORMAL;
+		try
+		{
+			if (IsEmpty()) return 0;
+			return (p_DataList + p_Head);
+			//memcpy(&data,(p_DataList+p_Head),sizeof(T));
+			//data=*(p_DataList+p_Head);
+			//return true;
+		}
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return 0;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return 0;
+		}
 	}
-	//获得数据
-	T* GetData(int index)
+	/// 获得正向计数数据
+	virtual bool GetData(T& data,int index)
 	{
-		if (IsEmpty()) return 0;
-		if (index>=GetLength()|| index<0) return 0;
-		int pRead=p_Head+index;
-		if (pRead>=m_DataNum) pRead-=m_DataNum;
-		if (pRead<0) pRead+=m_DataNum;
-		return (p_DataList+pRead);
-		//memcpy(&data,(p_DataList+pRead),sizeof(T));
-		//data=*(p_DataList+pRead);
-		//return true;
+		m_ErrCode = QUE_NORMAL;
+		try
+		{
+			if (IsEmpty()) return false;
+			if (index >= GetLength() || index < 0) return false;
+			int pRead = p_Head + index;
+			if (pRead >= m_DataNum) pRead -= m_DataNum;
+			if (pRead < 0) pRead += m_DataNum;
+			//Priority use T::operator= if has(memcopy if not),when deep copy data in.
+			return CopyData(data, *(p_DataList + pRead));
+			//memcpy(&data,(p_DataList+pRead),sizeof(T));
+			//data=*(p_DataList+pRead);
+			//return true;
+		}
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
 	}
-	//获得数据
-	bool GetLast(T& data,int index)
+	/// 获得正向计数数据
+	virtual T* GetData(int index)
 	{
-		if (IsEmpty()) return false;
-		if (index>=GetLength()|| index<0) return false;
-		int pRead=p_Tail-index;
-		if (pRead>=m_DataNum) pRead-=m_DataNum;
-		if (pRead<0) pRead+=m_DataNum;
-		memcpy(&data,(p_DataList+pRead),sizeof(T));
-		data=*(p_DataList+pRead);
-		return true;
+		m_ErrCode = QUE_NORMAL;
+		try
+		{
+			if (IsEmpty()) return 0;
+			if (index >= GetLength() || index < 0) return 0;
+			int pRead = p_Head + index;
+			if (pRead >= m_DataNum) pRead -= m_DataNum;
+			if (pRead < 0) pRead += m_DataNum;
+			return (p_DataList + pRead);
+			//memcpy(&data,(p_DataList+pRead),sizeof(T));
+			//data=*(p_DataList+pRead);
+			//return true;
+		}
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return 0;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return 0;
+		}
 	}
-	//获得数据
-	T* GetLast(int index)
+	/// 获得反向计数数据
+	virtual bool GetLast(T& data,int index)
 	{
-		if (IsEmpty()) return 0;
-		if (index>=GetLength()|| index<0) return 0;
-		int pRead=p_Tail-index-1;
-		if (pRead>=m_DataNum) pRead-=m_DataNum;
-		if (pRead<0) pRead+=m_DataNum;
-		return (p_DataList+pRead);
-		//memcpy(&data,(p_DataList+pRead),sizeof(T));
-		//data=*(p_DataList+pRead);
-		//return true;
+		m_ErrCode = QUE_NORMAL;
+		try
+		{
+			if (IsEmpty()) return false;
+			if (index >= GetLength() || index < 0) return false;
+			int pRead = p_Tail - index - 1;
+			if (pRead >= m_DataNum) pRead -= m_DataNum;
+			if (pRead < 0) pRead += m_DataNum;
+			//Priority use T::operator= if has(memcopy if not),when deep copy data in.
+			return CopyData(data, *(p_DataList + pRead));
+			//memcpy(&data,(p_DataList+pRead),sizeof(T));
+			//data=*(p_DataList+pRead);
+			//return true;
+		}
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return false;
+		}
+	}
+	/// 获得反向计数据
+	virtual T* GetLast(int index)
+	{
+		m_ErrCode = QUE_NORMAL;
+		try
+		{
+			if (IsEmpty()) return 0;
+			if (index >= GetLength() || index < 0) return 0;
+			int pRead = p_Tail - index - 1;
+			if (pRead >= m_DataNum) pRead -= m_DataNum;
+			if (pRead < 0) pRead += m_DataNum;
+			return (p_DataList + pRead);
+			//memcpy(&data,(p_DataList+pRead),sizeof(T));
+			//data=*(p_DataList+pRead);
+			//return true;
+		}
+		catch (int& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return 0;
+		}
+		catch (exception& e)
+		{
+			m_ErrCode = QUE_ERR_MEMOUT;
+			return 0;
+		}
 	}
 };
-//==============================================================================
-///</class_info>
+///////////////////////////////////////////////////

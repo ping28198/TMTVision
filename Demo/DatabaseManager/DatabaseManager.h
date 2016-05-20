@@ -48,19 +48,21 @@ public:
 	SendServerSetting mSendSetting;
 	ReceiveServerSetting mRecvSetting;
 	int m_Sleeptime=0;
+	NetIP MysqlServerHost = { 0 };
+	int MysqlServerPort = 0;
 	//DbManagerSetting& operator= (const DbManagerSetting& DbMSetting)
 	//{
 	//}
 };
 
-
+class CDatabaseManagerDlg;
 class CDatabaseManager : public Thread
 {
 public://初始化函数
-	CDatabaseManager();
+	CDatabaseManager(void *pParent);
 	~CDatabaseManager();
 	void Initial();
-
+	void DbMDestory();
 
 public://数据库操作
 	bool ConnectDb();
@@ -74,8 +76,18 @@ public://数据库操作
 	// 参数:   Tmtv_CameraInfo & mCam  //
 	//************************************
 	int AddCamToDb(Tmtv_CameraInfo& mCam);
+
 	//************************************
-	// 作用: 插入相机信息
+	// 作用:  删除以id标志的相机
+	// 说明:  
+	// 名称:  CDatabaseManager::DelCamFromDB
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   int mCamID  //
+	//************************************
+	bool DelCamFromDB(int mCamID);
+	//************************************
+	// 作用: 检查相机信息
 	// 说明:   检查相机是否存在，返回枚举值
 	// 名称:  CDatabaseManager::CheckCamInfo
 	// Access:    public 
@@ -110,6 +122,16 @@ public://数据库操作
 	// 参数:   Tmtv_ImageInfo & mImginfo  //
 	//************************************
 	bool InsertImgInfoToDb(Tmtv_ImageInfo& mImginfo);
+
+	//************************************
+	// 作用:  获取id指定的相机参数
+	// 说明:  
+	// 名称:  CDatabaseManager::GetCaminfoFromDb
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   Tmtv_CameraInfo & mCam  //
+	//************************************
+	bool GetCaminfoFromDb(Tmtv_CameraInfo& mCam);
 	//************************************
 	// 作用:  更新相机信息
 	// 说明:  
@@ -138,7 +160,20 @@ public://数据库操作
 	// 参数:   int Camid  //
 	// 参数:   const char * mdate  //
 	//************************************
-	bool GetImginfoByDate(vector<Tmtv_ImageInfo> &mimgVec,int Camid,const char* mdate);
+	bool GetImginfoByDate(vector<Tmtv_ImageInfo> &mimgVec,int Camid,const char* Date);
+
+	//************************************
+	// 作用: 获取一个时间段之间 指定相机id的图片信息
+	// 说明:  时间参数应包含日期，例如: 2016-04-26 12:04:56 
+	// 名称:  CDatabaseManager::GetImginfoByTime
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   vector<Tmtv_ImageInfo> & mimgVec  //
+	// 参数:   int Camid  //
+	// 参数:   const char * mtime_old  //
+	// 参数:   const char * mtime_new  //
+	//************************************
+	bool GetImginfoByTime(vector<Tmtv_ImageInfo> &mimgVec, int Camid, const char* mtime_old, const char* mtime_new);
 
 	//************************************
 	// 作用:  获取活动状态的客户端信息
@@ -149,6 +184,15 @@ public://数据库操作
 	// 参数:   vector<Tmt_ClientInfo> & mClientVec  //
 	//************************************
 	bool GetActiveClientInfoFrmDb(vector<Tmt_ClientInfo> &mClientVec);
+	//************************************
+	// 作用:  获取所有客户端信息
+	// 说明:  
+	// 名称:  CDatabaseManager::GetAllClientInfoFrmDb
+	// Access:    public 
+	// 返回值:   bool  // 
+	// 参数:   vector<Tmt_ClientInfo> & mClientVec  //
+	//************************************
+	bool GetAllClientInfoFrmDb(vector<Tmt_ClientInfo> &mClientVec);
 
 	//************************************
 	// 作用:  获取所有相机（任何状态的）
@@ -220,12 +264,13 @@ public://数据库操作
 	//************************************
 	bool GetUserinfo(Tmt_UserInfo& mUser);
 
+
 public://成员函数，常用
 	bool LoadSetting();
 	bool SaveSetting();
 
 public://消息函数
-	bool ResponseAsk(Tmtv_BaseNetMessage &msg, int mType);
+	bool ResponseAsk(MessageItem &pMsgItem, Tmtv_BaseNetMessage &src_msg, int mType);
 
 public://线程函数
 	void Task();
@@ -246,11 +291,7 @@ private://私有变量
 	SendServer m_SendServer;
 	ReceiveServer m_ReceiveServer;
 	DbManagerSetting m_Setting;
-
-
-
-
-
+	CDatabaseManagerDlg *pParent;
 
 
 
@@ -266,13 +307,6 @@ public://枚举量
 		CamNameExist,
 		CamPathExist,
 	};
-
-
-
-
-
-
-
 
 };
 
