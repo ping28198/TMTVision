@@ -16,29 +16,28 @@ void readme();
 /* @function main */
 int main(int argc, char** argv)
 {
-	if (argc != 3)
+	Mat img_object = imread("F:\\Tdevelop\\TMT\\TMTVision\\RelicDetect\\images\\postcard_object.JPG", IMREAD_GRAYSCALE);
+	Mat img_scene = imread("F:\\Tdevelop\\TMT\\TMTVision\\RelicDetect\\images\\postcard_scene_1.JPG", IMREAD_GRAYSCALE);
+	if (!img_object.data || !img_scene.data)
 	{
-		readme(); 
+		std::cout << " --(!) Error reading images " << std::endl; 
 		system("pause");
 		return -1;
 	}
-	//Mat img_object = imread(argv[1], IMREAD_GRAYSCALE);
-	//Mat img_scene = imread(argv[2], IMREAD_GRAYSCALE);
-	Mat img_object = imread("F:\\Tdevelop\\TMT\\TMTVision\\RelicDetect\\images\\postcard_object.JPG", IMREAD_GRAYSCALE);
-	Mat img_scene = imread("F:\\Tdevelop\\TMT\\TMTVision\\RelicDetect\\images\\postcard_scene_3.JPG", IMREAD_GRAYSCALE);
-	if (!img_object.data || !img_scene.data)
-	{
-		std::cout << " --(!) Error reading images " << std::endl; return -1;
-		system("pause");
-	}
 	//-- Step 1: Detect the keypoints and extract descriptors using SURF
-	int minHessian = 400;
+	//设置Hessian矩阵的最小值，只有大于这个值的特征点才会被保留
+	int minHessian = 200;
+	//建立一个surf对象，保存在cv::Ptr（智能指针）内
 	Ptr<SURF> detector = SURF::create(minHessian);
+	//创建两个vector，分别用来存储目标物object和环境scene的特征点keypoints
 	std::vector<KeyPoint> keypoints_object, keypoints_scene;
+	//创建两个矩阵，用来存储描述子descriptor
 	Mat descriptors_object, descriptors_scene;
+	//detect keypoints 并 计算 descriptors。第二个参数为mask，这里为空。
 	detector->detectAndCompute(img_object, Mat(), keypoints_object, descriptors_object);
 	detector->detectAndCompute(img_scene, Mat(), keypoints_scene, descriptors_scene);
 	//-- Step 2: Matching descriptor vectors using FLANN matcher
+
 	FlannBasedMatcher matcher;
 	std::vector< DMatch > matches;
 	matcher.match(descriptors_object, descriptors_scene, matches);
@@ -90,9 +89,4 @@ int main(int argc, char** argv)
 	imshow("Good Matches & Object detection", img_matches);
 	waitKey(0);
 	return 0;
-}
-/* @function readme */
-void readme()
-{
-	std::cout << " Usage: ./SURF_descriptor <img1> <img2>" << std::endl;
 }
