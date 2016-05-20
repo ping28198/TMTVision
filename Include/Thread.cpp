@@ -40,8 +40,8 @@ Thread::Thread(HANDLE  hParent)//2.0
 {
 	::InitializeCriticalSection(&m_section);
 	m_bExit = false;
-	m_hEvt = 0;
-	m_hThread = 0;
+	m_hEvt = 0;	
+	m_hThread = INVALID_HANDLE_VALUE;
 	m_times = -1;
 	m_hParent = hParent;//2.0
 	m_nThreadID = m_nThreadID + 1;//2.0
@@ -159,6 +159,7 @@ void  Thread::Destroy(void)//中断0:退出
 	m_bExit = true;
 	Sleep(m_waitTime+100);
 	m_ThStatus = TH_EXIT;
+	m_hThread = INVALID_HANDLE_VALUE;
 	OutputDebugString(L"<Thread::Destroy()>\n");
 }
 //调用WindowsAPI强制结束当前线程
