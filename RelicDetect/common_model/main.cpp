@@ -12,7 +12,7 @@
 #include "opencv2/xfeatures2d.hpp"
 using namespace cv;
 using namespace cv::xfeatures2d;
-void readme();
+using namespace std;
 /* @function main */
 int main(int argc, char** argv)
 {
@@ -30,14 +30,22 @@ int main(int argc, char** argv)
 	//建立一个surf对象，保存在cv::Ptr（智能指针）内
 	Ptr<SURF> detector = SURF::create(minHessian);
 	//创建两个vector，分别用来存储目标物object和环境scene的特征点keypoints
-	std::vector<KeyPoint> keypoints_object, keypoints_scene;
+	std::vector<KeyPoint> keypoints_object, keypoints_scene,kp_o;
 	//创建两个矩阵，用来存储描述子descriptor
-	Mat descriptors_object, descriptors_scene;
+	Mat descriptors_object, descriptors_scene,d_o;
 	//detect keypoints 并 计算 descriptors。第二个参数为mask，这里为空。
-	detector->detectAndCompute(img_object, Mat(), keypoints_object, descriptors_object);
+	//detector->detectAndCompute(img_object, Mat(), keypoints_object, descriptors_object);
 	detector->detectAndCompute(img_scene, Mat(), keypoints_scene, descriptors_scene);
+
+	detector->detect(img_object, keypoints_object);
+	detector->compute(img_object, keypoints_object, descriptors_object);
 	//-- Step 2: Matching descriptor vectors using FLANN matcher
 
+	//for (int j = 0; j < descriptors_object.cols; j++)
+	//{
+	//	cout<<descriptors_object.at<int>(0, j)<<endl;
+	//}
+	
 	FlannBasedMatcher matcher;
 	std::vector< DMatch > matches;
 	matcher.match(descriptors_object, descriptors_scene, matches);
