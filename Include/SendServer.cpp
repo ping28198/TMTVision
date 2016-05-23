@@ -2,7 +2,6 @@
 #include "SendServer.h"
 
 
-
 bool SendServer::Initial(int remoteRecvPort, NetIP remoteRecvIp,
 	                 int localSendPort, NetIP localSendIP,
 	                 DWORD optionFlag, long sleepTime)
@@ -58,9 +57,10 @@ bool SendServer::ResetSocket()
 	ForceEnd();
 	bool isOK = true;
 	EnterCriticalSection(&m_section);
+	
 	isOK &= SetSendAddr(m_SendServerSetting.m_RemoteRecvPort, m_SendServerSetting.m_RemoteRecvIp,
 		m_SendServerSetting.m_LocalSendPort,m_SendServerSetting.m_LocalSendIP);
-	isOK &= SetOption(m_SendServerSetting.m_OptionFlag);
+	isOK &= SetOption(TmtSocket::ADDR_REUSE);
 	m_SkStatus |= enSendOK;
 	LeaveCriticalSection(&m_section);
 	Create();
@@ -109,6 +109,7 @@ bool SendServer::PushMsg(MessageItem & messageItem)
 	}
 	else
 	{
+		OutputDebugString(L"sendserver有 数据压入堆栈！\n");
 		messageItem.m_SenderPort = m_LocalSendPort;
 		strcpy_s(messageItem.m_SenderIp, TMTV_IPSTRLEN, m_LocalSendIP);
 		EnterCriticalSection(&m_section);
@@ -120,13 +121,15 @@ bool SendServer::PushMsg(MessageItem & messageItem)
 
 void SendServer::Task(void)
 {
-	if (m_SkStatus == enSendOK || m_SkStatus == enSendAndRecvOK)
+	//OutputDebugString(L"sendserver running!\n");
+	if ((m_SkStatus & SendServer::enSendOK) == SendServer::enSendOK)
 	{
 		if (m_MessageItemQueue.GetLength() > 0)
 		{
+			OutputDebugString(L"sendserver有 数据需要发出！\n");
 			for (int i = 0; i < 3; i++)
 			{
-				if (SendNetMsg((void*)m_MessageItemQueue.GetHead()->p_Buffer))
+				if (SendNetMsg((void*)(m_MessageItemQueue.GetHead()->p_Buffer)))
 				{
 					EnterCriticalSection(&m_section);
 					m_MessageItemQueue.DelHead();

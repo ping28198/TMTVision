@@ -31,7 +31,7 @@ void CCameraManagerDlg::DoDataExchange(CDataExchange* pDX)
 bool CCameraManagerDlg::AddCam(Tmtv_CameraInfo* pCamInfo)
 {
 	
-	return pCamManager->AddCamera(*pCamInfo);
+	return pCamManager->AskAddCam(*pCamInfo);
 }
 
 int CCameraManagerDlg::CheckCam(Tmtv_CameraInfo* pCamInfo)
@@ -109,17 +109,6 @@ BOOL CCameraManagerDlg::OnInitDialog()
 	m_CurSelTab = 0;
 
 	pUpdateTread->Initial();
-
-
-
-
-
-
-
-
-
-
-
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }

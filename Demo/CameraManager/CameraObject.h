@@ -22,6 +22,7 @@
 //添加所需的头文件
 #pragma once
 #include"CommonInclude.h"
+#include "FaceDetector.h"
 //==============================================================================
 ///</header_info>
 
@@ -38,8 +39,8 @@ public:
 	~CameraObject();
 //文件监控
 private:
-
-	DirWatchServer m_DirWatchServer;
+	CUSBCamWatcherServer m_UsbCamServer;
+	//DirWatchServer m_DirWatchServer;
 	//Tmtv_CameraInfo m_ImageInfo.mCameraInfo;
 	BackgroundDetector m_Detector;
 	//static int m_CameraObjectID;
@@ -51,7 +52,7 @@ private:
 public:
 	//创建文件夹读取句柄, 初始化ReadDirectoryChangesW相关参数
 	//执行前强制停止线程, 需要用Create()再次启动,具有线程保护
-	bool RegPath(PATHWSTR path, DWORD action = FILE_NOTIFY_CHANGE_LAST_WRITE);
+	bool RegPath(PATHSTR path);
     //创建线程
 	void  Create(int times = -1, long waiteTime = 0, bool includeTaskTime = true);
 	//继续执行挂起的线程
@@ -105,7 +106,6 @@ public:
 	//	45 : 紫                           35 : 紫
 	//	46 : 深绿                         36 : 深绿
 	//	47 : 白色                         37 : 白色
-	void ToString(MEGAWSTR &string, int method = 0, int color = 32);
 };
 
 //==============================================================================

@@ -55,8 +55,44 @@ void NetWorkDlg::OnBnClickedNetSubmit()
 	UpdateData();
 	CameraManagerSetting mManagerSet;
 	pParent->pCamManager->GetManagerSetting(mManagerSet);
+	if (mLocalRecvIP!=0)
+	{
+		sprintf_s(mManagerSet.m_ReceiveServerSetting.m_LocalRecvIP, "%d.%d.%d.%d",
+			(mLocalRecvIP >> 24) & 0xff,
+			(mLocalRecvIP >> 16) & 0xff,
+			(mLocalRecvIP >> 8) & 0xff,
+			mLocalRecvIP & 0xff);
+	}
+	if (mLocalSendIP != 0)
+	{
+		sprintf_s(mManagerSet.m_SendServerSetting.m_LocalSendIP, "%d.%d.%d.%d",
+			(mLocalSendIP >> 24) & 0xff,
+			(mLocalSendIP >> 16) & 0xff,
+			(mLocalSendIP >> 8) & 0xff,
+			mLocalSendIP & 0xff);
+	}
+	if (mRemoteRecvIP != 0)
+	{
+		sprintf_s(mManagerSet.m_SendServerSetting.m_RemoteRecvIp, "%d.%d.%d.%d",
+			(mRemoteRecvIP >> 24) & 0xff,
+			(mRemoteRecvIP >> 16) & 0xff,
+			(mRemoteRecvIP >> 8) & 0xff,
+			mRemoteRecvIP & 0xff);
+	}
+	if (mLocalRecvPort!=0)
+	{
+		mManagerSet.m_ReceiveServerSetting.m_LocalRecvPort= mLocalRecvPort;
+	}
+	if (mLocalSendPort != 0)
+	{
+		mManagerSet.m_SendServerSetting.m_LocalSendPort= mLocalSendPort;
+	}
+	if (mRemoteRecvPort != 0)
+	{
+		mManagerSet.m_SendServerSetting.m_RemoteRecvPort=mRemoteRecvPort;
+	}
 
-
+	pParent->pCamManager->SetManagerSetting(mManagerSet);
 
 
 }

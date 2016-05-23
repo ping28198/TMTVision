@@ -144,7 +144,8 @@ public:
 	bool StopAlgorithm(Tmtv_CameraInfo& cameraInfo);
 	//停止相机算法
 	bool SetAlgorithm(Tmtv_CameraInfo& cameraInfo);
-
+public:
+	bool AskAddCam(Tmtv_CameraInfo& cameraInfo);
 public://配置参数函数
 	bool GetManagerSetting(CameraManagerSetting &camManagerSetting);
 
@@ -163,12 +164,12 @@ public://配置参数函数
 public://发送消息交由SendServer处理
 	int SendMsgInfo(Tmtv_MsgInfo& msgInfo);
 	bool SendImage(Tmtv_ImageInfo& imgInfo);
-	bool SendAllCamInfo();
-	bool SendAllImgInfo();
+
 	//由ReceiveServer接受消息的本地处理
 	void Task();
 private:
 	PATHWSTR m_CamObjFilePath;
+	int NetWorkResetCount;
 };
 //==============================================================================
 ///</class_info>

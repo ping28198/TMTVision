@@ -147,11 +147,11 @@ void CAddCamDlg::OnBnClickedAddFinishBt()
 	CCommonFunc::UnicodeToAnsi(mstr.GetBuffer(), mCamInfo.AlgorithmInfo.MaskImgPath, TMTV_PATHSTRLEN);
 
 	mCamInfo.Status = Tmtv_CameraInfo::TMTV_RUNNINGCAM;
-	mCamInfo.WaiteTime = 2000;
-	mCamInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_NOWARN;
+	mCamInfo.WaiteTime = 500;
+	mCamInfo.AlgorithmInfo.WarnningLevel = Tmtv_AlgorithmInfo::TMTV_STARTWARN;
 
 	if(pParent->AddCam(&mCamInfo)!=0)
-	//MessageBox(_T("添加成功！"));
+	MessageBox(_T("添加成功！"));
 
 	mRangeIndex = 0;
 	for (int i = 0; i < MAX_RANGE_NUM; i++)

@@ -1,5 +1,5 @@
 
-
+#include "stdafx.h"
 #include "UpdateDataThread.h"
 #include "CameraManagerDlg.h"
 CUpdateDataThread::CUpdateDataThread(void* pParent)
@@ -109,7 +109,7 @@ void CUpdateDataThread::Task()
 	////////////////////////////////////////////////////////////////
 	pListBox->AddString(L"接收状态:");
 	mstatus = pCamManager->m_ReceiveServer.GetReceiveStatus();
-	if ((mstatus&TmtSocket::enSendOK) == TmtSocket::enSendOK)
+	if ((mstatus&TmtSocket::enRecvOK) == TmtSocket::enRecvOK)
 	{
 		wsprintf(wstr, L"  运行状态: 正常");
 	}

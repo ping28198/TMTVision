@@ -169,6 +169,7 @@ void Thread::ForceEnd(void)
 	{
 		TerminateThread(m_hThread, exitCode);
 	}
+	m_hThread = 0;
 	Destroy();
 	OutputDebugString(L"<Thread::ForceEnd()>\n");
 }

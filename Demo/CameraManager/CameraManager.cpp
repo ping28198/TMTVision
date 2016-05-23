@@ -2,35 +2,53 @@
 #include "XMLOperator.h"
 bool CameraManagerSetting::LoadSetting(PATHWSTR xmlFilePath)
 {
-	CMemoryFile mMemFile;
-	bool isOK = mMemFile.OpenFile_R(xmlFilePath);
-	if (!isOK)
+	Config mCfg;
+	try
 	{
-		LoggerServer::mLogger.TraceError("读取网络配置文件失败！");
-		mMemFile.CloseFile();
-		return false;
+		mCfg.ReadFile("setting\\NetworkInfo.ini");
 	}
-	CameraManagerSetting msetting;
-	mMemFile.ReadMemoryFromFile(&msetting, sizeof(CameraManagerSetting));
-	this->m_ReceiveServerSetting = msetting.m_ReceiveServerSetting;
-	this->m_SendServerSetting = msetting.m_SendServerSetting;
-	this->m_SleepTime = msetting.m_SleepTime;
-	mMemFile.CloseFile();
+	catch (Config::File_not_found m)
+	{
+		LoggerServer::mLogger.TraceWarning("打开配置文件%s失败，将使用默认配置！", m.filename.c_str());
+	}
+	NetIP netip;
+	TmtSocket::GetAvailableNetIP(netip);
+	string mstr = mCfg.Read("LocalSendIP", string(netip));
+	strcpy_s(m_SendServerSetting.m_LocalSendIP, TMTV_IPSTRLEN, mstr.c_str());
+	mstr = mCfg.Read("RemoteRecvIp", string(netip));
+	strcpy_s(m_SendServerSetting.m_RemoteRecvIp, TMTV_IPSTRLEN, mstr.c_str());
+	mstr = mCfg.Read("LocalRecvIP", string(netip));
+	strcpy_s(m_ReceiveServerSetting.m_LocalRecvIP, TMTV_IPSTRLEN, mstr.c_str());
+	m_SendServerSetting.m_LocalSendPort = mCfg.Read("LocalSendPort", TMT_CAMSERVER_SENDPORT);
+	m_SendServerSetting.m_RemoteRecvPort= mCfg.Read("RemoteRecvPort", TMT_DBSERVER_RECVPORT);
+	m_ReceiveServerSetting.m_LocalRecvPort= mCfg.Read("LocalRecvPort", TMT_CAMSERVER_RECVPORT);
+	m_SendServerSetting.m_SleepTime = mCfg.Read("SendSleepTime", 100);
+	m_ReceiveServerSetting.m_SleepTime = mCfg.Read("RecvSleepTime", 100);
+	m_SleepTime = mCfg.Read("CamManagerSleepTime", 100);
+	SaveSetting(L"a");
 	return true;
 }
 
 bool CameraManagerSetting::SaveSetting(PATHWSTR xmlFilePath)
 {
-	CMemoryFile mMemFile;
-	bool isOK = mMemFile.OpenFile_W(xmlFilePath);
-	if (!isOK)
+	Config mCfg;
+	try
 	{
-		LoggerServer::mLogger.TraceError("写入网络配置文件失败！");
-		mMemFile.CloseFile();
-		return false;
+		mCfg.ReadFile("setting\\NetworkInfo.ini");
 	}
-	mMemFile.WriteMemoryToFile(this, sizeof(CameraManagerSetting));
-	mMemFile.CloseFile();
+	catch (Config::File_not_found m)
+	{
+		LoggerServer::mLogger.TraceWarning("打开配置文件%s失败，将使用默认配置！", m.filename.c_str());
+	}
+	mCfg.Add("LocalSendIP", string(m_SendServerSetting.m_LocalSendIP));
+	mCfg.Add("RemoteRecvIp", string(m_SendServerSetting.m_RemoteRecvIp));
+	mCfg.Add("LocalRecvIP", string(m_ReceiveServerSetting.m_LocalRecvIP));
+	mCfg.Add("LocalSendPort", m_SendServerSetting.m_LocalSendPort);
+	mCfg.Add("RemoteRecvPort", m_SendServerSetting.m_RemoteRecvPort);
+	mCfg.Add("LocalRecvPort", m_ReceiveServerSetting.m_LocalRecvPort);
+	mCfg.Add("SendSleepTime", m_SendServerSetting.m_SleepTime);
+	mCfg.Add("RecvSleepTime", m_ReceiveServerSetting.m_SleepTime);
+	mCfg.Add("CamManagerSleepTime", m_SleepTime);
 	return true;
 }
 
@@ -42,6 +60,7 @@ CameraManager::CameraManager(int maxCameraNum):
 
 CameraManager::~CameraManager()
 {
+	Unitial();
 }
 
 void CameraManager::Initial(CameraManagerSetting cameraManagerSetting)
@@ -67,12 +86,11 @@ void CameraManager::Initial()
 	{
 		LoggerServer::mLogger.TraceInfo("加载网络配置参数失败！");
 	}
-
+	NetWorkResetCount = 0;
 	this->Create(-1, 100, true);
 	this->Resume();
 	ReadAndSetCamObj();
 }
-
 void CameraManager::Unitial()
 {
 	m_ReceiveServer.ForceEnd();
@@ -88,6 +106,7 @@ void CameraManager::Unitial()
 		Sleep(10);//等待线程结束
 		delete (*it);
 	}
+	SaveSetting();
 	m_CameraObjectVector.clear();
 }
 bool CameraManager::WriteCamObjsToFile()
@@ -135,7 +154,6 @@ bool CameraManager::ReadAndSetCamObj()
 	LoggerServer::mLogger.TraceInfo("加载所有相机成功！");
 	return true;
 }
-
 CameraObject* CameraManager::GetCamObject(int CamIndex)
 {
 	vector<CameraObject*>::iterator it;
@@ -304,6 +322,23 @@ bool CameraManager::SetAlgorithm(Tmtv_CameraInfo& cameraInfo)
 	return false;
 }
 
+bool CameraManager::AskAddCam(Tmtv_CameraInfo& cameraInfo)
+{
+	Tmtv_BaseNetMessage mBaseMsg;
+	mBaseMsg.MsgType = Tmtv_BaseNetMessage::TMTV_ADDCAM;
+	strcpy_s(mBaseMsg.dstAddr, m_CameraManagerSetting.m_SendServerSetting.m_RemoteRecvIp);
+	mBaseMsg.dstPort = m_CameraManagerSetting.m_SendServerSetting.m_RemoteRecvPort;
+	strcpy_s(mBaseMsg.mAddr, m_CameraManagerSetting.m_ReceiveServerSetting.m_LocalRecvIP);
+	mBaseMsg.mPort = m_CameraManagerSetting.m_ReceiveServerSetting.m_LocalRecvPort;
+	mBaseMsg.ElementCount = 1;
+	mBaseMsg.ElementLength = sizeof(Tmtv_CameraInfo);
+	strcpy_s(cameraInfo.CameraHost, m_CameraManagerSetting.m_ReceiveServerSetting.m_LocalRecvIP);
+	MessageItem mMsgItem;
+	memcpy(mMsgItem.p_Buffer, &mBaseMsg, sizeof(mBaseMsg));
+	memcpy(mMsgItem.p_Buffer + sizeof(mBaseMsg), &cameraInfo, sizeof(cameraInfo));
+	return (m_SendServer.PushMsg(mMsgItem) > 0);
+}
+
 bool CameraManager::GetManagerSetting(CameraManagerSetting &camManagerSetting)
 {
 	GetSendServerSetting(m_CameraManagerSetting.m_SendServerSetting);
@@ -348,7 +383,6 @@ bool CameraManager::SetSendServerSetting(const SendServerSetting &sendServerSett
 	}
 	return IsOK;
 }
-	
 
 bool CameraManager::SetReciveServerSeting(const ReceiveServerSetting &receiveServerSetting)
 {
@@ -386,186 +420,55 @@ int CameraManager::SendMsgInfo(Tmtv_MsgInfo& msgInfo)
 {
 	return m_SendServer.PushMsg((void *)& msgInfo, msgInfo.structSize);
 }
-
 bool CameraManager::SendImage(Tmtv_ImageInfo& imgInfo)
 {
-	Tmtv_MsgInfo msgInfo;
-	msgInfo.MsgType = Tmtv_MsgInfo::TMTV_SNAPED;
-	memcpy(&msgInfo.ImgInfo, &imgInfo, sizeof(Tmtv_ImageInfo));
-	return (SendMsgInfo(msgInfo) > 0);
-}
-
-bool CameraManager::SendAllCamInfo()
-{
-	Tmtv_MsgInfo msgInfo;
-	msgInfo.MsgType = Tmtv_MsgInfo::TMTV_CAMINFO;
-	vector<CameraObject*>::iterator it;
-	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
-	{
-		(*it)->GetImgInfo(&msgInfo.ImgInfo);
-		m_SendServer.PushMsg((void *)& msgInfo, msgInfo.structSize);
-	}
-	return true;
-}
-
-bool CameraManager::SendAllImgInfo()
-{
-	Tmtv_MsgInfo msgInfo;
-	msgInfo.MsgType = Tmtv_MsgInfo::TMTV_SNAPED;
-	vector<CameraObject*>::iterator it;
-	for (it = m_CameraObjectVector.begin(); it != m_CameraObjectVector.end(); it++)
-	{
-		(*it)->GetImgInfo(&msgInfo.ImgInfo);
-		m_SendServer.PushMsg((void *)& msgInfo, msgInfo.structSize);
-	}
-	return true;
+	Tmtv_BaseNetMessage mBaseMsg;
+	mBaseMsg.MsgType = Tmtv_BaseNetMessage::TMTV_SNAPED;
+	strcpy_s(mBaseMsg.dstAddr, m_CameraManagerSetting.m_SendServerSetting.m_RemoteRecvIp);
+	mBaseMsg.dstPort = m_CameraManagerSetting.m_SendServerSetting.m_RemoteRecvPort;
+	strcpy_s(mBaseMsg.mAddr, m_CameraManagerSetting.m_ReceiveServerSetting.m_LocalRecvIP);
+	mBaseMsg.mPort = m_CameraManagerSetting.m_ReceiveServerSetting.m_LocalRecvPort;
+	mBaseMsg.ElementCount = 1;
+	mBaseMsg.ElementLength = sizeof(Tmtv_ImageInfo);
+	MessageItem mMsgItem;
+	memcpy(mMsgItem.p_Buffer, &mBaseMsg, sizeof(mBaseMsg));
+	memcpy(mMsgItem.p_Buffer + sizeof(mBaseMsg), &imgInfo, sizeof(imgInfo));
+	return (m_SendServer.PushMsg(mMsgItem) > 0);
 }
 
 void CameraManager::Task()
 {
-	OutputDebugString(L"into CammeraManager Task\n");
 	MessageItem tmpMsgItem;
-	EnterCriticalSection(&(m_ReceiveServer.m_section));
+	MessageItem tmpSendMsgItem;
 	bool isOK = m_ReceiveServer.PullMsg(tmpMsgItem);
-	LeaveCriticalSection(&(m_ReceiveServer.m_section));
 	if (!isOK)
 	{
+		Sleep(100);
 		return;
 	}
-	else
+	Tmtv_BaseNetMessage* pBaseMsg = (Tmtv_BaseNetMessage*)(tmpMsgItem.p_Buffer);
+	Tmtv_CameraInfo* pCam;
+	//Tmtv_ImageInfo* pImg;
+	//Tmt_ClientInfo* pClient;
+	//Tmtv_AlgorithmInfo* pAlgo;
+	//int b;
+	//vector<Tmtv_ImageInfo> mImgVec;
+	//vector<Tmtv_ImageInfo>::iterator itimg;
+	//vector<Tmtv_CameraInfo> mCamVec;
+	//vector<Tmtv_CameraInfo>::iterator itcam;
+	//Tmtv_BaseNetMessage mBaseMsg;
+	switch (pBaseMsg->MsgType)
 	{
-		Tmtv_AskInfo* pAskData = (Tmtv_AskInfo*)tmpMsgItem.p_Buffer;
-		Tmtv_MsgInfo msgData;
-		if (pAskData->CheckCode == TMTV_CHECKCODE)
+	case Tmtv_BaseNetMessage::TMTV_ADDCAM_OK:
+		LoggerServer::mLogger.TraceKeyInfo("添加相机返回成功！");
+		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmtv_CameraInfo)) return;
+		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
+		if (AddCamera(*pCam))
 		{
-			switch (pAskData->Asktype)
-			{
-			case Tmtv_AskInfo::TMTV_ADDCAM:
-				if (AddCamera(pAskData->CameraInfo))
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_ADDCAM_OK;
-					SendMsgInfo(msgData);
-				}
-				else
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_ADDCAM_FAIL;
-					SendMsgInfo(msgData);
-				}
-				break;
-			case Tmtv_AskInfo::TMTV_DELCAM:
-				if (DelCamera(pAskData->CameraInfo))
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_DELCAM_OK;
-					SendMsgInfo(msgData);
-				}
-				else
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_DELCAM_FAIL;
-					SendMsgInfo(msgData);
-				}
-				break;
-			case Tmtv_AskInfo::TMTV_STARTCAM:
-				if (StartCamera(pAskData->CameraInfo))
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_STARTCAM_OK;
-					SendMsgInfo(msgData);
-				}
-				else
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_STARTCAM_FAIL;
-					SendMsgInfo(msgData);
-				}
-				break;
-			case Tmtv_AskInfo::TMTV_STOPCAM:
-				if (StopCamera(pAskData->CameraInfo))
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_STOPCAM_OK;
-					SendMsgInfo(msgData);
-				}
-				else
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_STOPCAM_FAIL;
-					SendMsgInfo(msgData);
-				}
-				break;
-			case Tmtv_AskInfo::TMTV_GETCAM:
-				if (GetCamera(pAskData->CameraInfo))
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_GETCAM_OK;
-					SendMsgInfo(msgData);
-				}
-				else
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_GETCAM_FAIL;
-					SendMsgInfo(msgData);
-				}
-				break;
-			case Tmtv_AskInfo::TMTV_SETCAM:
-				if (SetCamera(pAskData->CameraInfo))
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_SETCAM_OK;
-					SendMsgInfo(msgData);
-				}
-				else
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_SETCAM_FAIL;
-					SendMsgInfo(msgData);
-				}
-				break;
-			case Tmtv_AskInfo::TMTV_STARTALGO:
-				if (StartAlgorithm(pAskData->CameraInfo))
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_STARTALGO_OK;
-					SendMsgInfo(msgData);
-				}
-				else
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_STARTALGO_FAIL;
-					SendMsgInfo(msgData);
-				}
-				break;
-			case Tmtv_AskInfo::TMTV_STOPCALGO:
-				if (StopAlgorithm(pAskData->CameraInfo))
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_STOPCAM_OK;
-					SendMsgInfo(msgData);
-				}
-				else
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_STOPCAM_FAIL;
-					SendMsgInfo(msgData);
-				}
-				break;
-			case Tmtv_AskInfo::TMTV_SETALGO:
-				if (SetAlgorithm(pAskData->CameraInfo))
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_SETALGO_OK;
-					SendMsgInfo(msgData);
-				}
-				else
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_SETALGO_FAIL;
-					SendMsgInfo(msgData);
-				}
-				break;
-			case Tmtv_AskInfo::TMTV_GETALLCAM:
-				if (SendAllCamInfo())
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_SENDALLCAMOK;
-					SendMsgInfo(msgData);
-				}
-				break;
-			case Tmtv_AskInfo::TMTV_GETALLIMG:
-				if (SendAllImgInfo())
-				{
-					msgData.MsgType = Tmtv_MsgInfo::TMTV_SENDALLIMGOK;
-					SendMsgInfo(msgData);
-				}
-				break;
-			default:
-				break;
-			}
 		}
+		break;
+	default:
+		break;
 	}
 }
 

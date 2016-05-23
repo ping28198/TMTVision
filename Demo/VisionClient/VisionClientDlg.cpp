@@ -120,25 +120,28 @@ BOOL CVisionClientDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	ShowWindow(SW_MAXIMIZE);
-	VisionPublicSet::mLogger.TraceInfo("----------------------------------------初始化");
+	//VisionPublicSet::mLogger.TraceInfo("----------------------------------------初始化");
 
-	if (CipherCode::CheckRegistrInfo(L"setting\\registerinfo.data") != true)
-	{
-		MessageBox(L"软件未注册！");
-		CDialog::OnCancel();
-	}
-
+	//if (CipherCode::CheckRegistrInfo(L"setting\\registerinfo.data") != true)
+	//{
+	//	MessageBox(L"软件未注册！");
+	//	CDialog::OnCancel();
+	//}
+	VisionClientLogger::mLogger.TraceKeyInfo("Start-----------------------------------------------");
 
 	// TODO: 在此添加额外的初始化代码
 	if (pImgBmp == NULL) pImgBmp = new CBitmap;
 	pBmpDC = new CDC;
-	pNetWorkServer = new CNetWorkServer(this);
-	pRunState = new CVisionRunState(this);
+	//pNetWorkServer = new CNetWorkServer(this);
+	//pRunState = new CVisionRunState(this);
+	pVisionRun = new CVisionRun(this);
 	pAddCamDlg = NULL;
 	m_IsRolling = true;
 	pZoomImgDlg = new CZoomImgDlg(this);
 	m_IsLogin = false;
 
+
+	pVisionRun->Initial();
 
 
 	//CipherCode mCipCode;
@@ -168,8 +171,8 @@ BOOL CVisionClientDlg::OnInitDialog()
 
 	//mt = imread("D:\\aa.jpg");
 	InitConfig();
-	pRunState->Resume();
-	pNetWorkServer->Resume();
+	//pRunState->Resume();
+	//pNetWorkServer->Resume();
 	LoadCamInfo();
 	ShowCamInfoToList();
 	pZoomImgDlg->Create(IDD_ZOOMIMG_DLG, this);
@@ -267,11 +270,17 @@ void CVisionClientDlg::DrawImage(Tmtv_ImageInfo& ImgInfo, CRect mRect,CDC* pDC)
 	CString mstr;
 	wchar_t mWstr[256];
 	
-	mstr.Format(_T("相机号:%d"),ImgInfo.mCameraInfo.Indexnum);
+	mstr.Format(_T("相机号:%d"),ImgInfo.mCamId);
 	pImDC->TextOut(0,0,mstr);
-	CCommonFunc::AnsiToUnicode(ImgInfo.mCameraInfo.CameraName, mWstr, sizeof(mWstr));
+	Tmtv_CameraInfo mCaminfo;
+	mCaminfo.Indexnum = ImgInfo.mCamId;
+	GetCam(&mCaminfo);
+
+	CCommonFunc::AnsiToUnicode(mCaminfo.CameraName, mWstr, sizeof(mWstr));
 	mstr.Format(_T("%s"), mWstr);
 	pImDC->TextOut(0, fontheight, mstr);
+
+
 	CCommonFunc::AnsiToUnicode(ImgInfo.GrabTime, mWstr, sizeof(mWstr));
 	mstr.Format(_T("%s"), mWstr);
 	pImDC->TextOut(0, 2*fontheight, mstr);
@@ -283,7 +292,7 @@ void CVisionClientDlg::DrawImage(Tmtv_ImageInfo& ImgInfo, CRect mRect,CDC* pDC)
 	//pImDC->StretchBlt()
 	//pDC->StretchBlt()
 	pImDC->SelectStockObject(NULL_BRUSH);//创建一个不填充的画刷
-	if (ImgInfo.IsWarnning)//绘制缺陷信息
+	if (ImgInfo.mDefectInfo.DefectNum>0)//绘制缺陷信息
 	{
 		for (int i = 0; i < ImgInfo.mDefectInfo.DefectNum;i++)
 		{
@@ -350,7 +359,7 @@ void CVisionClientDlg::DrawWarnSign(Tmtv_ImageInfo &mImg, CRect &mRc, CDC* pDC, 
 	Brect.top = mRc.top - marginwidth;
 	Brect.right = mRc.right + marginwidth;
 	Brect.bottom = mRc.bottom + marginwidth;
-	if (mImg.IsWarnning)
+	if (mImg.mDefectInfo.DefectNum>0)
 	{
 		pDC->FillSolidRect(Brect, RGB(255,0,0));
 	}
@@ -389,9 +398,9 @@ void CVisionClientDlg::InitConfig()
 	{
 		pBmpDC->SelectObject(pImgBmp);
 	}
-	if (pRunState!=NULL)
+	if (pVisionRun!=NULL)
 	{
-		pRunState->SetShowImgNum(xImgNum*yImgNum);
+		pVisionRun->SetShowImgNum(xImgNum*yImgNum);
 	}
 }
 
@@ -415,9 +424,36 @@ void CVisionClientDlg::ShowMemBmpToScreen()
 int CVisionClientDlg::AddCam(Tmtv_CameraInfo *camInfo)
 {
 	mCamInfoVec.push_back(*camInfo);
-	SaveCamInfo();
+	vector<Tmtv_CameraInfo>::iterator it;
+	it = mCamInfoVec.begin();
+	for (; it != mCamInfoVec.end(); it++)
+	{
+		if (it->Indexnum==camInfo->Indexnum)
+		{
+			*it = *camInfo;
+		}
+	}
+	if (it==mCamInfoVec.end())
+	{
+		mCamInfoVec.push_back(*camInfo);
+	}
 	ShowCamInfoToList();
-	return pNetWorkServer->AddNewCam(camInfo);
+	return 0;// pNetWorkServer->AddNewCam(camInfo);
+}
+
+bool CVisionClientDlg::GetCam(Tmtv_CameraInfo *camInfo)
+{
+	vector<Tmtv_CameraInfo>::iterator it;
+	it = mCamInfoVec.begin();
+	for (; it != mCamInfoVec.end();it++)
+	{
+		if (camInfo->Indexnum==it->Indexnum)
+		{
+			*camInfo = *it;
+			return true;
+		}
+	}
+	return false;
 }
 
 void CVisionClientDlg::ModifyCam(Tmtv_CameraInfo *camInfo)
@@ -528,10 +564,16 @@ void CVisionClientDlg::ShowZoomImg(Tmtv_ImageInfo& imgInfo)
 {
 	wchar_t mwchar[TMTV_LONGSTRLEN];
 	wchar_t mwtime[TMTV_LONGSTRLEN];
-	CCommonFunc::AnsiToUnicode(imgInfo.mCameraInfo.CameraName, mwchar, TMTV_LONGSTRLEN);
+	Tmtv_CameraInfo mCaminfo;
+	mCaminfo.Indexnum = imgInfo.mCamId;
+	GetCam(&mCaminfo);
+
+
+
+	CCommonFunc::AnsiToUnicode(mCaminfo.CameraName, mwchar, TMTV_LONGSTRLEN);
 	CCommonFunc::AnsiToUnicode(imgInfo.GrabTime, mwtime, TMTV_LONGSTRLEN);
 	CString mstr;
-	mstr.Format(_T("%d号相机: %s 时间：%s"),imgInfo.mCameraInfo.Indexnum,mwchar,mwtime);
+	mstr.Format(_T("%d号相机: %s 时间：%s"), mCaminfo.Indexnum,mwchar,mwtime);
 	pZoomImgDlg->SetWindowTextW(mstr);
 
 
@@ -598,24 +640,24 @@ void CVisionClientDlg::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//InitConfig();
-	Tmtv_ImageInfo mImg;
-	sprintf(mImg.GrabTime, "2016-02-05-02:02:02");
-	sprintf(mImg.ImagePath, "D:\\aa.bmp");
-	mImg.IsVIP = 1;
-	mImg.IsWarnning = 1;
-	mImg.mDefectInfo.DefectNum = 1;
-	mImg.mDefectInfo.DefectPos[0][0] = 100;
-	mImg.mDefectInfo.DefectPos[0][1] = 180;
-	mImg.mDefectInfo.DefectPos[0][2] = 200;
-	mImg.mDefectInfo.DefectPos[0][3] = 240;
-	mImg.mDefectInfo.ImgWidth = 352;
-	mImg.mDefectInfo.ImgHeight = 288;
-	sprintf(mImg.mCameraInfo.CameraName , "沙特阿拉伯、地中海，1街");
-	mImg.mCameraInfo.Indexnum = 1;
-	sprintf(mImg.mCameraInfo.CameraPath, "D:\\bb");
-	mImageShowVec.push_back(mImg);
-	DrawImgToMemBmp();
-	ShowMemBmpToScreen();
+	//Tmtv_ImageInfo mImg;
+	//sprintf(mImg.GrabTime, "2016-02-05-02:02:02");
+	//sprintf(mImg.ImagePath, "D:\\aa.bmp");
+	//mImg.IsVIP = 1;
+	//mImg.IsWarnning = 1;
+	//mImg.mDefectInfo.DefectNum = 1;
+	//mImg.mDefectInfo.DefectPos[0][0] = 100;
+	//mImg.mDefectInfo.DefectPos[0][1] = 180;
+	//mImg.mDefectInfo.DefectPos[0][2] = 200;
+	//mImg.mDefectInfo.DefectPos[0][3] = 240;
+	//mImg.mDefectInfo.ImgWidth = 352;
+	//mImg.mDefectInfo.ImgHeight = 288;
+	//sprintf(mImg.mCameraInfo.CameraName , "沙特阿拉伯、地中海，1街");
+	//mImg.mCameraInfo.Indexnum = 1;
+	//sprintf(mImg.mCameraInfo.CameraPath, "D:\\bb");
+	//mImageShowVec.push_back(mImg);
+	//DrawImgToMemBmp();
+	//ShowMemBmpToScreen();
 }
 
 
@@ -654,13 +696,13 @@ void CVisionClientDlg::OnBnClickedIsrollingBt()
 	{
 		m_IsRolling = false;
 		pbt->SetWindowTextW(_T("滚动显示"));
-		pRunState->Suspend();
+		pVisionRun->Suspend();
 	}
 	else
 	{
 		m_IsRolling = true;
 		pbt->SetWindowTextW(_T("停止滚动"));
-		pRunState->Resume();
+		pVisionRun->Resume();
 	}
 }
 
@@ -694,7 +736,7 @@ void CVisionClientDlg::OnBnClickedShnewimgBt()
 {
 	if (!m_IsLogin) return;
 	// TODO: 在此添加控件通知处理程序代码
-	pRunState->ShowRealTimeImg();
+	pVisionRun->ShowRealTimeImg();
 }
 
 
@@ -711,24 +753,24 @@ void CVisionClientDlg::OnBnClickedButton2()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//InitConfig();
-	Tmtv_ImageInfo mImg;
-	sprintf(mImg.GrabTime, "2016-02-05-02:02:02");
-	sprintf(mImg.ImagePath, "D:\\bb.bmp");
-	mImg.IsVIP = 1;
-	mImg.IsWarnning = 0;
-	mImg.mDefectInfo.DefectNum = 1;
-	mImg.mDefectInfo.DefectPos[0][0] = 100;
-	mImg.mDefectInfo.DefectPos[0][1] = 100;
-	mImg.mDefectInfo.DefectPos[0][2] = 200;
-	mImg.mDefectInfo.DefectPos[0][3] = 150;
-	mImg.mDefectInfo.ImgWidth = 352;
-	mImg.mDefectInfo.ImgHeight = 288;
-	sprintf(mImg.mCameraInfo.CameraName, "沙特阿拉伯、地中海，1街");
-	mImg.mCameraInfo.Indexnum = 2;
-	sprintf(mImg.mCameraInfo.CameraPath, "D:\\bb");
-	mImageShowVec.push_back(mImg);
-	DrawImgToMemBmp();
-	ShowMemBmpToScreen();
+	//Tmtv_ImageInfo mImg;
+	//sprintf(mImg.GrabTime, "2016-02-05-02:02:02");
+	//sprintf(mImg.ImagePath, "D:\\bb.bmp");
+	//mImg.IsVIP = 1;
+	//mImg.IsWarnning = 0;
+	//mImg.mDefectInfo.DefectNum = 1;
+	//mImg.mDefectInfo.DefectPos[0][0] = 100;
+	//mImg.mDefectInfo.DefectPos[0][1] = 100;
+	//mImg.mDefectInfo.DefectPos[0][2] = 200;
+	//mImg.mDefectInfo.DefectPos[0][3] = 150;
+	//mImg.mDefectInfo.ImgWidth = 352;
+	//mImg.mDefectInfo.ImgHeight = 288;
+	//sprintf(mImg.mCameraInfo.CameraName, "沙特阿拉伯、地中海，1街");
+	//mImg.mCameraInfo.Indexnum = 2;
+	//sprintf(mImg.mCameraInfo.CameraPath, "D:\\bb");
+	//mImageShowVec.push_back(mImg);
+	//DrawImgToMemBmp();
+	//ShowMemBmpToScreen();
 }
 
 
@@ -743,7 +785,7 @@ void CVisionClientDlg::OnBnClickedUserLoginBt()
 		GetDlgItem(IDC_USER_LOGIN_BT)->SetWindowTextW(L"用户已登出");
 		LONGSTR mstr;
 		CCommonFunc::UnicodeToAnsi(LoginName.GetBuffer(), mstr, TMTV_LONGSTRLEN);
-		VisionPublicSet::mLogger.TraceKeyInfo("%s用户登出成功！", mstr);
+		VisionClientLogger::mLogger.TraceKeyInfo("%s用户登出成功！", mstr);
 	}
 	else
 	{
@@ -793,7 +835,7 @@ void CVisionClientDlg::OnBnClickedUserLoginBt()
 		}
 		LoginName = mLoginDlg.m_UserName;
 		m_IsLogin = true;
-		VisionPublicSet::mLogger.TraceKeyInfo("%s用户登录成功！", username);
+		VisionClientLogger::mLogger.TraceKeyInfo("%s用户登录成功！", username);
 		GetDlgItem(IDC_USER_LOGIN_BT)->SetWindowTextW(L"用户已登陆");
 	}
 
@@ -827,7 +869,7 @@ void CVisionClientDlg::OnRButtonDown(UINT nFlags, CPoint point)
 			i++;
 		}
 		LeaveCriticalSection(&cs);
-		pRunState->ResetImgWarn(mImgInfo.mCameraInfo.Indexnum);
+		//pRunState->ResetImgWarn(mImgInfo.mCameraInfo.Indexnum);
 		
 	}
 

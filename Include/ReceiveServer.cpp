@@ -49,7 +49,7 @@ bool ReceiveServer::ResetSocket()
 	bool isOK = true;
 	EnterCriticalSection(&m_section);
 	isOK &= SetRecvAddr(m_ReceiveServerSetting.m_LocalRecvPort, m_ReceiveServerSetting.m_LocalRecvIP);
-	isOK &= SetOption(m_ReceiveServerSetting.m_OptionFlag);
+	isOK &= SetOption(TmtSocket::ADDR_REUSE);
 	m_SkStatus |= enRecvOK;
 	LeaveCriticalSection(&m_section);
 	Create();
@@ -59,9 +59,11 @@ bool ReceiveServer::ResetSocket()
 
 DWORD ReceiveServer::GetReceiveStatus()
 {
+	DWORD mst;
 	EnterCriticalSection(&m_section);
-	return GetStatus();
+	mst= GetStatus();
 	LeaveCriticalSection(&m_section);
+	return mst;
 }
 
 void ReceiveServer::Create()
@@ -123,7 +125,7 @@ bool ReceiveServer::PullMsg(MessageItem & messageItem)
 
 void ReceiveServer::Task(void)
 {
-	if (m_SkStatus == enRecvOK || m_SkStatus == enSendAndRecvOK)
+	if ((m_SkStatus & ReceiveServer::enRecvOK) == ReceiveServer::enRecvOK)
 	{
 		tmpMessageItem.p_Buffer[0] = 0;
 		int revLen = 0;

@@ -69,7 +69,7 @@ void CAskHistDlg::OnBnClickedOk()
 	}
 	char mDate[TMTV_LONGSTRLEN] = {0};
 	sprintf_s(mDate, TMTV_LONGSTRLEN, "%d-%02d-%02d", mTime.GetYear(), mTime.GetMonth(), mTime.GetDay());
-	pParent->pRunState->ShowHistoryImg(camnum, mDate);
+	//pParent->pRunState->ShowHistoryImg(camnum, mDate);
 
 
 	CDialog::OnOK();

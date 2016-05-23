@@ -25,6 +25,7 @@ void CDatabaseManager::Initial()
 	m_SendServer.Initial(m_Setting.mSendSetting);
 	m_SendServer.Create();
 	m_SendServer.Resume();
+	NetWorkResetCount = 0;
 	Create();
 	Resume();
 	EnterCriticalSection(&m_section);
@@ -54,6 +55,8 @@ bool CDatabaseManager::ConnectDb()
 	}
 	else
 	{
+		int a = mysql_errno(&m_mysql);
+		
 		DbServerLogger::mLogger.TraceInfo("链接数据库失败！");
 		m_DbStatus = DB_DISCONNECT;
 		return false;
@@ -74,12 +77,15 @@ int CDatabaseManager::AddCamToDb(Tmtv_CameraInfo &mCam)
 	MYSQL_RES *res=NULL;
 	MYSQL_ROW row;
 	MYSQL_FIELD *mfield=NULL;
-	char sqlcommand[256];
-	char a[256] = { 0 };
+	char sqlcommand[512];
+	char a[512] = { 0 };
 	//正式版添加
 	int rt = -1;
-	sprintf_s(sqlcommand, 256,"select * from %s where %s = '%s' and %s = '%s' and %s = '%s'", TMT_DB_TABLE_CAM,
+	sprintf_s(sqlcommand, 512,"select * from %s where %s = '%s' and %s = '%s' and %s = '%s'", TMT_DB_TABLE_CAM,
 		TMT_DB_CAM_CAMNAME, mCam.CameraName, TMT_DB_CAM_FOLDER, mCam.CameraPath, TMT_DB_CAM_IPADDR, mCam.CameraHost);
+	
+	ModifySqlCommand(sqlcommand);
+
 	int IsOk = mysql_query(&m_mysql, sqlcommand);
 	if (IsOk==0)
 	{
@@ -100,13 +106,14 @@ int CDatabaseManager::AddCamToDb(Tmtv_CameraInfo &mCam)
 		mCam.Indexnum = rt;
 		return rt;
 	}
-	sprintf_s(sqlcommand,256, "insert into camera (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+	sprintf_s(sqlcommand,512, "insert into camera (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
 		" values('%d','%s','%s','%s','%f','%f','%d','%d','%s','%d')",
 		TMT_DB_CAM_CAMNUM,TMT_DB_CAM_CAMNAME,TMT_DB_CAM_FOLDER,TMT_DB_CAM_IPADDR,TMT_DB_CAM_LOCATION_LAT,TMT_DB_CAM_LOCATION_LNG,
 		TMT_DB_CAM_WARNINGLEVEL,TMT_DB_CAM_CAMSTATUS,TMT_DB_CAM_ALGO_MASK,TMT_DB_CAM_ALGO_STATUS,
 		mCam.Indexnum,mCam.CameraName,mCam.CameraPath,mCam.CameraHost,mCam.CameraPos[0],mCam.CameraPos[1],
 		mCam.AlgorithmInfo.WarnningLevel,mCam.Status,mCam.AlgorithmInfo.MaskImgPath,mCam.AlgorithmInfo.WarnningLevel);
 	
+	ModifySqlCommand(sqlcommand);
 	IsOk = mysql_query(&m_mysql, sqlcommand);
 	int b = mysql_errno(&m_mysql);
 	if (IsOk!=0)
@@ -138,7 +145,7 @@ int CDatabaseManager::AddCamToDb(Tmtv_CameraInfo &mCam)
 bool CDatabaseManager::DelCamFromDB(int mCamID)
 {
 	char sqlcommand[256];
-	sprintf_s(sqlcommand, 256, "select * from %s where %s = '%s'", TMT_DB_TABLE_CAM, TMT_DB_CAM_ID, mCamID);
+	sprintf_s(sqlcommand, 256, "select * from %s where %s = '%d'", TMT_DB_TABLE_CAM, TMT_DB_CAM_ID, mCamID);
 	int IsOk = mysql_query(&m_mysql, sqlcommand);
 	if (IsOk==0)
 	{
@@ -184,7 +191,7 @@ int CDatabaseManager::CheckCamInfo(Tmtv_CameraInfo& mCam)
 	if (res != NULL) mysql_free_result(res);
 	sprintf_s(sqlcommand, 256,"select * from %s where %s = '%s' and %s = '%s'", 
 		TMT_DB_TABLE_CAM,TMT_DB_CAM_IPADDR, mCam.CameraHost, TMT_DB_CAM_FOLDER, mCam.CameraPath);
-						 
+	ModifySqlCommand(sqlcommand);
 	mysql_query(&m_mysql, sqlcommand);
 	res = mysql_store_result(&m_mysql);
 	if (res)
@@ -233,7 +240,7 @@ bool CDatabaseManager::GetAllClientInfoFrmDb(vector<Tmt_ClientInfo> &mClientVec)
 	MYSQL_RES *res = NULL;
 	MYSQL_ROW row;
 	Tmt_ClientInfo mClient;
-	sprintf_s(sqlcommand, 256, "select * from %s where 1=1", TMT_DB_TABLE_CLIENT, TMT_DB_CLIENT_STATUS);
+	sprintf_s(sqlcommand, 256, "select * from %s where 1=1", TMT_DB_TABLE_CLIENT);
 	mysql_query(&m_mysql, sqlcommand);
 	res = mysql_store_result(&m_mysql);
 	if (res)
@@ -551,6 +558,7 @@ bool CDatabaseManager::InsertImgInfoToDb(Tmtv_ImageInfo& mImginfo)
 	sprintf_s(sqlcommand,512, "insert into %s (%s,%s,%s,%s,%s,%s,%s) values('%s','%s',%d,'%s',%d,%d,%d)", tablename,
 		TMT_DB_IMG_PATH, TMT_DB_IMG_GRABTIME, TMT_DB_IMG_DEFECTSNUM, TMT_DB_IMG_DEFECTSPOS, TMT_DB_IMG_HEIGHT, TMT_DB_IMG_WIDTH, TMT_DB_IMG_CAMID,
 		mImginfo.ImagePath, mImginfo.GrabTime, mImginfo.mDefectInfo.DefectNum,defectpos,mImginfo.mDefectInfo.ImgHeight, mImginfo.mDefectInfo.ImgWidth, mImginfo.mCamId);
+	ModifySqlCommand(sqlcommand);
 	IsOk = mysql_query(&m_mysql, sqlcommand);
 	return !IsOk;
 }
@@ -560,7 +568,7 @@ bool CDatabaseManager::GetCaminfoFromDb(Tmtv_CameraInfo& mCam)
 	char sqlcommand[512] = { 0 };
 	MYSQL_RES *res = NULL;
 	MYSQL_ROW row;
-	sprintf_s(sqlcommand, 256, "select * from %s where %s = '%s'", TMT_DB_TABLE_CAM, TMT_DB_CAM_ID, mCam.Indexnum);
+	sprintf_s(sqlcommand, 256, "select * from %s where %s = '%d'", TMT_DB_TABLE_CAM, TMT_DB_CAM_ID, mCam.Indexnum);
 	int IsOk = mysql_query(&m_mysql, sqlcommand);
 	res = mysql_store_result(&m_mysql);
 	if (res)
@@ -594,6 +602,7 @@ bool CDatabaseManager::UpdateCamInfoDb(Tmtv_CameraInfo& mCam)
 		TMT_DB_CAM_LOCATION_LAT, mCam.CameraPos[0], TMT_DB_CAM_LOCATION_LNG, mCam.CameraPos[1], TMT_DB_CAM_WARNINGLEVEL, mCam.AlgorithmInfo.WarnningLevel,
 		TMT_DB_CAM_CAMSTATUS, mCam.Status, TMT_DB_CAM_ALGO_MASK, mCam.AlgorithmInfo.MaskImgPath, TMT_DB_CAM_ALGO_STATUS, mCam.AlgorithmInfo.mAlgoStatus,
 		TMT_DB_CAM_ID,mCam.Indexnum);
+	ModifySqlCommand(sqlcommand);
 	int IsOk = mysql_query(&m_mysql, sqlcommand);
 	if (IsOk)
 	{
@@ -746,10 +755,40 @@ bool CDatabaseManager::CreatImgTable()
 	return !IsOk;
 }
 
+bool CDatabaseManager::ModifySqlCommand(char* pCmd)
+{
+	string mstr(pCmd);
+	int index0 = 0;
+	int index1 = 0;
+	index1 = mstr.find('\\', index0);
+	while (index1>0)
+	{
+		mstr.replace(index1, 1, "\\\\");
+		index0 = index1 + 2;
+		index1 = mstr.find('\\', index0);
+	}
+	strcpy_s(pCmd,mstr.length()+1, mstr.c_str());
+	return true;
+}
+
 void CDatabaseManager::Task()
 {
-	MessageItem tmpMsgItem;
-	MessageItem tmpSendMsgItem;
+
+	NetWorkResetCount++;
+	if (NetWorkResetCount>10)
+	{
+		if ((m_SendServer.GetSendServerStatus() & SendServer::enSendOK) != SendServer::enSendOK)
+		{
+			DbServerLogger::mLogger.TraceInfo("SendServer异常，正在重启！");
+			m_SendServer.ResetSocket();
+		}
+		if ((m_ReceiveServer.GetReceiveStatus() & ReceiveServer::enRecvOK) != ReceiveServer::enRecvOK)
+		{
+			DbServerLogger::mLogger.TraceInfo("ReceiveServer异常，正在重启！");
+			m_ReceiveServer.ResetSocket();
+		}
+		NetWorkResetCount = 0;
+	}
 	EnterCriticalSection(&(m_ReceiveServer.m_section));
 	bool isOK = m_ReceiveServer.PullMsg(tmpMsgItem);
 	LeaveCriticalSection(&(m_ReceiveServer.m_section));
@@ -758,6 +797,7 @@ void CDatabaseManager::Task()
 		Sleep(100);
 		return;
 	}
+	//DbServerLogger::mLogger.TraceInfo("数据库管理收到消息！");
 	Tmtv_BaseNetMessage* pBaseMsg = (Tmtv_BaseNetMessage*)(tmpMsgItem.p_Buffer);
 	Tmtv_CameraInfo* pCam;
 	Tmtv_ImageInfo* pImg;
@@ -765,14 +805,13 @@ void CDatabaseManager::Task()
 	Tmtv_AlgorithmInfo* pAlgo;
 	int b;
 	vector<Tmt_ClientInfo>::iterator itvc;
-	vector<Tmtv_ImageInfo> mImgVec;
 	vector<Tmtv_ImageInfo>::iterator itimg;
-	vector<Tmtv_CameraInfo> mCamVec;
 	vector<Tmtv_CameraInfo>::iterator itcam;
 	Tmtv_BaseNetMessage mBaseMsg;
 	switch (pBaseMsg->MsgType)
 	{
 	case Tmtv_BaseNetMessage::TMTV_ADDCAM:
+		DbServerLogger::mLogger.TraceInfo("请求添加相机！");
 		if (pBaseMsg->ElementCount != 1 || pBaseMsg->ElementLength != sizeof(Tmtv_CameraInfo)) return;
 		pCam = (Tmtv_CameraInfo*)(tmpMsgItem.p_Buffer + sizeof(Tmtv_BaseNetMessage));
 		if (AddCamToDb(*pCam)>0)
@@ -1214,6 +1253,8 @@ void CDatabaseManager::Task()
 		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 1;
 		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmt_ClientInfo);
 		m_SendServer.PushMsg(tmpSendMsgItem);
+
+		DbServerLogger::mLogger.TraceInfo("注册客户端成功！%s:%d", pClient->mIpAddr, pClient->mport);
 		GetActiveClientInfoFrmDb(m_ClientInfoVec);
 		pParent->UpdateDbData();
 		break;
@@ -1234,6 +1275,7 @@ void CDatabaseManager::Task()
 		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementCount = 1;
 		((Tmtv_BaseNetMessage*)(tmpSendMsgItem.p_Buffer))->ElementLength = sizeof(Tmt_ClientInfo);
 		m_SendServer.PushMsg(tmpSendMsgItem);
+		DbServerLogger::mLogger.TraceInfo("注销客户端成功！%s:%d", pClient->mIpAddr, pClient->mport);
 		GetActiveClientInfoFrmDb(m_ClientInfoVec);
 		pParent->UpdateDbData();
 		break;
