@@ -150,9 +150,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RelicDetect.h" />
+    <ClInclude Include="RelicObj.h" />
+    <ClInclude Include="RelicScn.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RelicDetect.cpp" />
+    <ClCompile Include="RelicObj.cpp" />
+    <ClCompile Include="RelicScn.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

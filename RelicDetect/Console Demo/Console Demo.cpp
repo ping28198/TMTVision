@@ -11,36 +11,43 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/calib3d.hpp"
 #include "opencv2/xfeatures2d.hpp"
-#include "RelicDetect.h"
+
+#include "RelicObj.h"
+#include "RelicScn.h"
 using namespace cv;
 using namespace cv::xfeatures2d;
 using namespace std;
 int main()
 {
 	Mat object_color = imread("..\\images\\postcard_object.JPG");
-	imshow("origin_object", object_color);
-	Mat object_gray;
+	Mat scene_color = imread("..\\images\\postcard_scene_1.jpg");
+	//imshow("origin_object", object_color);
+	Mat object_gray,scene_gray;
 	cvtColor(object_color, object_gray, CV_BGR2GRAY);
-	RelicDetect a;
-	auto feature = a.calc_image_keypoints_and_descriptors(object_gray);
-	//-------------------------
-	cout << "mat descriptors" << endl;
-	for (int j = 0; j < feature.second.cols; j++)
-	{
-		cout << feature.second.at<int>(0, j) << endl;
-	}
-	//----------------------------
-	auto descriptors_vecvec = a.Get_Descriptors(feature.second);
-	cout << "vec descriptors" << endl;
-	//---------------------------
+	cvtColor(scene_color, scene_gray, CV_BGR2GRAY);
 
-		for (int j = 0;j < descriptors_vecvec[0].size();j++)
-		{
-			cout << descriptors_vecvec[0][j]<<endl;
-		}
+	RelicObj obj;
+	RelicScn scene;
 
-	auto x = a.test();
-	cout << x << endl;
+	obj.Calc_Keypoints_and_Descriptors(object_gray);
+	scene.Calc_Keypoints_and_Descriptors(scene_gray);
+
+	////-------------------------
+	//cout << "mat descriptors" << endl;
+	//for (int j = 0; j < obj.descriptors.cols; j++)
+	//{
+	//	cout << obj.descriptors.at<int>(0, j) << endl;
+	//}
+	////----------------------------
+	//auto descriptors_vecvec = obj.Get_Descriptors(obj.descriptors);
+	//cout << "vec descriptors" << endl;
+	////---------------------------
+	//for (int j = 0;j < descriptors_vecvec[0].size();j++)
+	//{
+	//	cout << descriptors_vecvec[0][j]<<endl;
+	//}
+
+
 	waitKey(0);
 	system("pause");
     return 0;

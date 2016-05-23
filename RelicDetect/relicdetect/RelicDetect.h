@@ -1,8 +1,6 @@
-#pragma once
+
 #ifndef _RELIC_DETECT_LIB_H_
 #define _RELIC_DETECT_LIB_H_
-//#define BOOST_SYSTEM_NO_LIB
-//#define BOOST_FILESYSTEM_NO_LIB
 
 #include <stdio.h>
 #include <string>
@@ -17,8 +15,6 @@ using namespace cv;
 using namespace cv::xfeatures2d;
 using namespace std;
 
-void fun(int a);
-
 extern int k;
 
 class RelicDetect
@@ -26,10 +22,11 @@ class RelicDetect
 public:
 	RelicDetect();
 	string test();
-	vector<vector<int>> Get_Descriptors(Mat descriptors);
-	pair<vector<KeyPoint>, Mat> RelicDetect::calc_image_keypoints_and_descriptors(Mat input_img);
+	void Calc_Keypoints_and_Descriptors(Mat input_img);
+	//vector<vector<int>> Get_Descriptors(Mat descriptors);
+	Mat descriptors;
+	vector<KeyPoint> keypoints;
 private:
-
 	void Mat_to_VecVec(Mat inmat, vector<vector<int>> &outvecvec);
 };
 
