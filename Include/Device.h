@@ -13,43 +13,87 @@
  *                       └─────┘
  *                           │
  *                           ∨     ┌────┐
- *      Device       Initial(&_)─＞│ Device │─＞ Sample() return
+ *      Device       Initial(&_)─＞│ Device │─＞ Read() return
  *                                  └────┘              │
  *                                       │                   ∨
  *                                       ∨              ┌────┐
- *      DeviceServer        AttachDevice(*_)             │DeData* │
+ *      DeviceReader        AttachDevice(*_)             │DeData* │
  *                                                       └────┘
  *                                                            │
  *                                                            ∨
- *                          Task(){ deque<DeData*>::push_back(__) }
+ *                           Task(){ Queue<DeData>::push_back(__) }
  *
- *     //CamSetting:public DeSetting/n 
- *     //CamData:public DeData/n
- *     //Camera:public Device/n
- *     CamSetting camSetting(jsonstring);/n
- *     Camera camera;/n
- *     camera.Initial((DeSetting*)&camSetting);/n
- *     DeviceServer deviceServer;/n
- *     deviceServer.AttachDevice((Device*)&camera);/n
- *     //1.Active frame in thread/n
- *     deviceServer.StartServer();/n
- *     ...
- *     deviceServer.StopServer();/n
- *     //2.Or call back frame through Task() function./n
- *     ...
- *     deviceServer.DetachDevice();/n
+ *
+ ** Usage:
+ *
+ *     //File"Camera.h":\n 
+ *     \n
+ *     #include "Device.h"\n 
+ *     \n
+ *     CamSetting:public DeSetting\n 
+ *     {\n 
+ *     public:\n 
+ *         CamSetting();\n 
+ *         ~CamSetting();\n 
+ *         CamSetting(const CamSetting& setting);\n 
+ *         CamSetting(const MEGASTR& setting);override;\n 
+ *         CamSetting& operator=(const MEGASTR& setting) override;\n 
+ *         bool CopyTo(CamSetting& setting);\n 
+ *         bool CopyTo(MEGASTR& setting) override;\n
+ *         bool CopyFrom(CamSetting& setting);\n
+ *         bool CopyFrom(MEGASTR& setting) override;\n
+ *         void Clear(MEGASTR& setting) override;\n
+ *         static int GetAvailable(SettingSet<MEGASTR>& deSettings);\n 
+ *     }\n 
+ *     \n 
+ *     //template T must has deep copy = operator and be memory continuous\n 
+ *     template <typename T = Mat>\n 
+ *     Camera:public Device\n
+ *     {\n 
+ *     public:\n 
+ *         Device();\n 
+ *         ~Device();\n 
+ *         virtual bool Initial(MEGASTR& setting) override;\n 
+ *         virtual void Unitial() override;\n 
+ *         virtual bool Set(MEGASTR& setting) override;\n 
+ *         virtual bool ReSet(MEGASTR& setting) override;\n 
+ *         virtual bool Read(DeData<T>& deData, bool update = true) override;\n 
+ *         virtual bool Write(DeData<T>& deData, bool force = false) override;\n 
+ *     }\n 
+ *
+ *
+ *     //File"main.h":\n
+ *     \n
+ *     #include "Camera.h"\n
+ *     \n
+ *     main()
+ *     {
+ *         CamSetting camSetting(jsonstring);\n
+ *         Camera camera;\n
+ *         camera.Initial((DeSetting*)&camSetting);\n
+ *         DeviceReader deviceReader;\n
+ *         deviceReader.AttachDevice((Device*)&camera);\n
+ *         //1.Active frame in thread\n
+ *         deviceReader.StartServer();\n
+ *         ...
+ *         deviceReader.StopServer();\n
+ *         //2.Or call back frame through Task() function.\n
+ *         ...
+ *         deviceReader.DetachDevice();\n
+ *     }
  * 
  *  \author Leon Contact: towanglei@163.com
  *  \copyright TMTeam
- *  \version 1.0
+ *  \version 2.0
  *  \History:
- *     Leon 2016/04/29 10:31 build
+ *     Leon 2016/04/14 18:31 Divide DeviceServer into DeviceReader and DeviceWriter.
+ *     1.0 : Leon 2016/04/29 10:31 built.\n
  */
 ///////////////////////////////////////////////////
 #pragma once
 #include "Thread.h"
 #include "CommonDefine.h"
-#include <deque>
+#include "SafeQueue.h"
 #include "Err_seq.h"
 
 //////////////////////////////////////////////////
@@ -77,7 +121,7 @@
 template <typename T>
 struct SettingSet
 { 
-	enum {SETTINGSETSIZE = 32///< Setting Data max size
+	enum {SETTINGSETSIZE = 128///< Setting Data max size
 	};
 	T SettingData[SETTINGSETSIZE];///< Setting data
 	int SettingNum = 0; ///< Valid setting data number
@@ -106,9 +150,11 @@ public:
 	PATHSTR devicePath = ""; ///< Device path
 	NetIP deviceMAC = "";///< MAC address of Device
 	NetIP deviceIP = "";///< IP address of host,not support multi-net
-	int serverDataSize = 8; ///< Data list size
-	long serverTimes = -1; ///< Thread run times
-	long serverFrameTime = 0; ///< Thread wait time
+	bool readUpdate = true; ///< If Read(...,bool update) in task
+	bool writeForce = false; ///< If Write(...,bool force) in task
+	//int serverDataSize = 8; ///< Data list size
+	//long serverTimes = -1; ///< Thread run times
+	//long serverFrameTime = 0; ///< Thread wait time
 	//bool ServerIncludeTaskTime = true; ///< If task time included in wait times
 
 	/// Default constructor get PC name and physical net
@@ -127,13 +173,13 @@ public:
 	/// Deep copy operator=
 	virtual DeSetting& operator=(const MEGASTR& setting);
 	/// Deep copy to para
-	void CopyTo(DeSetting& setting);
+	bool CopyTo(DeSetting& setting);
 	/// Deep copy to para
-	virtual void CopyTo(MEGASTR& setting);
+	virtual bool CopyTo(MEGASTR& setting);
 	/// Deep copy from para
-	void CopyFrom(const DeSetting& setting);
+	bool CopyFrom(const DeSetting& setting);
 	/// Deep copy from para
-	virtual void CopyFrom(const MEGASTR& setting);
+	virtual bool CopyFrom(const MEGASTR& setting);
 	/// Clear para
 	virtual void Clear();
 	/// Compare operator==
@@ -152,14 +198,14 @@ public:
 	 *  \param[out] DeSetting* deSettings, int deNums
 	 *  \return static MEGASTR as json format
 	 */
-	static int GetAvailable(SettingSet<DeSetting>& deSettings);
+	static int GetAvailable(SettingSet<MEGASTR>& deSettings);
 };
 #endif
 ///////////////////////////////////////////////////
 
 //////////////////////////////////////////////////
 /** \class DeData
-*  \brief Base class to store template IO data
+*  \brief Base class to store template IO data, template must be memory continues
 *  \note
 *   Inlined methods for better performents;\n
 *   Implemente copy constructor and = operator;\n
@@ -169,13 +215,15 @@ public:
 *  \version 1.0
 *  \date 2016/05/02 11:38
 */
+template <typename T>
 class DeData
 {
 public:
-	//T data;///< Data body, if overwrite in derived struct
+	T data;///< Data body, must be memory continues
 	SYSTEMTIME createTime;
 	SYSTEMTIME updateTime;
 	TINYSTR dataTimeStr = "2000-01-01 00:00:00:00";///< Data time.
+	int proceessTag = 0;///< Tag of Data processed.
 	
 	/// Default constructor
 	DeData();
@@ -185,13 +233,13 @@ public:
 	virtual ~DeData();
 
 	/// Deep copy constructor
-	DeData(const DeData& dataIn);
+	DeData(const DeData<T>& dataIn);
 	/// Deep copy operator=
-	DeData& operator=(const DeData& dataIn);
+	DeData<T>& operator=(const DeData<T>& dataIn);
 	/// Deep copy to para
-	virtual void CopyTo(DeData& dataIn);
+	virtual bool CopyTo(DeData<T>& dataIn);
 	/// Deep copy from para
-	virtual void CopyFrom(const DeData& dataIn);
+	virtual bool CopyFrom(const DeData<T>& dataIn);
 
 	/** \fn  operator==
 	*  \brief Compare operator==, to avoid duplicate data, must override
@@ -205,20 +253,32 @@ public:
 };
 ///////////////////////////////////////////////////
 
+//////////////////////////////////////////////////
+/** \struct DeviceCallbackFun
+ *  \brief Callback Function called by Device
+ *  \author Leon Contact: towanglei@163.com
+ */
+#ifndef DEVICECALLBACKFUN
+#define DEVICECALLBACKFUN
+typedef void(__stdcall* DeviceCallbackFun)(void* pPara);
+#endif
+///////////////////////////////////////////////////
+
 ///////////////////////////////////////////////////
 /** \class Device 
  *  \brief Base class of all devices.
-*  \note
-*   Inlined methods for better performents;\n
+ *  \note
+ *   Inlined methods for better performents;\n
  *  \author Leon Contact: towanglei@163.com
  *  \version 1.0
  *  \date 2016/04/29 10:34
  */
+template <typename T>
 class Device
 {
 public:
     /// Handle of device
-	HANDLE m_hDevice;
+	HANDLE m_hDevice = INVALID_HANDLE_VALUE;
 	 /** \enum Status
 	 *  \brief Status of device.
 	 *  \author Leon Contact: towanglei@163.com
@@ -233,7 +293,14 @@ public:
 	DESTATUS m_DeStatus;
 	/// Setting of device
 	DeSetting* p_DeSetting = 0;
+	/// Data of device
+	DeData m_DeData;
 
+private:
+	DeviceCallbackFun callBackFun = 0;
+	void* callPara = 0;
+
+public:
 	/// Default constructor
 	Device();
 	/** \fn  ~Device
@@ -241,11 +308,11 @@ public:
 	*/
 	virtual ~Device();
 	/** \fn  Initial
-	 *  \brief Initial device
-	 *  \param[in] DeSetting* pSetting = new DeSetting(MEGASTR& setting)
-	 *  \return bool
-	 */
-	virtual bool Initial(DeSetting* pSetting); 
+	*  \brief Initial device
+	*  \param[in] DeSetting* pSetting = new DeSetting(MEGASTR& setting)
+	*  \return bool
+	*/
+	virtual bool Initial(MEGASTR& setting);
 	/** \fn  Unitial
 	 *  \brief Unitial device
 	 */
@@ -255,37 +322,149 @@ public:
 	 *  \param[in] DeSetting* pSetting = new DeSetting(MEGASTR& setting)
 	 *  \return bool
 	 */
-	virtual bool Set(DeSetting* pSetting);
+	virtual bool Set(MEGASTR& setting);
 	/** \fn  ReSet
 	 *  \brief ReSet device, stop and restart
 	 *  \param[in] DeSetting* pSetting = new DeSetting(MEGASTR& setting)
 	 *  \return bool
 	 */
-	virtual bool ReSet(DeSetting* pSetting);
+	virtual bool ReSet(MEGASTR& setting);
 
-	/** \fn  Sample
-	*  \brief Sample device, overwrite this function in delivered class
-	*  \return Self newed DeData* = new DeData() or 0 if failed.
+	/** \fn  Read
+	*  \brief Read form buffer of device, or process deData and return.
+	*  \note
+	*    If update buffer from physical device before read.\n
+	*    DeData<T>& deData is deep copied from buffer/physical device.\n
+	*  \param[out/in] DeData<T>& deData, T must be memory continues
+	*  \param[in] bool update if Read then update buffer from physical device.
+	*  \return False if failed.
 	*/
-	virtual DeData* Sample();
+	virtual bool Read(DeData<T>& deData, bool update = true);
+	/** \fn  operator>>
+	*  \brief Read form buffer of device, or process deData and return.
+	*  \note
+	*    If update buffer from physical device before read.\n
+	*    DeData<T>& deData is deep copied from buffer/physical device.\n
+	*  \param[out/in] DeData<T>& deData, T must be memory continues
+	*  \param[in] bool update if Read then update buffer from physical device.
+	*  \return False if failed.
+	*/
+	virtual bool operator>>(DeData<T>& deData);
+	/** \fn  Write
+	*  \brief Write data into buffer of device,if force push buffer into physical device after write.
+	*  \note
+	*    DeData<T>& deData is deep copied into buffer/physical device.\n
+	*  \param[in] DeData<T>& deData, T must be memory continues
+	*  \param[in] bool force if force to write physical device.
+	*  \return False if failed.
+	*/
+	virtual bool Write(const DeData<T>& deData, bool force = false);
+	/** \fn  operator<<
+	*  \brief Write data into buffer of device,if force push buffer into physical device after write.
+	*  \note
+	*    DeData<T>& deData is deep copied into buffer/physical device.\n
+	*  \param[in] DeData<T>& deData, T must be memory continues
+	*  \param[in] bool force if force to write physical device.
+	*  \return False if failed.
+	*/
+	virtual bool operator<<(const DeData<T>& deData);
 };
 ///////////////////////////////////////////////////
 
+
+///////////////////////////////////////////////////
+/** \class ServerSetting
+*  \brief class to store Server setting para.
+*  \note
+*   Decode para from joson string\n
+*  \author Leon Contact: towanglei@163.com
+*/
+#ifndef TMTV_MEGASTRLEN
+#define TMTV_MEGASTRLEN	    4096//字符串最大长度
+typedef char	MEGASTR[TMTV_MEGASTRLEN];
+#endif
+#ifndef SEVERSETTING
+#define SEVERSETTING
+class ServerSetting:public DeSetting
+{
+public:
+	int serverDataSize = 8; ///< Data list size
+	long serverTimes = -1; ///< Thread run times
+	long serverFrameTime = 0; ///< Thread wait time
+	bool serverQueueBlock = false; ///< If Thread block until queue released by other object
+	//bool serverReadUpdate = true; ///< If Read(...,bool update) in task
+	//bool serverWriteForce = false; ///< If Write(...,bool force) in task
+	//bool serverForceQueue = true; ///< If ForceTail() when Queue is full
+	//bool ServerIncludeTaskTime = true; ///< If task time included in wait times
+
+	/// Default constructor
+	ServerSetting();
+	/** \fn  ~DeSetting
+	*  \brief virtual destruct function, avoid delete wrong object
+	*/
+	virtual ~ServerSetting();
+
+	/// Deep copy constructor
+	ServerSetting(const ServerSetting& setting);
+	/// Deep copy constructor
+	ServerSetting(const MEGASTR& setting);
+	/// Deep copy operator=
+	ServerSetting& operator=(const ServerSetting& setting);
+	/// Deep copy operator=
+	virtual ServerSetting& operator=(const MEGASTR& setting);
+	/// Deep copy to para
+	bool CopyTo(ServerSetting& setting);
+	/// Deep copy to para
+	virtual bool CopyTo(MEGASTR& setting);
+	/// Deep copy from para
+	bool CopyFrom(const ServerSetting& setting);
+	/// Deep copy from para
+	virtual bool CopyFrom(const MEGASTR& setting);
+};
+#endif
+///////////////////////////////////////////////////
+
+
 ///////////////////////////////////////////////////
 /** \class DeviceServer : public Thread, include Device
- *  \brief Base class of all devices server.
-*  \note
-*   Inlined methods for better performents;\n
+ *  \brief Base server class of all devices.
+ *  \note
+ *   Start server to run the added device.\n
+ *   The task can pop_back results from deque and write into device.\n
+ *   The task can read the device, and push_front results in deque.\n
+ *   DeviceServer is also a valid device, can Read()/Write() from/into deque.\n
+ *   See DeviceServer A as a device, B.AttachDevice((Device*)&A) can connect A with B.\n
  *  \author Leon Contact: towanglei@163.com
  *  \version 1.0
  *  \date 2016/04/29 23:09
  */
-class DeviceServer : public Thread
+template <typename T>
+class DeviceServer : public Thread , public Device<T>
 {
+public:// Just for other DeviceServer use
+	/** \fn  Read
+	*  \brief Read (GetHead) form Queue, or process deData and return.
+	*  \note
+	*    if update then DelHead after read.\n
+	*    DeData<T>& deData is deep copied from Queue item.\n
+	*  \param[out/in] DeData<T>& deData, T must has = operation
+	*  \param[in] bool update if DelHead after read.
+	*  \return False if failed.
+	*/
+	virtual bool Read(DeData<T>& deData, bool update = true);
+	/** \fn  Write
+	*  \brief Write (ForceTail/AddTail) into Queue,if force use ForceTail().
+	*  \note
+	*    DeData<T>& deData is deep copied into Queue item.\n
+	*  \param[in] DeData<T>& deData, T must has = operation
+	*  \param[in] bool force if force to write physical device.
+	*  \return False if failed.
+	*/
+	virtual bool Write(const DeData<T>& deData, bool force = false);
+
 public:
-	Device* p_Device; ///< Device object pointer
-	std::deque <DeData*> m_DataList; ///< Data list deque push front pop back, iterate front to back
-	int m_DataListMaxNum; ///< Data list max number in deque
+	Device<T>* p_Device; ///< Device object pointer
+	SafeQueue <DeData<T>> m_DataList; ///< Data list deque push front pop back, iterate front to back
 
 	/// Actual frame time(ms), decided by driver or server, -1 means unused
 	double GetFrameTime()
@@ -296,6 +475,11 @@ public:
 	double GetSampleTime()
 	{
 		return m_taskTime;
+	}
+	/// Actual sample number
+	long GetSampleNum()
+	{
+		return m_DataList.size();
 	}
 
 	/// Set expected frame time(ms)
@@ -312,44 +496,111 @@ public:
 	/// Default destructor
 	~DeviceServer();
 
+	/** \fn  Initial
+	*  \brief Initial DeviceServer
+	*  \param[in] DeSetting* pSetting = new ServerSetting(MEGASTR& setting)
+	*  \return bool
+	*/
+	virtual bool Initial(MEGASTR& setting);
+	/** \fn  Unitial
+	*  \brief Unitial DeviceServer
+	*/
+	virtual void Unitial();
+	/** \fn  Set
+	*  \brief Set running server
+	*  \param[in] DeSetting* pSetting = (DeSetting*)&setting;
+	*  \return bool
+	*/
+	virtual bool Set(MEGASTR& setting);
+	/** \fn  ReSet
+	*  \brief Stop and reset server,need StartServer()
+	*  \param[in] DeSetting* pSetting = (DeSetting*)&setting;
+	*  \return bool
+	*/
+	virtual bool ReSet(MEGASTR& setting);
 	/** \fn  AttachDevice
-	 *  \brief Add device to server
-	 *  \param[in] Device* pDevice = (Device*)&deviceObj;
-	 *  \return bool
-	 */
-	virtual bool AttachDevice(Device* pDevice);
+	*  \brief Add device to server
+	*  \param[in] Device* pDevice = (Device*)&deviceObj;
+	*  \return bool
+	*/
+	virtual bool AttachDevice(Device<T>* pDevice);
 	/** \fn  DetachDevice
-	 *  \brief Delete device from server, 
-	 *         but device object is not delete in function
-	 *  \return void
-	 */
+	*  \brief Delete device from server,
+	*         but device object is not delete in function
+	*  \return void
+	*/
 	virtual void DetachDevice();
+	/** \fn  SetDevice
+	*  \brief Set device in running server
+	*  \param[in] DeSetting* pSetting = (DeSetting*)&setting;
+	*  \return bool
+	*/
+	virtual bool SetDevice(MEGASTR& setting);
+	/** \fn  ReSetDevice
+	*  \brief Stop and reset device in server,need StartServer()
+	*  \param[in] DeSetting* pSetting = (DeSetting*)&setting;
+	*  \return bool
+	*/
+	virtual bool ReSetDevice(MEGASTR& setting);
 	/** \fn  StartServer
-	 *  \brief Start server to run the added device
-	 *  \return bool
-	 */
+	*  \brief Start server to run the added device
+	*  \return bool
+	*/
 	virtual bool StartServer();
 	/** \fn  StopServer
 	*  \brief Stop server without delete anything
 	*  \return bool
 	*/
 	virtual bool StopServer();
-	/** \fn  Set
-	*  \brief Set device in running server
-	*  \param[in] DeSetting* pSetting = (DeSetting*)&setting;
-	*  \return bool
-	*/
-	virtual bool Set(DeSetting* pSetting);
-	/** \fn  ReSet
-	*  \brief Stop and reset device in server,need StartServer()
-	*  \param[in] DeSetting* pSetting = (DeSetting*)&setting;
-	*  \return bool
-	*/
-	virtual bool ReSet(DeSetting* pSetting);
+
+protected:
 	/** \fn  Task
-	 *  \brief The task running the device
+	*  \brief The task running the device
+	*  \return
+	*/
+	virtual void Task() = 0;
+};
+///////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////
+/** \class DeviceReader : public DeviceServer
+ *  \brief Base read server class of all devices.
+ *  \note
+ *   The task read the device, and push_front results in deque.\n
+ *  \author Leon Contact: towanglei@163.com
+ *  \version 1.0
+ *  \date 2016/04/29 23:09
+ */
+template <typename T>
+class DeviceReader : public DeviceServer<T>
+{
+protected:
+	/** \fn  Task
+	 *  \brief The task read the device, and push_front results in deque.
 	 *  \return 
 	 */
-	void Task();
+	virtual void Task();
+};
+///////////////////////////////////////////////////
+
+///////////////////////////////////////////////////
+/** \class DeviceWriter : public DeviceServer
+*  \brief Base write server class of all devices.
+*  \note
+*   The task pop_back results from deque and write into device.\n
+*  \author Leon Contact: towanglei@163.com
+*  \version 1.0
+*  \date 2016/04/29 23:09
+*/
+template <typename T>
+class DeviceWriter : public DeviceServer<T>
+{
+protected:
+	/** \fn  Task
+	*  \brief The task pop_back results from deque and write into device.
+	*  \return
+	*/
+	virtual void Task();
 };
 ///////////////////////////////////////////////////
