@@ -1,15 +1,18 @@
-///////////////////////////////////////////////////
+﻿///////////////////////////////////////////////////
 /** \file SafeQueue.h
  *  \brief Multi-thread safe queue, only support one thread read or write
  *  \note
- *    Any type object is unsafe when is being written by more than one threads;\n
- *    basic type object is safe in reading, when it is in writting by only one thread;\n
- *    but queue is still unsafe in reading, when another thread is writting the queue;\n
+ *
+ *    BlockedQueue block threads when data is already accessed;\n
+ *    LockedQueue do not block thread,verify IsLocked() before access or make changes;\n
+ *    SafeQueue use status logic for read/write protection.\n
+ *
  *  \author Leon Contact: towanglei@163.com
  *  \copyright TMTeam
- *  \version 1.0
+ *  \version 1.1beta
  *  \History:
- *     Leon 2016/05/20 9:20 Add lock for multi-thread application.\n
+ *     Leon 2016/05/20 9:20 Add read/write logic for multi-thread application.\n
+ *     1.0 Leon 2016/05/20 9:20 Add lock for multi-thread application.\n
  */
 ///////////////////////////////////////////////////
 
@@ -34,135 +37,153 @@ class BlockedQueue :public Queue<T>, public BlockedData
 public:
 	virtual bool Initial(int dataNum = DEFAULTNUM) override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::Initial(dataNum);
-		LeaveCriticalSection(&m_section);
+		Lock();
+		bool rtVal = Queue::Initial(dataNum);
+		DeLock();
+		return rtVal;
 	}
 
 	virtual bool Unitial() override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::Unitial();
-		LeaveCriticalSection(&m_section);
+		Lock();
+		bool rtVal = Queue::Unitial();
+		DeLock();
+		return rtVal;
 	}
 
 	virtual int SetSize(int dataNum) override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::SetSize(dataNum);
-		LeaveCriticalSection(&m_section);
+		Lock();
+		int rtVal = Queue::SetSize(dataNum);
+		DeLock();
+		return rtVal;
 	}
 
 	virtual int GetSize() override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::GetSize();
-		LeaveCriticalSection(&m_section);
+		Lock();
+		int rtVal = Queue<T>::GetSize();
+		DeLock();
+		return rtVal;
 	}
 
 	virtual int GetLength() override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::GetLength();
-		LeaveCriticalSection(&m_section);
+		Lock();
+		int rtVal = Queue<T>::GetLength();
+		DeLock();
+		return rtVal;
 	}
 
 	virtual void Clear() override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::Clear();
-		LeaveCriticalSection(&m_section);
+		Lock();
+		Queue<T>::Clear();
+		DeLock();
 	}
 
 	virtual bool IsEmpty() override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::IsEmpty();
-		LeaveCriticalSection(&m_section);
+		Lock();
+		bool rtVal = Queue<T>::IsEmpty();
+		DeLock();
+		return rtVal;
 	}
 
 	virtual bool IsFull() override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::IsFull();
-		LeaveCriticalSection(&m_section);
+		Lock();
+		bool rtVal = Queue<T>::IsFull();
+		DeLock();
+		return rtVal;
 	}
 
 	virtual bool DelHead() override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::DelHead();
-		LeaveCriticalSection(&m_section);
+		Lock();
+		bool rtVal = Queue<T>::DelHead();
+		DeLock();
+		return rtVal;
 	}
 
 	virtual bool AddTail(const T& data) override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::AddTail(data);
-		LeaveCriticalSection(&m_section);
+		Lock();
+		bool rtVal = Queue<T>::AddTail(data);
+		DeLock();
+		return rtVal;
 	}
 
 	virtual bool ForcTail(const T& data) override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::ForcTail(data);
-		LeaveCriticalSection(&m_section);
+		Lock();
+		bool rtVal = Queue<T>::ForcTail(data);
+		DeLock();
+		return rtVal;
 	}
 
 	virtual bool GetTail(T& data) override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::GetTail(data);
-		LeaveCriticalSection(&m_section);
+		Lock();
+		bool rtVal = Queue<T>::GetTail(data);
+		DeLock();
+		return rtVal;
 	}
 
 	virtual T* GetTail() override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::GetTail();
-		LeaveCriticalSection(&m_section);
+		Lock();
+		T* rtVal = Queue<T>::GetTail();
+		DeLock();
+		return rtVal;
 	}
 
 	virtual bool GetHead(T& data) override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::GetHead(data);
-		LeaveCriticalSection(&m_section);
+		Lock();
+		bool rtVal = Queue<T>::GetHead(data);
+		DeLock();
+		return rtVal;
 	}
 
 	virtual T* GetHead() override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::GetHead();
-		LeaveCriticalSection(&m_section);
+		Lock();
+		T* rtVal = Queue<T>::GetHead();
+		DeLock();
+		return rtVal;
 	}
 
 	virtual bool GetData(T& data, int index) override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::GetData(data, index);
-		LeaveCriticalSection(&m_section);
+		Lock();
+		bool rtVal = Queue<T>::GetData(data, index);
+		DeLock();
+		return rtVal;
 	}
 
 	virtual T* GetData(int index) override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::GetData(index);
-		LeaveCriticalSection(&m_section);
+		Lock();
+		T* rtVal = Queue<T>::GetData(index);
+		DeLock();
+		return rtVal;
 	}
 
 	virtual bool GetLast(T& data, int index) override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::GetLast(data, index);
-		LeaveCriticalSection(&m_section);
+		Lock();
+		bool rtVal = Queue<T>::GetLast(data, index);
+		DeLock();
+		return rtVal;
 	}
 
 	virtual T* GetLast(int index) override
 	{
-		EnterCriticalSection(&m_section);
-			return Queue::GetLast(index);
-		LeaveCriticalSection(&m_section);
+		Lock();
+		T* rtVal = Queue<T>::GetLast(index);
+		DeLock();
+		return rtVal;
 	}
 
 };
@@ -191,7 +212,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return false;
 		}
-		return Queue::Initial(dataNum);
+		Lock();
+		bool rtVal = Queue<T>::Initial(dataNum);
+		DeLock();
+		return rtVal;
 	}
 
 	virtual bool Unitial() override
@@ -202,7 +226,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return false;
 		}
-		return Queue::Unitial();
+		Lock();
+		bool rtVal = Queue<T>::Unitial();
+		DeLock();
+		return rtVal;
 	}
 
 	virtual int SetSize(int dataNum) override
@@ -213,7 +240,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return -1;
 		}
-		return Queue::SetSize(dataNum);
+        Lock();
+        int rtVal = Queue<T>::SetSize(dataNum);
+        DeLock();
+        return rtVal;
 	}
 
 	virtual int GetSize() override
@@ -224,7 +254,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return -1;
 		}
-		return Queue::GetSize();
+        Lock();
+        int rtVal = Queue<T>::GetSize();
+        DeLock();
+        return rtVal;
 	}
 
 	virtual int GetLength() override
@@ -235,7 +268,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return -1;
 		}
-		return Queue::GetLength();
+        Lock();
+        int rtVal = Queue<T>::GetLength();
+        DeLock();
+        return rtVal;
 	}
 
 	virtual void Clear() override
@@ -246,7 +282,9 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return;
 		}
-		return Queue::Clear();
+        Lock();
+        Queue<T>::Clear();
+        DeLock();
 	}
 
 	virtual bool IsEmpty() override
@@ -257,7 +295,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return false;
 		}
-		return Queue::IsEmpty();
+		Lock();
+		bool rtVal = Queue<T>::IsEmpty();
+		DeLock();
+		return rtVal;
 	}
 
 	virtual bool IsFull() override
@@ -268,7 +309,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return false;
 		}
-		return Queue::IsFull();
+        Lock();
+        bool rtVal = Queue<T>::IsFull();
+        DeLock();
+        return rtVal;
 	}
 
 	virtual bool DelHead() override
@@ -279,7 +323,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return false;
 		}
-		return Queue::DelHead();
+        Lock();
+        bool rtVal = Queue<T>::DelHead();
+        DeLock();
+        return rtVal;
 	}
 
 	virtual bool AddTail(const T& data) override
@@ -290,7 +337,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return false;
 		}
-		return Queue::AddTail(data);
+        Lock();
+        bool rtVal = Queue<T>::AddTail(data);
+        DeLock();
+        return rtVal;
 	}
 
 	virtual bool ForcTail(const T& data) override
@@ -301,7 +351,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return false;
 		}
-		return Queue::ForcTail(data);
+        Lock();
+        bool rtVal = Queue<T>::ForcTail(data);
+        DeLock();
+        return rtVal;
 	}
 
 	virtual bool GetTail(T& data) override
@@ -312,7 +365,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return false;
 		}
-		return Queue::GetTail(data);
+        Lock();
+        bool rtVal = Queue<T>::GetTail(data);
+        DeLock();
+        return rtVal;
 	}
 
 	virtual T* GetTail() override
@@ -323,7 +379,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return 0;
 		}
-		return Queue::GetTail();
+        Lock();
+        bool T* = Queue<T>::GetTail();
+        DeLock();
+        return rtVal;
 	}
 
 	virtual bool GetHead(T& data) override
@@ -334,7 +393,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return false;
 		}
-		return Queue::GetHead(data);
+		Lock();
+		bool rtVal = Queue<T>::GetHead(data);
+		DeLock();
+		return rtVal;
 	}
 
 	virtual T* GetHead() override
@@ -345,7 +407,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return 0;
 		}
-		return Queue::GetHead();
+        Lock();
+        T* rtVal = Queue<T>::GetHead();
+        DeLock();
+        return rtVal;
 	}
 
 	virtual bool GetData(T& data, int index) override
@@ -356,7 +421,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return false;
 		}
-		return Queue::GetData(data, index);
+		Lock();
+		bool rtVal = Queue<T>::GetData(data, index);
+		DeLock();
+		return rtVal;
 	}
 
 	virtual T* GetData(int index) override
@@ -367,7 +435,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return 0;
 		}
-		return Queue::GetData(index);
+        Lock();
+        T* rtVal = Queue<T>::GetData(index);
+        DeLock();
+        return rtVal;		
 	}
 
 	virtual bool GetLast(T& data, int index) override
@@ -378,7 +449,10 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return false;
 		}
-		return Queue::GetLast(data, index);
+        Lock();
+        bool rtVal = Queue<T>::GetLast(data, index);
+        DeLock();
+        return rtVal;
 	}
 
 	virtual T* GetLast(int index) override
@@ -389,7 +463,316 @@ public:
 			m_ErrCode = QUE_ERR_LOCKED;
 			return false;
 		}
-		return Queue::GetLast(index);
+        Lock();
+		T* rtVal = Queue<T>::GetLast(index);
+        DeLock();
+        return rtVal;
+	}
+
+};
+///////////////////////////////////////////////////
+
+///////////////////////////////////////////////////
+/** \class LockedQueue :
+*  \brief Multi-thread safe queue, only support one thread read or write
+*  \note
+*   Lock queue by bool flag "bool isLocked",\n
+*   verify isLocked=false before access or make changes.\n
+*   Thread is not blocked,which can do nothing or jump to other works.\n
+*  \author Leon Contact: towanglei@163.com
+*  \version 1.0
+*  \date 2016/05/03 0:03
+*////////////////////////////////////////////////////
+/** \class SafeQueue :
+*  \brief Use status logic for read/write protection.
+*  \note
+*
+*    If directly call EnterRead()/EnterWrite(),thread is blocked in these function,\n
+*     If call Readable()/Writeable() before Enter*() to vertify accessable,\n
+*     thread is not blocked and could jump to do something else.\n
+*
+** Status:
+*
+*    Accessible in:  Do nothing  Reading  Writing
+*      To read           √        √       ×
+*      To write          √        ×       ×
+*
+*    Transferable from: Do nothing  Reading  Writing
+*      To do nothing        -        √       √
+*      To reading          √         -       ×
+*      To writing          √        ×        -
+*
+*  \author Leon Contact: towanglei@163.com
+*  \version 1.0
+*  \date 2016/05/20 10:08
+*/
+template <typename T>
+class SafeQueue :public Queue<T>, public SafeData
+{
+public:
+	virtual bool Initial(int dataNum = DEFAULTNUM) override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Writeable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return false;
+		}
+		EnterWrite();
+		bool rtVal = Queue<T>::Initial(dataNum);
+		LeaveWrite();
+		return rtVal;
+	}
+
+	virtual bool Unitial() override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Writeable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return false;
+		}
+		EnterWrite();
+		bool rtVal = Queue<T>::Unitial();
+		LeaveWrite();
+		return rtVal;
+	}
+
+	virtual int SetSize(int dataNum) override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Writeable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return -1;
+		}
+		EnterWrite();
+		int rtVal = Queue<T>::SetSize(dataNum);
+		LeaveWrite();
+		return rtVal;
+	}
+
+	virtual int GetSize() override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Readable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return -1;
+		}
+		EnterRead();
+		int rtVal = Queue<T>::GetSize();
+		LeaveRead();
+		return rtVal;
+	}
+
+	virtual int GetLength() override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Readable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return -1;
+		}
+		EnterRead();
+		int rtVal = Queue<T>::GetLength();
+		LeaveRead();
+		return rtVal;
+	}
+
+	virtual void Clear() override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Writeable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return;
+		}
+		EnterRead();
+		Queue<T>::Clear();
+		LeaveWrite();
+	}
+
+	virtual bool IsEmpty() override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Readable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return false;
+		}
+		EnterRead();
+		bool rtVal = Queue<T>::IsEmpty();
+		LeaveRead();
+		return rtVal;
+	}
+
+	virtual bool IsFull() override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Readable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return false;
+		}
+		EnterRead();
+		bool rtVal = Queue<T>::IsFull();
+		LeaveRead();
+		return rtVal;
+	}
+
+	virtual bool DelHead() override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Writeable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return false;
+		}
+		EnterWrite();
+		bool rtVal = Queue<T>::DelHead();
+		LeaveWrite();
+		return rtVal;
+	}
+
+	virtual bool AddTail(const T& data) override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Writeable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return false;
+		}
+		EnterWrite();
+		bool rtVal = Queue<T>::AddTail(data);
+		LeaveWrite();
+		return rtVal;
+	}
+
+	virtual bool ForcTail(const T& data) override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Writeable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return false;
+		}
+		EnterWrite();
+		bool rtVal = Queue<T>::ForcTail(data);
+		LeaveWrite();
+		return rtVal;
+	}
+
+	virtual bool GetTail(T& data) override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Readable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return false;
+		}
+		EnterRead();
+		bool rtVal = Queue<T>::GetTail(data);
+		LeaveRead();
+		return rtVal;
+	}
+
+	virtual T* GetTail() override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Readable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return 0;
+		}
+		EnterRead();
+		bool T* = Queue<T>::GetTail();
+		LeaveRead();
+		return rtVal;
+	}
+
+	virtual bool GetHead(T& data) override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Readable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return false;
+		}
+		EnterRead();
+		bool rtVal = Queue<T>::GetHead(data);
+		LeaveRead();
+		return rtVal;
+	}
+
+	virtual T* GetHead() override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Readable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return 0;
+		}
+		EnterRead();
+		T* rtVal = Queue<T>::GetHead();
+		LeaveRead();
+		return rtVal;
+	}
+
+	virtual bool GetData(T& data, int index) override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Readable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return false;
+		}
+		EnterRead();
+		bool rtVal = Queue<T>::GetData(data, index);
+		LeaveRead();
+		return rtVal;
+	}
+
+	virtual T* GetData(int index) override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Readable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return 0;
+		}
+		EnterRead();
+		T* rtVal = Queue<T>::GetData(index);
+		LeaveRead();
+		return rtVal;
+	}
+
+	virtual bool GetLast(T& data, int index) override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Readable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return false;
+		}
+		EnterRead();
+		bool rtVal = Queue<T>::GetLast(data, index);
+		LeaveRead();
+		return rtVal;
+	}
+
+	virtual T* GetLast(int index) override
+	{
+		m_ErrCode = QUE_NORMAL;
+		if (!Readable())
+		{
+			m_ErrCode = QUE_ERR_LOCKED;
+			return false;
+		}
+		EnterRead();
+		T* rtVal = Queue<T>::GetLast(index);
+		LeaveRead();
+		return rtVal;
 	}
 
 };
