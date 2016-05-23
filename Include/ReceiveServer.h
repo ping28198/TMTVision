@@ -39,7 +39,7 @@ struct ReceiveServerSetting
 	int m_LocalRecvPort = 5003;
 	NetIP m_LocalRecvIP = "0.0.0.0";
 	DWORD m_OptionFlag = 1;
-	long m_SleepTime;
+	long m_SleepTime = 0;
 public:
 	ReceiveServerSetting() {}
 	ReceiveServerSetting(const int localRecvPort, const NetIP localRecvIP,
@@ -79,7 +79,7 @@ class MessageItem
 public:
 	enum { MAXMSGSIZE = 10240 };
 	char p_Buffer[MAXMSGSIZE];
-	long m_BufferSize = 0;
+	long m_BufferSize = MAXMSGSIZE;
 	int m_SenderPort = 0;
 	NetIP m_SenderIp="";
 public:

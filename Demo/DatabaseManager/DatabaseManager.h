@@ -284,6 +284,8 @@ private://私有函数
 	int ConvertDefectsToJson(char* JsonStr, int bufferlength, int DfPos[][8], int DefectsNum);
 	int GetDefectsPosFromStr(char* str,int DfPos[][8]);
 	bool CreatImgTable();
+	bool ModifySqlCommand(char* pCmd);
+
 private://私有变量
 	MYSQL m_mysql;
 	int m_DbStatus;
@@ -292,6 +294,13 @@ private://私有变量
 	ReceiveServer m_ReceiveServer;
 	DbManagerSetting m_Setting;
 	CDatabaseManagerDlg *pParent;
+	int NetWorkResetCount;
+
+	//task函数使用
+	MessageItem tmpMsgItem;
+	MessageItem tmpSendMsgItem;
+	vector<Tmtv_ImageInfo> mImgVec;
+	vector<Tmtv_CameraInfo> mCamVec;
 
 
 

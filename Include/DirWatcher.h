@@ -127,6 +127,8 @@ struct FileItem
 	TINYWSTR m_fileTime;
 	DWORD m_fileAction;
 	bool m_fileProcessed;
+	int m_fileWidth;
+	int m_fileHeiht;
 };
 #endif
 //==============================================================================

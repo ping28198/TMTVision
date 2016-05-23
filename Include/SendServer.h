@@ -35,12 +35,12 @@ using namespace std;
 //Xml配置文件按照此结构存储, 读取后再逐步启动程序
 struct SendServerSetting
 {
-	int m_RemoteRecvPort = 5005;
+	int m_RemoteRecvPort = TMT_DBSERVER_RECVPORT;
 	NetIP m_RemoteRecvIp = "0.0.0.0";
-	int m_LocalSendPort = 5006;
+	int m_LocalSendPort = TMT_CAMSERVER_SENDPORT;
 	NetIP m_LocalSendIP = "0.0.0.0";
 	DWORD m_OptionFlag = 1;
-	long m_SleepTime;
+	long m_SleepTime = 0;
 public:
 	SendServerSetting() {}
 	SendServerSetting(const int remoteRecvPort, const NetIP  remoteRecvIp,
@@ -87,7 +87,7 @@ class MessageItem
 public:
 	enum { MAXMSGSIZE = 10240 };
 	char p_Buffer[MAXMSGSIZE];
-	long m_BufferSize = 0;
+	long m_BufferSize = MAXMSGSIZE;
 	int m_SenderPort = 0;
 	NetIP m_SenderIp="";
 public:

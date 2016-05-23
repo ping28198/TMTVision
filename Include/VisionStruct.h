@@ -154,7 +154,7 @@ struct Tmtv_CameraInfo //相机信息
 		TMTV_RUNNINGCAM = 302, //已加载的运行相机
 	};
 	int Status= TMTV_NOCAM;//1.2//相机状态	
-	int WaiteTime=1000;//1.2//相机状态
+	int WaiteTime=500;//1.2//相机状态
 	Tmtv_AlgorithmInfo AlgorithmInfo;
 public:
 	Tmtv_CameraInfo(){}
@@ -295,7 +295,7 @@ struct Tmtv_BaseNetMessage
 	int m_Param = 0;	//附加参数
 	HANDLE hDstHandle =0;   //1.1//请求线程句柄,=0无效,用于调试,暂时程序不调用
 	HANDLE hSrcHandle =0;//1.1//应答线程句柄,=0无效,用于调试,暂时程序不调用
-	NetIP mAddr="";		//告知接收方，我方的接收地址
+	NetIP mAddr="";	//告知接收方，我方的接收地址
 	int mPort=0;
 	NetIP dstAddr="";		//消息发送的目标地址
 	int dstPort=0;
@@ -403,3 +403,4 @@ struct Tmt_ClientInfo //客户端信息
 };
 //==============================================================================
 ///</datastruct_info>
+

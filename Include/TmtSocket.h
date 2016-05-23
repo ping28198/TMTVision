@@ -115,12 +115,6 @@ public:
 
 	int RecvNetMsg(void *pBuffer, size_t bufLength);//2.0
 
-
-
-
-
-
-
 	int ReSet();//看需要进行重置
 	int ReleaseSocket();//手动释放socket
 public:

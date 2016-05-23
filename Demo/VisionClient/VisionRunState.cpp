@@ -49,7 +49,7 @@ bool CVisionRunState::AddNewImg(Tmtv_ImageInfo* imgInfo)
 	it = mImgInfoVec.begin();
 	for (; it != mImgInfoVec.end();it++)
 	{
-		if (it->mCameraInfo.Indexnum==imgInfo->mCameraInfo.Indexnum)
+		if (it->mCamId==imgInfo->mCamId)
 		{
 			*it = *imgInfo;
 			isExist = true;
@@ -57,9 +57,8 @@ bool CVisionRunState::AddNewImg(Tmtv_ImageInfo* imgInfo)
 	}
 	if(!isExist)	mImgInfoVec.push_back(*imgInfo);
 	LeaveCriticalSection(&cs);
-	CString mstr;
-	mstr.Format(_T("HistoryImgInfo\\%d.data"),imgInfo->mCameraInfo.Indexnum);
-	CMemoryFile::WriteMemoryToFile_AW(imgInfo, sizeof(Tmtv_ImageInfo), mstr.GetBuffer());
+
+
 	return true;
 }
 

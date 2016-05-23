@@ -19,6 +19,7 @@
 #include "MemoryFile.h"//文件读写
 #include "Queue.h"
 #include "DirWatcher.h"
+#include "USBCamWatcher.h"
 #include "TmtCrypt.h"//字符串加密，界面
 #include "XMLOperator.h"//xml读写
 #include "JsonCPPHeader/json.h"//json格式

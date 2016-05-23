@@ -5,13 +5,14 @@
 #pragma once
 #include "afxcmn.h"
 #include "CommonInclude.h"
-#include "VisionRunState.h"
-#include "NetWorkServer.h"
+//#include "VisionRunState.h"
+//#include "NetWorkServer.h"
 #include "AddCamDlg.h"
 #include "AskHistDlg.h"
 #include "ZoomImgDlg.h"
 #include "LoginDlg.h"
 #include "CipherCode.h"
+#include "VisionRun.h"
 // CVisionClientDlg 对话框
 
 
@@ -40,8 +41,8 @@ public:
 	CDC *pBmpDC;
 	int xImgNum;
 	int yImgNum;
-	CNetWorkServer *pNetWorkServer;
-	CVisionRunState *pRunState;
+	//CNetWorkServer *pNetWorkServer;
+	CVisionRun *pVisionRun;
 	CAddCamDlg* pAddCamDlg;
 	CAskHistDlg* pAskHistDlg;
 	CZoomImgDlg* pZoomImgDlg;
@@ -51,20 +52,20 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//将单个图像绘制到指定区域且绘制信息
 	//图像信息，区域信息
-	static void DrawImage(Tmtv_ImageInfo& ImgInfo,CRect mRect, CDC* pDC);//
+	 void DrawImage(Tmtv_ImageInfo& ImgInfo,CRect mRect, CDC* pDC);//
 	//////////////////////////////////////////////////////////////////////////
 	//绘制所有图像
 	//图像信息容器，区域容器，绘图句柄，背景颜色
-	static void DrawAllImage(vector<Tmtv_ImageInfo> &mImgVec, vector<CRect> &mRcVec, CDC* pDC, COLORREF bkcolor);
+	 void DrawAllImage(vector<Tmtv_ImageInfo> &mImgVec, vector<CRect> &mRcVec, CDC* pDC, COLORREF bkcolor);
 	
 	//////////////////////////////////////////////////////////////////////////
 	//调整图像显示区域
 	//水平显示个数，竖直显示个数，图像区域，所有图像区容器
-	static void AdjustImgRect(int xnum,int ynum,CRect imgRangeRect, vector<CRect> &mRcVec);
+	 void AdjustImgRect(int xnum,int ynum,CRect imgRangeRect, vector<CRect> &mRcVec);
 	
 	//////////////////////////////////////////////////////////////////////////
 	//绘制警告标志
-	static void DrawWarnSign(Tmtv_ImageInfo &mImg, CRect &mRc, CDC* pDC, int marginwidth,COLORREF bkcolor);
+	 void DrawWarnSign(Tmtv_ImageInfo &mImg, CRect &mRc, CDC* pDC, int marginwidth,COLORREF bkcolor);
 
 	void InitConfig();//重设配置参数
 	void DrawImgToMemBmp();//绘制函数
@@ -72,6 +73,7 @@ public:
 
 	//相机信息相关函数
 	int AddCam(Tmtv_CameraInfo *camInfo);
+	bool GetCam(Tmtv_CameraInfo *camInfo);
 	void ModifyCam(Tmtv_CameraInfo *camInfo);
 	void DelCam(int camIndex);
 	//////////////////////////////////////////////////////////////////////////
@@ -83,7 +85,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//窗体信息更新相关函数
 	void ShowCamInfoToList();
-
+	
 
 
 
