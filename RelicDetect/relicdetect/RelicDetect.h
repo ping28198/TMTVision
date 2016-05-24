@@ -1,6 +1,4 @@
-
-#ifndef _RELIC_DETECT_LIB_H_
-#define _RELIC_DETECT_LIB_H_
+#pragma once
 
 #include <stdio.h>
 #include <string>
@@ -38,5 +36,3 @@ public:
 
 
 };
-
-#endif

@@ -32,6 +32,10 @@ int main()
 	scene.Load_Img(scene_color);
 	obj.Calc_Keypoints_and_Descriptors();
 	scene.Calc_Keypoints_and_Descriptors();
+
+	scene.Match_a_Obj(obj);
+	scene.Draw_Obj();
+	cout << "relicDetect" << endl;
 	RelicDetect doit;
 	doit.Match(obj, scene);
 	////-------------------------
