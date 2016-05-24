@@ -12,8 +12,13 @@ string RelicDetect::test()
 {
 	return "Hello I'm relic!!";
 }
+void RelicDetect::Load_Img(InputArray img)
+{
+	RelicDetect::img_color = img.getMat();
+	cvtColor(img, RelicDetect::img_gray, CV_BGR2GRAY);
+}
 
-void RelicDetect::Calc_Keypoints_and_Descriptors(Mat input_img)
+void RelicDetect::Calc_Keypoints_and_Descriptors()
 {
 	int minHessian = 200;
 	//建立一个surf对象，保存在cv::Ptr（智能指针）内
@@ -23,7 +28,7 @@ void RelicDetect::Calc_Keypoints_and_Descriptors(Mat input_img)
 	//创建矩阵，用来存储描述子descriptor
 	Mat descriptors;
 	//detect keypoints 并 计算 descriptors。第二个参数为mask，这里为空。
-	detector->detectAndCompute(input_img, Mat(), keypoints, descriptors);
+	detector->detectAndCompute(RelicDetect::img_gray, Mat(), keypoints, descriptors);
 
 	RelicDetect::descriptors = descriptors;
 	RelicDetect::keypoints = keypoints;
@@ -57,4 +62,122 @@ void RelicDetect::Mat_to_VecVec(Mat inmat, vector<vector<int>> &outvecvec)
 			outvecvec[row][col] = inmat.at<int>(row, col);
 		}
 	}
+}
+
+bool RelicDetect::Match(RelicDetect obj,RelicDetect scn)
+{
+	FlannBasedMatcher matcher;
+	std::vector< DMatch > matches;
+	
+	matcher.match(obj.descriptors, scn.descriptors, matches);
+	double max_dist = 0; double min_dist = 100;
+	//-- Quick calculation of max and min distances between keypoints
+	for (int i = 0; i < obj.descriptors.rows; i++)
+	{
+		double dist = matches[i].distance;
+		if (dist < min_dist) min_dist = dist;
+		if (dist > max_dist) max_dist = dist;
+	}
+	printf("-- Max dist : %f \n", max_dist);
+	printf("-- Min dist : %f \n", min_dist);
+	//-- Draw only "good" matches (i.e. whose distance is less than 3*min_dist )
+	std::vector< DMatch > good_matches;
+	for (int i = 0; i < obj.descriptors.rows; i++)
+	{
+		if (matches[i].distance <= 3 * min_dist)
+		{
+			good_matches.push_back(matches[i]);
+		}
+	}
+	max_dist = 0;min_dist = 100;double total_min_dist = 0;
+	for (int i = 0; i < good_matches.size(); i++)
+	{
+		double dist = good_matches[i].distance;
+		total_min_dist += dist;
+		if (dist < min_dist) min_dist = dist;
+		if (dist > max_dist) max_dist = dist;
+
+	}
+	printf("-- good matches Max dist : %f \n", max_dist);
+	printf("-- good matches Min dist : %f \n", min_dist);
+	printf("-- good matches total Min dist : %f \n", total_min_dist);
+	cout << "-- good matches size " << good_matches.size() << endl;
+	cout << "-- dist per match" << total_min_dist / (double)good_matches.size() << endl;
+	Mat img_matches;
+	drawMatches(obj.img_color, obj.keypoints, scn.img_color, scn.keypoints,
+		good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
+		std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+	//imshow("matches", img_matches);
+	//-- Localize the object
+	std::vector<Point2f> obj_points;
+	std::vector<Point2f> scn_points;
+	for (size_t i = 0; i < good_matches.size(); i++)
+	{
+		//-- Get the keypoints from the good matches
+		obj_points.push_back(obj.keypoints[good_matches[i].queryIdx].pt);
+		scn_points.push_back(scn.keypoints[good_matches[i].trainIdx].pt);
+	}
+	Mat H = cv::findHomography(obj_points, scn_points, RANSAC);
+	cout << "H:" << endl;
+	for (int i = 0;i < H.rows;i++)
+	{
+		for (int j = 0;j < H.cols;j++)
+		{
+			cout << H.at<double>(i, j) << " ";
+		}
+		cout << endl;
+	}
+	//-- Get the corners from the image_1 ( the object to be "detected" )
+	std::vector<Point2f> obj_corners(4);
+	obj_corners[0] = cvPoint(0, 0);
+	obj_corners[1] = cvPoint(obj.img_color.cols, 0);
+	obj_corners[2] = cvPoint(obj.img_color.cols, obj.img_color.rows);
+	obj_corners[3] = cvPoint(0, obj.img_color.rows);
+	std::vector<Point2f> scene_corners(4);
+	perspectiveTransform(obj_corners, scene_corners, H);
+	cout << "object area" << contourArea(obj_corners) << endl;
+	cout << "scene detected area" << contourArea(scene_corners) << endl;
+	auto scene_area = contourArea(scene_corners);
+	//-- Draw lines between the corners (the mapped object in the scene - image_2 )
+	line(img_matches, scene_corners[0] + Point2f(obj.img_color.cols, 0), scene_corners[1] + Point2f(obj.img_color.cols, 0), Scalar(0, 255, 0), 4);
+	line(img_matches, scene_corners[1] + Point2f(obj.img_color.cols, 0), scene_corners[2] + Point2f(obj.img_color.cols, 0), Scalar(0, 255, 0), 4);
+	line(img_matches, scene_corners[2] + Point2f(obj.img_color.cols, 0), scene_corners[3] + Point2f(obj.img_color.cols, 0), Scalar(0, 255, 0), 4);
+	line(img_matches, scene_corners[3] + Point2f(obj.img_color.cols, 0), scene_corners[0] + Point2f(obj.img_color.cols, 0), Scalar(0, 255, 0), 4);
+	//-- Show detected matches
+	imshow("Good Matches & Object detection", img_matches);
+	waitKey(0);
+	if (scene_area>1000)
+	{
+		return true;
+	} 
+	else
+	{
+		return false;
+	}
+}
+
+double RelicDetect::Get_min_Dist(vector<DMatch> matches)
+{
+	double max_dist = 0; double min_dist = 100;
+	//-- Quick calculation of max and min distances between keypoints
+	for (int i = 0; i < matches.size(); i++)
+	{
+		double dist = matches[i].distance;
+		if (dist < min_dist) min_dist = dist;
+		if (dist > max_dist) max_dist = dist;
+	}
+	return min_dist;
+}
+vector<DMatch> RelicDetect::Get_Good_Matches(vector<DMatch> matches)
+{
+	double min_dist = Get_min_Dist(matches);
+	std::vector< DMatch > good_matches;
+	for (int i = 0; i < matches.size(); i++)
+	{
+		if (matches[i].distance <= 3 * min_dist)
+		{
+			good_matches.push_back(matches[i]);
+		}
+	}
+	return good_matches;
 }

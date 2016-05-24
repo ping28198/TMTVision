@@ -28,10 +28,12 @@ int main()
 
 	RelicObj obj;
 	RelicScn scene;
-
-	obj.Calc_Keypoints_and_Descriptors(object_gray);
-	scene.Calc_Keypoints_and_Descriptors(scene_gray);
-
+	obj.Load_Img(object_color);
+	scene.Load_Img(scene_color);
+	obj.Calc_Keypoints_and_Descriptors();
+	scene.Calc_Keypoints_and_Descriptors();
+	RelicDetect doit;
+	doit.Match(obj, scene);
 	////-------------------------
 	//cout << "mat descriptors" << endl;
 	//for (int j = 0; j < obj.descriptors.cols; j++)
