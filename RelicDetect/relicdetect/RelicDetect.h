@@ -24,9 +24,14 @@ public:
 	string test();
 	void Load_Img(InputArray img);
 	void Calc_Keypoints_and_Descriptors();
-	bool RelicDetect::Match(RelicDetect obj, RelicDetect scn);
+	bool Match(RelicDetect obj, RelicDetect scn);
 	double Get_min_Dist(vector<DMatch> matches);
 	vector<DMatch> Get_Good_Matches(vector<DMatch> matches);
+	// test for blur
+    static double Image_Blurred_LAPM(Mat img);
+	static bool Image_Blurred(Mat img,int blur_threshold);
+	static double Image_Blurred_LAPV(Mat img);
+	static double RelicDetect::Image_Blurred_TENG(Mat img, int ksize);
 public:
 	Mat img_color;
 	Mat img_gray;

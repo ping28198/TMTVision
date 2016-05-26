@@ -1,5 +1,5 @@
 #include "RelicScn.h"
-bool RelicScn::Match_a_Obj(RelicObj obj)
+bool RelicScn::Match_an_Obj(RelicObj obj)
 {
 	FlannBasedMatcher matcher;
 	vector<DMatch> matches;
@@ -17,28 +17,37 @@ bool RelicScn::Match_a_Obj(RelicObj obj)
 		scn_points.push_back(this->keypoints[good_matches[i].trainIdx].pt);
 	}
 	Mat H = cv::findHomography(obj_points, scn_points, RANSAC);
-	cout << "H:" << endl;
-	for (int i = 0;i < H.rows;i++)
-	{
-		for (int j = 0;j < H.cols;j++)
-		{
-			cout << H.at<double>(i, j) << " ";
-		}
-		cout << endl;
-	}
+	//cout << "H:" << endl;
+	//for (int i = 0;i < H.rows;i++)
+	//{
+	//	for (int j = 0;j < H.cols;j++)
+	//	{
+	//		cout << H.at<double>(i, j) << " ";
+	//	}
+	//	cout << endl;
+	//}
 	//-- Get the corners from the image_1 ( the object to be "detected" )
 	std::vector<Point2f> obj_corners(4);
+	//obj_corners[0] = cvPoint(0, 0);
+	//obj_corners[1] = cvPoint(obj.img_gray.cols, 0);
+	//obj_corners[2] = cvPoint(obj.img_gray.cols, obj.img_gray.rows);
+	//obj_corners[3] = cvPoint(0, obj.img_gray.rows);
+
 	obj_corners[0] = cvPoint(0, 0);
-	obj_corners[1] = cvPoint(obj.img_gray.cols, 0);
-	obj_corners[2] = cvPoint(obj.img_gray.cols, obj.img_gray.rows);
-	obj_corners[3] = cvPoint(0, obj.img_gray.rows);
+	obj_corners[1] = cvPoint(obj.img_width, 0);
+	obj_corners[2] = cvPoint(obj.img_width, obj.img_height);
+	obj_corners[3] = cvPoint(0, obj.img_height);
+
 	std::vector<Point2f> scene_corners(4);
 	perspectiveTransform(obj_corners, scene_corners, H);
 	cout << "object area" << contourArea(obj_corners) << endl;
 	cout << "scene detected area" << contourArea(scene_corners) << endl;
 	this->corners = scene_corners;
-	double scene_area = contourArea(scene_corners);
-	if (scene_area>=10000)
+	double possible_target_area = contourArea(scene_corners);
+	double whole_scene_area = this->img_gray.rows*this->img_gray.cols;
+	cout << "whoel scene area: " << whole_scene_area<<endl;
+	cout << "ratio: " << possible_target_area / whole_scene_area<<endl;
+	if (possible_target_area / whole_scene_area>0.10)
 	{
 		return true;
 	} 

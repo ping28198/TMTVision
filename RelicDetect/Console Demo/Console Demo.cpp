@@ -19,25 +19,25 @@ using namespace cv::xfeatures2d;
 using namespace std;
 int main()
 {
-	Mat object_color = imread("..\\images\\postcard_object.JPG");
-	Mat scene_color = imread("..\\images\\postcard_scene_1.jpg");
-	//imshow("origin_object", object_color);
-	Mat object_gray,scene_gray;
-	cvtColor(object_color, object_gray, CV_BGR2GRAY);
-	cvtColor(scene_color, scene_gray, CV_BGR2GRAY);
+	Mat object_color = imread("..\\images\\owl_object.JPG");
+	Mat scene_color = imread("..\\images\\blur_scene_3.jpg");
 
 	RelicObj obj;
 	RelicScn scene;
 	obj.Load_Img(object_color);
 	scene.Load_Img(scene_color);
+	cout << "blur measure:" << RelicDetect::Image_Blurred(scene.img_gray,200) << endl;;
+	cout << "blur lapm: " << RelicDetect::Image_Blurred_LAPM(scene.img_gray) << endl;
+	cout << "blur lapv: " << RelicDetect::Image_Blurred_LAPV(scene.img_gray) << endl;
+	cout << "blur teng: " << RelicDetect::Image_Blurred_TENG(scene.img_gray, 3) << endl;
 	obj.Calc_Keypoints_and_Descriptors();
 	scene.Calc_Keypoints_and_Descriptors();
 
-	scene.Match_a_Obj(obj);
+	scene.Match_an_Obj(obj);
 	scene.Draw_Obj();
 	cout << "relicDetect" << endl;
-	RelicDetect doit;
-	doit.Match(obj, scene);
+	//RelicDetect doit;
+	//doit.Match(obj, scene);
 	////-------------------------
 	//cout << "mat descriptors" << endl;
 	//for (int j = 0; j < obj.descriptors.cols; j++)

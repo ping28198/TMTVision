@@ -181,3 +181,61 @@ vector<DMatch> RelicDetect::Get_Good_Matches(vector<DMatch> matches)
 	}
 	return good_matches;
 }
+
+bool RelicDetect::Image_Blurred(Mat img, int blur_threshold)
+{
+	cv::Mat lap;
+	cv::Laplacian(img, lap, CV_64F);
+
+	cv::Scalar mu, sigma;
+	cv::meanStdDev(lap, mu, sigma);
+
+	double focusMeasure = sigma.val[0] * sigma.val[0];
+	if (focusMeasure>=blur_threshold)
+	{
+		return false;
+	} 
+	else
+	{// only focus measure less than blur_threshold is considered blurry
+		return true;
+	}
+}
+
+double RelicDetect::Image_Blurred_LAPM(Mat img)
+{
+	cv::Mat M = (Mat_<double>(3, 1) << -1, 2, -1);
+	cv::Mat G = cv::getGaussianKernel(3, -1, CV_64F);
+
+	cv::Mat Lx;
+	cv::sepFilter2D(img, Lx, CV_64F, M, G);
+
+	cv::Mat Ly;
+	cv::sepFilter2D(img, Ly, CV_64F, G, M);
+
+	cv::Mat FM = cv::abs(Lx) + cv::abs(Ly);
+
+	double focusMeasure = cv::mean(FM).val[0];
+	return focusMeasure;
+}
+double RelicDetect::Image_Blurred_LAPV(Mat img)
+{
+	cv::Mat lap;
+	cv::Laplacian(img, lap, CV_64F);
+
+	cv::Scalar mu, sigma;
+	cv::meanStdDev(lap, mu, sigma);
+
+	double focusMeasure = sigma.val[0] * sigma.val[0];
+	return focusMeasure;
+}
+double RelicDetect::Image_Blurred_TENG(Mat img,int ksize)
+{
+	cv::Mat Gx, Gy;
+	cv::Sobel(img, Gx, CV_64F, 1, 0, ksize);
+	cv::Sobel(img, Gy, CV_64F, 0, 1, ksize);
+
+	cv::Mat FM = Gx.mul(Gx) + Gy.mul(Gy);
+
+	double focusMeasure = cv::mean(FM).val[0];
+	return focusMeasure;
+}
