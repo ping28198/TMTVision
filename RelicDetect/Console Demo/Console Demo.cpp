@@ -14,6 +14,7 @@
 
 #include "RelicObj.h"
 #include "RelicScn.h"
+#include "JsonCPPHeader\json.h"
 using namespace cv;
 using namespace cv::xfeatures2d;
 using namespace std;
@@ -52,8 +53,9 @@ int main()
 	//{
 	//	cout << descriptors_vecvec[0][j]<<endl;
 	//}
-
-
+	Json::Value root;string test;
+	auto str = obj.Convert_to_Json(obj);
+	obj.Parse_from_Json(str);
 	waitKey(0);
 	system("pause");
     return 0;

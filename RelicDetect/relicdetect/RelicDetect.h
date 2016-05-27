@@ -11,6 +11,8 @@
 #include "opencv2/calib3d.hpp"
 #include "opencv2/xfeatures2d.hpp"
 
+#include "JsonCPPHeader\json.h"
+
 using namespace cv;
 using namespace cv::xfeatures2d;
 using namespace std;
@@ -37,7 +39,4 @@ public:
 	Mat img_gray;
 	Mat descriptors;
 	vector<KeyPoint> keypoints;
-
-
-
 };
