@@ -33,6 +33,9 @@
     <ClInclude Include="..\relicdetect\RelicScn.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="opencv_serialization.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

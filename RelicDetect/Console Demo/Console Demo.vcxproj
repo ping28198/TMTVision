@@ -72,26 +72,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <ExecutablePath>$(OPENCV_PATH)\x86\vc14\bin;$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
-    <IncludePath>..\relicdetect;$(OPENCV_PATH)\include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(OPENCV_PATH)\x86\vc14\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>$(BOOST_PATH);..\relicdetect;$(OPENCV_PATH)\include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_PATH)\lib64-msvc-14.0;$(OPENCV_PATH)\x86\vc14\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <ExecutablePath>$(OPENCV_PATH)\x64\vc14\bin;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
-    <IncludePath>..\..\Include;..\relicdetect;$(OPENCV_PATH)\include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>..\..\Lib\jsoncpp\x64\vc14;$(OPENCV_PATH)\x64\vc14\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>$(BOOST_PATH);..\..\Include;..\relicdetect;$(OPENCV_PATH)\include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_PATH)\lib64-msvc-14.0;..\..\Lib\jsoncpp\x64\vc14;$(OPENCV_PATH)\x64\vc14\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <ExecutablePath>$(OPENCV_PATH)\build\x86\vc14\bin;$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
-    <IncludePath>..\relicdetect;$(OPENCV_PATH)\build\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>..\Release;$(OPENCV_PATH)\build\x86\vc14\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>$(BOOST_PATH);..\relicdetect;$(OPENCV_PATH)\build\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(BOOST_PATH)\lib64-msvc-14.0;..\Release;$(OPENCV_PATH)\build\x86\vc14\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <ExecutablePath>$(OPENCV_PATH)\x64\vc14\bin;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
-    <IncludePath>..\..\Include;..\relicdetect;$(OPENCV_PATH)\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>..\..\Lib\jsoncpp\x64\vc14;$(OPENCV_PATH)\x64\vc14\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>$(BOOST_PATH);..\..\Include;..\relicdetect;$(OPENCV_PATH)\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(BOOST_PATH)\lib64-msvc-14.0;..\..\Lib\jsoncpp\x64\vc14;$(OPENCV_PATH)\x64\vc14\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -122,7 +122,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(BOOST_PATH)\lib64-msvc-14.0</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_aruco310d.lib;opencv_bgsegm310d.lib;opencv_bioinspired310d.lib;opencv_calib3d310d.lib;opencv_ccalib310d.lib;opencv_core310d.lib;opencv_datasets310d.lib;opencv_dnn310d.lib;opencv_dpm310d.lib;opencv_face310d.lib;opencv_features2d310d.lib;opencv_flann310d.lib;opencv_fuzzy310d.lib;opencv_highgui310d.lib;opencv_imgcodecs310d.lib;opencv_imgproc310d.lib;opencv_line_descriptor310d.lib;opencv_ml310d.lib;opencv_objdetect310d.lib;opencv_optflow310d.lib;opencv_photo310d.lib;opencv_plot310d.lib;opencv_reg310d.lib;opencv_rgbd310d.lib;opencv_saliency310d.lib;opencv_shape310d.lib;opencv_stereo310d.lib;opencv_stitching310d.lib;opencv_structured_light310d.lib;opencv_superres310d.lib;opencv_surface_matching310d.lib;opencv_text310d.lib;opencv_tracking310d.lib;opencv_ts310d.lib;opencv_video310d.lib;opencv_videoio310d.lib;lib_jsond.lib;opencv_videostab310d.lib;opencv_xfeatures2d310d.lib;opencv_ximgproc310d.lib;opencv_xobjdetect310d.lib;opencv_xphoto310d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>boost_serialization-vc140-mt-gd-1_61.lib;opencv_aruco310d.lib;opencv_bgsegm310d.lib;opencv_bioinspired310d.lib;opencv_calib3d310d.lib;opencv_ccalib310d.lib;opencv_core310d.lib;opencv_datasets310d.lib;opencv_dnn310d.lib;opencv_dpm310d.lib;opencv_face310d.lib;opencv_features2d310d.lib;opencv_flann310d.lib;opencv_fuzzy310d.lib;opencv_highgui310d.lib;opencv_imgcodecs310d.lib;opencv_imgproc310d.lib;opencv_line_descriptor310d.lib;opencv_ml310d.lib;opencv_objdetect310d.lib;opencv_optflow310d.lib;opencv_photo310d.lib;opencv_plot310d.lib;opencv_reg310d.lib;opencv_rgbd310d.lib;opencv_saliency310d.lib;opencv_shape310d.lib;opencv_stereo310d.lib;opencv_stitching310d.lib;opencv_structured_light310d.lib;opencv_superres310d.lib;opencv_surface_matching310d.lib;opencv_text310d.lib;opencv_tracking310d.lib;opencv_ts310d.lib;opencv_video310d.lib;opencv_videoio310d.lib;lib_jsond.lib;opencv_videostab310d.lib;opencv_xfeatures2d310d.lib;opencv_ximgproc310d.lib;opencv_xobjdetect310d.lib;opencv_xphoto310d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -172,6 +172,7 @@
     <ClInclude Include="..\relicdetect\RelicDetect.h" />
     <ClInclude Include="..\relicdetect\RelicObj.h" />
     <ClInclude Include="..\relicdetect\RelicScn.h" />
+    <ClInclude Include="opencv_serialization.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

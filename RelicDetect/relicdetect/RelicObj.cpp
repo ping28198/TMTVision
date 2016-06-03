@@ -10,40 +10,66 @@ void RelicObj::Load_Img(InputArray img)
 string RelicObj::Convert_to_Json(RelicObj obj)
 {
 	using namespace std;
-
+	
 	Json::Value root;
 	//set size node////////////////////////////////////////////////////////////////////////
 	Json::Value size;
 	size["height"] = obj.img_height;
 	size["width"] = obj.img_width;
 	root["img_size"] = size;
-	//////////////////////////////////////////////////////////////////////////
-	Json::Value arrayObj;
-	Json::Value item;
-
-	//item["keypoints"] = "jsoncpp";
-	//item["descriptors"] = "jsoninjava";
-	//item["php"] = "support";
-	//arrayObj.append(item);
-	
-	Json::Value keypoints = NULL;
-	Json::Value descriptors = NULL;
-	Json::Value feature;
-	
-	feature["keypoinsts"] = keypoints;
-	feature["descriptors"] = descriptors;
+	//set keypoints and descriptors////////////////////////////////////////////////////////////////////////
+	Json::Value feature;	
+	feature["keypoinsts"] = Keypoints_to_Json_Obj(this->keypoints);
+	feature["descriptors"] = Descriptors_to_Json_Obj(this->descriptors);
 	//////////////////////////////////////////////////////////////////////////
 	root["feature"] = feature;
 	//root.toStyledString();
-	std::string out = root.toStyledString();
-	std::cout << out << std::endl;
+	//std::string out = root.toStyledString();
+	//std::cout << out << std::endl;
 	Json::FastWriter writer;
 	return writer.write(root);
 
 }
-string RelicObj::Descriptors_to_Json_Obj(Mat descriptors)
+Json::Value RelicObj::Descriptors_to_Json_Obj(Mat descriptors)
 {
-
+	Json::Value root;
+	for (int i = 0;i < descriptors.rows;i++)
+	{
+		Json::Value array_line;
+		int line[64];
+		for (int j = 0;j < descriptors.cols;j++)
+		{
+			array_line.append(descriptors.at<int>(i, j)).asInt();
+		}
+		//array_line = line;
+		//cout<< array_line.toStyledString();
+		root.append(array_line);
+		//cout << root.toStyledString();
+	}
+	return root;
+}
+Json::Value RelicObj::Keypoints_to_Json_Obj(vector<KeyPoint> keypoints)
+{
+	auto a = keypoints;
+	Json::Value all_keypoints;
+	for (int i = 0;i < keypoints.size();i++)
+	{
+		Json::Value one_keypoint;
+		one_keypoint["index"] = i;
+		one_keypoint["size"] = keypoints[i].size;
+		one_keypoint["angle"] = keypoints[i].angle;
+		one_keypoint["reponse"] = keypoints[i].response;
+		one_keypoint["octave"] = keypoints[i].octave;
+		one_keypoint["class_id"] = keypoints[i].class_id;
+		Json::Value pt;
+		pt["x"] = keypoints[i].pt.x;
+		pt["y"] = keypoints[i].pt.y;
+		one_keypoint["pt"] = pt;
+		//cout << one_keypoint.toStyledString();
+		all_keypoints.append(one_keypoint);
+		//cout << all_keypoints.toStyledString();
+	}
+	return all_keypoints;
 }
 RelicObj RelicObj::Parse_from_Json(string json_str)
 {

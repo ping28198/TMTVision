@@ -13,6 +13,9 @@
 
 #include "JsonCPPHeader\json.h"
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 using namespace cv;
 using namespace cv::xfeatures2d;
 using namespace std;
@@ -35,8 +38,10 @@ public:
 	static double Image_Blurred_LAPV(Mat img);
 	static double RelicDetect::Image_Blurred_TENG(Mat img, int ksize);
 public:
+
 	Mat img_color;
 	Mat img_gray;
 	Mat descriptors;
 	vector<KeyPoint> keypoints;
+	string text;
 };
