@@ -1,7 +1,6 @@
 
 #include "RelicDetect.h"
 
-int k = 222;
 
 RelicDetect::RelicDetect()
 {
@@ -239,4 +238,3 @@ double RelicDetect::Image_Blurred_TENG(Mat img,int ksize)
 	double focusMeasure = cv::mean(FM).val[0];
 	return focusMeasure;
 }
-

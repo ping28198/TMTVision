@@ -63,33 +63,12 @@ Json::Value RelicObj::Keypoints_to_Json_Obj(vector<KeyPoint> keypoints)
 	str_keypoints = ss.str();
 
 	Json::Value all_keypoints = str_keypoints;
-	//for (int i = 0;i < keypoints.size();i++)
-	//{
-	//	Json::Value one_keypoint;
-	//	one_keypoint["index"] = i;
-	//	one_keypoint["size"] = keypoints[i].size;
-	//	one_keypoint["angle"] = keypoints[i].angle;
-	//	one_keypoint["reponse"] = keypoints[i].response;
-	//	one_keypoint["octave"] = keypoints[i].octave;
-	//	one_keypoint["class_id"] = keypoints[i].class_id;
-	//	Json::Value pt;
-	//	pt["x"] = keypoints[i].pt.x;
-	//	pt["y"] = keypoints[i].pt.y;
-	//	one_keypoint["pt"] = pt;
-	//	//cout << one_keypoint.toStyledString();
-	//	all_keypoints.append(one_keypoint);
-	//	//cout << all_keypoints.toStyledString();
-	//}
 	return all_keypoints;
 }
-RelicObj RelicObj::Parse_from_Json(string json_str)
+void RelicObj::Parse_from_Json(string json_str)
 {
-	//using namespace std;
-	//std::string strValue = "{\"name\":\"json\",\"array\":[{\"cpp\":\"jsoncpp\"},{\"java\":\"jsoninjava\"},{\"php\":\"support\"}]}";
-
 	Json::Reader reader;
 	Json::Value value;
-	RelicObj a;
 	if (reader.parse(json_str, value))
 	{
 		auto height = value["img_size"]["height"].asInt();
@@ -111,19 +90,6 @@ RelicObj RelicObj::Parse_from_Json(string json_str)
 		this->img_width = width;
 		this->keypoints = read_keypoints;
 		this->descriptors = read_descriptors;
-		//////////////////////////////////////////////////////////////////////////
-		//std::string out = value["name"].asString();
-		//std::cout << out << std::endl;
-		//const Json::Value arrayObj = value["array"];
-		//for (unsigned int i = 0; i < arrayObj.size(); i++)
-		//{
-		//	if (!arrayObj[i].isMember("cpp"))
-		//		continue;
-		//	out = arrayObj[i]["cpp"].asString();
-		//	std::cout << out;
-		//	if (i != (arrayObj.size() - 1))
-		//		std::cout << std::endl;
-		//}
+
 	}
-	return a;
 }

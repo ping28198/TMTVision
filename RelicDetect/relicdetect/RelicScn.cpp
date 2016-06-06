@@ -1,6 +1,8 @@
 #include "RelicScn.h"
 bool RelicScn::Match_an_Obj(RelicObj obj)
 {
+	string message;
+
 	FlannBasedMatcher matcher;
 	vector<DMatch> matches;
 
@@ -28,31 +30,30 @@ bool RelicScn::Match_an_Obj(RelicObj obj)
 	//}
 	//-- Get the corners from the image_1 ( the object to be "detected" )
 	std::vector<Point2f> obj_corners(4);
-	//obj_corners[0] = cvPoint(0, 0);
-	//obj_corners[1] = cvPoint(obj.img_gray.cols, 0);
-	//obj_corners[2] = cvPoint(obj.img_gray.cols, obj.img_gray.rows);
-	//obj_corners[3] = cvPoint(0, obj.img_gray.rows);
-
+	
 	obj_corners[0] = cvPoint(0, 0);
 	obj_corners[1] = cvPoint(obj.img_width, 0);
 	obj_corners[2] = cvPoint(obj.img_width, obj.img_height);
 	obj_corners[3] = cvPoint(0, obj.img_height);
 
-	std::vector<Point2f> scene_corners(4);
-	perspectiveTransform(obj_corners, scene_corners, H);
-	cout << "object area" << contourArea(obj_corners) << endl;
-	cout << "scene detected area" << contourArea(scene_corners) << endl;
-	this->corners = scene_corners;
-	double possible_target_area = contourArea(scene_corners);
+	std::vector<Point2f> possible_obj_corners(4);
+	perspectiveTransform(obj_corners, possible_obj_corners, H);
+	BOOST_LOG_TRIVIAL(info) << "原始目标物体大小（像素）： " << contourArea(obj_corners);
+	BOOST_LOG_TRIVIAL(info) << "检测到的物体大小（像素）： " << contourArea(possible_obj_corners);
+	this->corners = possible_obj_corners;
+	double possible_target_area = contourArea(possible_obj_corners);
 	double whole_scene_area = this->img_gray.rows*this->img_gray.cols;
-	cout << "whoel scene area: " << whole_scene_area<<endl;
-	cout << "ratio: " << possible_target_area / whole_scene_area<<endl;
-	if (possible_target_area / whole_scene_area>0.10)
+	BOOST_LOG_TRIVIAL(info) << "环境图像大小（像素）： " << whole_scene_area;
+	double ratio = possible_target_area / whole_scene_area;
+	BOOST_LOG_TRIVIAL(info) << "检测到的目标占全图比例： " << ratio;
+	if (ratio>0.10)
 	{
+		BOOST_LOG_TRIVIAL(info) << "成功检测到目标物体！";
 		return true;
 	} 
 	else
 	{
+		BOOST_LOG_TRIVIAL(info) << "未能检测到目标物体！";
 		return false;
 	}
 }

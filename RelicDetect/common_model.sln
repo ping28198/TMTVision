@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "relicdetect", "relicdetect\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Console Demo", "Console Demo\Console Demo.vcxproj", "{961B6609-6CB3-4B02-BD05-CC265DCFA50F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Create_Json_Features", "Create_Json_Features\Create_Json_Features.vcxproj", "{FAE99EB7-0481-49EE-8B9F-A620FEE12622}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -53,6 +55,16 @@ Global
 		{961B6609-6CB3-4B02-BD05-CC265DCFA50F}.Release|Win32.Build.0 = Release|Win32
 		{961B6609-6CB3-4B02-BD05-CC265DCFA50F}.Release|x64.ActiveCfg = Release|x64
 		{961B6609-6CB3-4B02-BD05-CC265DCFA50F}.Release|x64.Build.0 = Release|x64
+		{FAE99EB7-0481-49EE-8B9F-A620FEE12622}.Debug|ARM.ActiveCfg = Debug|Win32
+		{FAE99EB7-0481-49EE-8B9F-A620FEE12622}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FAE99EB7-0481-49EE-8B9F-A620FEE12622}.Debug|Win32.Build.0 = Debug|Win32
+		{FAE99EB7-0481-49EE-8B9F-A620FEE12622}.Debug|x64.ActiveCfg = Debug|x64
+		{FAE99EB7-0481-49EE-8B9F-A620FEE12622}.Debug|x64.Build.0 = Debug|x64
+		{FAE99EB7-0481-49EE-8B9F-A620FEE12622}.Release|ARM.ActiveCfg = Release|Win32
+		{FAE99EB7-0481-49EE-8B9F-A620FEE12622}.Release|Win32.ActiveCfg = Release|Win32
+		{FAE99EB7-0481-49EE-8B9F-A620FEE12622}.Release|Win32.Build.0 = Release|Win32
+		{FAE99EB7-0481-49EE-8B9F-A620FEE12622}.Release|x64.ActiveCfg = Release|x64
+		{FAE99EB7-0481-49EE-8B9F-A620FEE12622}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -22,6 +22,14 @@
 
 #include "opencv_serialization.hpp"
 
+namespace logging = boost::log;
+namespace logging = boost::log;
+namespace sinks = boost::log::sinks;
+namespace src = boost::log::sources;
+namespace expr = boost::log::expressions;
+namespace attrs = boost::log::attributes;
+namespace keywords = boost::log::keywords;
+
 using namespace cv;
 using namespace cv::xfeatures2d;
 using namespace std;
@@ -183,6 +191,21 @@ void relic_from_file()
 	scene.Match_an_Obj(obj2);
 	scene.Draw_Obj();
 	waitKey(0);
+}
+void init()
+{
+	logging::add_file_log
+		(
+			keywords::file_name = "sample_%N.log",
+			keywords::rotation_size = 10 * 1024 * 1024,
+			keywords::time_based_rotation = sinks::file::rotation_at_time_point(0, 0, 0),
+			keywords::format = "[%TimeStamp%]: %Message%"
+			);
+
+	logging::core::get()->set_filter
+		(
+			logging::trivial::severity >= logging::trivial::info
+			);
 }
 int main()
 {

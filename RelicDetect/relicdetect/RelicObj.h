@@ -37,7 +37,7 @@ public:
 	// Parameter: string json_str
 	// 说明:		  从json字串解析，读取图像的特征信息，来初始化RelicObj对象。
 	//************************************
-	RelicObj Parse_from_Json(string json_str);
+	void Parse_from_Json(string json_str);
 public:
 	int img_width;
 	int img_height;
