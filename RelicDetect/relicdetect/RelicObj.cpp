@@ -107,6 +107,8 @@ RelicObj RelicObj::Parse_from_Json(string json_str)
 		ia_kp >> read_keypoints;
 		ia_dp >> read_descriptors;
 
+		this->img_height = height;
+		this->img_width = width;
 		this->keypoints = read_keypoints;
 		this->descriptors = read_descriptors;
 		//////////////////////////////////////////////////////////////////////////

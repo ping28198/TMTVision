@@ -1,6 +1,6 @@
 // Console Demo.cpp : 定义控制台应用程序的入口点。
 //
-
+#pragma once
 #include "stdafx.h"
 
 #include <stdio.h>
@@ -18,6 +18,7 @@
 #include "RelicObj.h"
 #include "RelicScn.h"
 #include "JsonCPPHeader\json.h"
+#include "RelicHelper.h"
 
 #include "opencv_serialization.hpp"
 
@@ -130,17 +131,17 @@ void relic_from_file()
 	Mat object_color = imread("..\\images\\postcard_object.JPG");
 	Mat scene_color = imread("..\\images\\postcard_scene_1.jpg");
 
-	RelicObj obj;
+	//RelicObj obj;
 	RelicScn scene;
-	obj.Load_Img(object_color);
+	//obj.Load_Img(object_color);
 	scene.Load_Img(scene_color);
 	//calc 
-	obj.Calc_Keypoints_and_Descriptors();
+	//obj.Calc_Keypoints_and_Descriptors();
 	scene.Calc_Keypoints_and_Descriptors();
 
-	scene.Match_an_Obj(obj);
-	scene.Draw_Obj();
-	cout << "relicDetect" << endl;
+	//scene.Match_an_Obj(obj);
+	//scene.Draw_Obj();
+	//cout << "relicDetect" << endl;
 
 	/////////////////////////////////////////////////////
 	//RelicDetect doit;
@@ -156,14 +157,15 @@ void relic_from_file()
 	//{
 	//	cout << descriptors_vecvec[0][j]<<endl;
 	//}
-	Json::Value root;string test;
-	auto str = obj.Convert_to_Json(obj);
-	fstream a_file("obj_json.json", ios::out);
-	if (a_file.is_open())
-	{
-		a_file << str;
-		a_file.close();
-	}
+	//Json::Value root;string test;
+	//auto str = obj.Convert_to_Json(obj);
+
+	//fstream a_file("obj_json.json", ios::out);
+	//if (a_file.is_open())
+	//{
+	//	a_file << str;
+	//	a_file.close();
+	//}
 	fstream in_file("obj_json.json", ios::in);
 	RelicObj obj2;
 	if (in_file.is_open())
@@ -174,11 +176,12 @@ void relic_from_file()
 		
 		obj2.Parse_from_Json(json_str);
 	}
-	RelicDetect judge;
+	//RelicDetect judge;
 	//obj2.Load_Img(object_color);
-	obj2.img_color = imread("..\\images\\postcard_object.JPG", IMREAD_COLOR);
-	judge.Match(obj2, scene);
-
+	//obj2.img_color = imread("..\\images\\postcard_object.JPG", IMREAD_COLOR);
+	//judge.Match(obj2, scene);
+	scene.Match_an_Obj(obj2);
+	scene.Draw_Obj();
 	waitKey(0);
 }
 int main()

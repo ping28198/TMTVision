@@ -61,10 +61,10 @@ void RelicScn::Draw_Obj()
 {
 	Mat img_draw_obj = this->img_color;
 	//-- Draw lines between the corners (the mapped object in the scene - image_2 )
-	line(img_draw_obj, this->corners[0], this->corners[1], Scalar(0, 255, 0), 4);
-	line(img_draw_obj, this->corners[1], this->corners[2], Scalar(0, 255, 0), 4);
-	line(img_draw_obj, this->corners[2], this->corners[3], Scalar(0, 255, 0), 4);
-	line(img_draw_obj, this->corners[3], this->corners[0], Scalar(0, 255, 0), 4);
+	line(img_draw_obj, this->corners[0], this->corners[1], Scalar(0, 255, 0), 2);
+	line(img_draw_obj, this->corners[1], this->corners[2], Scalar(0, 255, 0), 2);
+	line(img_draw_obj, this->corners[2], this->corners[3], Scalar(0, 255, 0), 2);
+	line(img_draw_obj, this->corners[3], this->corners[0], Scalar(0, 255, 0), 2);
 	//-- Show detected matches
 	imshow("draw obj", img_draw_obj);
 }

@@ -35,8 +35,7 @@ public:
 	// Method:    Parse_from_Json
 	// Returns:   RelicObj
 	// Parameter: string json_str
-	// 说明:		  从json字串解析，返回RelicObj对象。
-    //TODO:此处的实现可以放到另一个类里面。放在这里不太合适。
+	// 说明:		  从json字串解析，读取图像的特征信息，来初始化RelicObj对象。
 	//************************************
 	RelicObj Parse_from_Json(string json_str);
 public:
