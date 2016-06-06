@@ -247,3 +247,5 @@ _Pvt_Extensions
 # FAKE - F# Make
 .fake/
 RelicDetect/Console Demo/test.txt
+RelicDetect/Console Demo/obj_json.json
+RelicDetect/Console Demo/keypoints_se.txt

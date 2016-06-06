@@ -26,10 +26,13 @@ namespace boost {
 
 			if (Archive::is_loading::value)
 				mat.create(rows, cols, type);
-
+			//size_t dataSize = cols * rows * m.elemSize();
 			if (continuous) {
 				const unsigned int data_size = rows * cols * mat.elemSize();
 				ar & boost::serialization::make_array(mat.ptr(), data_size);
+				//for (size_t dc = 0; dc < data_size; ++dc) {
+				//	ar & mat.data[dc];
+				//}
 			}
 			else {
 				const unsigned int row_size = cols*mat.elemSize();

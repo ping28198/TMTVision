@@ -12,6 +12,7 @@
 #include "opencv2/xfeatures2d.hpp"
 
 #include "JsonCPPHeader\json.h"
+#include "..\Console Demo\opencv_serialization.hpp"
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
