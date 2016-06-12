@@ -41,5 +41,11 @@
     <ClCompile Include="Create_Json_Features.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\relicdetect\RelicObj.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\relicdetect\RelicDetect.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

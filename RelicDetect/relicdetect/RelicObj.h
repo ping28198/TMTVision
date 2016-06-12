@@ -17,6 +17,7 @@ public:
 	// 说明:		  将一个RelicObj对象转换为json对象，并以string类型输出。输出的结果可以用以保存到文件、数据库。
 	//************************************
 	string Convert_to_Json(RelicObj obj);
+	string Save_to_Json();
 	//************************************
 	// Method:    Descriptors_to_Json_Obj
 	// Returns:   Json::Value

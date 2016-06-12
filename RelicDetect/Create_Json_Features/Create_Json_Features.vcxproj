@@ -162,6 +162,8 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\relicdetect\RelicDetect.cpp" />
+    <ClCompile Include="..\relicdetect\RelicObj.cpp" />
     <ClCompile Include="Create_Json_Features.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>

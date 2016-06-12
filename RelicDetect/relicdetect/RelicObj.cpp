@@ -28,7 +28,26 @@ string RelicObj::Convert_to_Json(RelicObj obj)
 	//std::cout << out << std::endl;
 	Json::FastWriter writer;
 	return writer.write(root);
-
+}
+string RelicObj::Save_to_Json()
+{
+	Json::Value root;
+	//set size node////////////////////////////////////////////////////////////////////////
+	Json::Value size;
+	size["height"] = this->img_height;
+	size["width"] = this->img_width;
+	root["img_size"] = size;
+	//set keypoints and descriptors////////////////////////////////////////////////////////////////////////
+	Json::Value feature;
+	feature["keypoints"] = Keypoints_to_Json_Obj(this->keypoints);
+	feature["descriptors"] = Descriptors_to_Json_Obj(this->descriptors);
+	//////////////////////////////////////////////////////////////////////////
+	root["feature"] = feature;
+	//root.toStyledString();
+	//std::string out = root.toStyledString();
+	//std::cout << out << std::endl;
+	Json::FastWriter writer;
+	return writer.write(root);
 }
 Json::Value RelicObj::Descriptors_to_Json_Obj(Mat descriptors)
 {
