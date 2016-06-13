@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <string>
 #include <vector>
+#include <fstream>
 using namespace std::tr2::sys;  //<filesystem>的命名空间  
 using namespace std;
 
@@ -20,20 +21,13 @@ int main()
 	string default_path;
 	getline(cin, default_path);
 	default_path = erase_cin_getline_quotation(default_path);
-	//size_t first_one = default_path.find_first_of("\"");
-	//if (first_one!=string::npos)
-	//{
-	//	default_path.erase(first_one,first_one+1);
-	//}
-	//size_t last_one = default_path.find_last_of("\"");
-	//if (last_one != string::npos)
-	//{
-	//	default_path.erase(last_one,last_one+1);
-	//}
-	//cin >> default_path;
 	path p(default_path);
 	cout << system_complete(p) << endl;
 	vector<fs::path> filenames;
+	string json_folder = system_complete(p).string() + "/json";
+	if (fs::create_directory(json_folder)) {
+		std::cout << "Success" << "\n";
+	}
 	get_filenames(system_complete(p), filenames);
 	for (int i = 0;i < filenames.size();i++)
 	{
@@ -42,6 +36,20 @@ int main()
 		ro.Load_Img(img);
 		ro.Calc_Keypoints_and_Descriptors();
 		string json_str = ro.Save_to_Json();
+		auto filename = filenames[i].filename().string();
+		size_t dot = filename.find_last_of(".");
+		if (dot!=string::npos)
+		{
+			filename.erase(dot, dot + 1);
+		}
+		fs::path new_dir();
+
+		fstream examplefile(json_folder+"/"+ filename+".json", ios::out); //out方式打开文本
+		if (examplefile.is_open())
+		{
+			examplefile << json_str;
+			examplefile.close();
+		}
 	}
 	system("pause");
 	return 0;
@@ -105,4 +113,3 @@ string erase_cin_getline_quotation(string str)
 	}
 	return str;
 }
-

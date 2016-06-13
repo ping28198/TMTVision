@@ -2,7 +2,6 @@
 # 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
 ################################################################################
 
-
 /DemoRen
 /Demo/GetRegisterInfo
 /Demo/SoftwareRegister/x64/Debug
@@ -249,3 +248,7 @@ _Pvt_Extensions
 RelicDetect/Console Demo/test.txt
 RelicDetect/Console Demo/obj_json.json
 RelicDetect/Console Demo/keypoints_se.txt
+
+###########Stanley Define##########
+
+!/Bin/
