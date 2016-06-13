@@ -2,16 +2,7 @@
 # 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
 ################################################################################
 !/Lib/
-/DemoRen
-/Demo/GetRegisterInfo
-/Demo/SoftwareRegister/x64/Debug
-/Demo/VisionClient/x64/Debug
-/Demo/CameraManager/x64/Debug
-/Demo/CameraServer/x64/Debug
-/Demo/UserRegister
-/Demo/VisionClient
-/Demo/ThreadTest
-/Demo/SoftwareRegister
+!/Lib/jsoncpp/x64/vc14/lib_json.lib
 
 ### VisualStudio ###
 ## Ignore Visual Studio temporary files, build results, and
