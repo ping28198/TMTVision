@@ -75,9 +75,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <ExecutablePath>$(OPENCV_PATH)\x64\vc14\bin;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
+    <ExecutablePath>$(OPENCV_PATH)\$(Platform)\vc14\bin;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH)</ExecutablePath>
     <IncludePath>$(OPENCV_PATH);$(OPENCV_PATH)\include;$(BOOST_PATH);..\..\Include;..\relicdetect;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(BOOST_PATH)\lib64-msvc-14.0;..\..\Lib\jsoncpp\x64\vc14;$(OPENCV_PATH)\x64\vc14\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <LibraryPath>$(BOOST_PATH)\lib64-msvc-14.0;$(OPENCV_PATH)\$(Platform)\vc14\lib;..\..\Lib\jsoncpp\x64\vc14legacy;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -113,7 +113,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>boost_serialization-vc140-mt-gd-1_61.lib;opencv_aruco310d.lib;opencv_bgsegm310d.lib;opencv_bioinspired310d.lib;opencv_calib3d310d.lib;opencv_ccalib310d.lib;opencv_core310d.lib;opencv_datasets310d.lib;opencv_dnn310d.lib;opencv_dpm310d.lib;opencv_face310d.lib;opencv_features2d310d.lib;opencv_flann310d.lib;opencv_fuzzy310d.lib;opencv_highgui310d.lib;opencv_imgcodecs310d.lib;opencv_imgproc310d.lib;opencv_line_descriptor310d.lib;opencv_ml310d.lib;opencv_objdetect310d.lib;opencv_optflow310d.lib;opencv_photo310d.lib;opencv_plot310d.lib;opencv_reg310d.lib;opencv_rgbd310d.lib;opencv_saliency310d.lib;opencv_shape310d.lib;opencv_stereo310d.lib;opencv_stitching310d.lib;opencv_structured_light310d.lib;opencv_superres310d.lib;opencv_surface_matching310d.lib;opencv_text310d.lib;opencv_tracking310d.lib;opencv_ts310d.lib;opencv_video310d.lib;opencv_videoio310d.lib;lib_jsond.lib;opencv_videostab310d.lib;opencv_xfeatures2d310d.lib;opencv_ximgproc310d.lib;opencv_xobjdetect310d.lib;opencv_xphoto310d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>boost_serialization-vc140-mt-gd-1_61.lib;opencv_aruco310d.lib;opencv_bgsegm310d.lib;opencv_bioinspired310d.lib;opencv_calib3d310d.lib;opencv_ccalib310d.lib;opencv_core310d.lib;opencv_datasets310d.lib;opencv_dnn310d.lib;opencv_dpm310d.lib;opencv_face310d.lib;opencv_features2d310d.lib;opencv_flann310d.lib;opencv_fuzzy310d.lib;opencv_highgui310d.lib;opencv_imgcodecs310d.lib;opencv_imgproc310d.lib;opencv_line_descriptor310d.lib;opencv_ml310d.lib;opencv_objdetect310d.lib;opencv_optflow310d.lib;opencv_photo310d.lib;opencv_plot310d.lib;opencv_reg310d.lib;opencv_rgbd310d.lib;opencv_saliency310d.lib;opencv_shape310d.lib;opencv_stereo310d.lib;opencv_stitching310d.lib;opencv_structured_light310d.lib;opencv_superres310d.lib;opencv_surface_matching310d.lib;opencv_text310d.lib;opencv_tracking310d.lib;opencv_ts310d.lib;opencv_video310d.lib;opencv_videoio310d.lib;opencv_videostab310d.lib;opencv_xfeatures2d310d.lib;opencv_ximgproc310d.lib;opencv_xobjdetect310d.lib;opencv_xphoto310d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -162,6 +162,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\jsoncpp\jsoncpp.cpp" />
     <ClCompile Include="..\relicdetect\RelicDetect.cpp" />
     <ClCompile Include="..\relicdetect\RelicObj.cpp" />
     <ClCompile Include="Create_Json_Features.cpp" />

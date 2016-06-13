@@ -43,5 +43,3 @@ public:
 	int img_width;
 	int img_height;
 };
-
-

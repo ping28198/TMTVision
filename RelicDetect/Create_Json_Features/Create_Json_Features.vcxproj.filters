@@ -47,5 +47,8 @@
     <ClCompile Include="..\relicdetect\RelicDetect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\jsoncpp\jsoncpp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
