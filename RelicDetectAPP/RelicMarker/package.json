@@ -1,0 +1,8 @@
+{
+  "name":"RelicMarker",
+  "main":"index.html",
+  "window":{
+    "icon":"icon.png",
+    "toolbar":true
+  }
+}
