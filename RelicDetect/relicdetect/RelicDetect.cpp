@@ -1,5 +1,7 @@
-
-#include "RelicDetect.h"
+#ifndef RELIC
+#define RELIC
+#endif 
+#include "RelicDetect.hpp"
 
 
 RelicDetect::RelicDetect()

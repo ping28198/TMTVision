@@ -1,4 +1,7 @@
 #pragma once
+#ifndef RELIC
+#define RELIC
+#endif 
 
 #include <stdio.h>
 #include <string>

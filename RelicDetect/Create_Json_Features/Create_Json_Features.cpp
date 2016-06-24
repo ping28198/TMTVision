@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "RelicObj.h"
+#include "RelicObj.hpp"
 #include <filesystem>
 #include <string>
 #include <vector>

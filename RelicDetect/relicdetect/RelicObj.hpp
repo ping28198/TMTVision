@@ -1,5 +1,8 @@
 #pragma once
-#include "RelicDetect.h"
+#ifndef RELIC
+#define RELIC
+#endif 
+#include "RelicDetect.hpp"
 class RelicObj :public RelicDetect
 {
 public:

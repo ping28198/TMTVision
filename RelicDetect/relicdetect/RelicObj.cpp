@@ -1,4 +1,7 @@
-#include "RelicObj.h"
+#ifndef RELIC
+#define RELIC
+#endif 
+#include "RelicObj.hpp"
 void RelicObj::Load_Img(InputArray img)
 {
 	this->img_color = img.getMat();

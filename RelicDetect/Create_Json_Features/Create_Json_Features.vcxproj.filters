@@ -24,13 +24,13 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\relicdetect\RelicDetect.h">
+    <ClInclude Include="..\relicdetect\RelicDetect.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\relicdetect\RelicObj.h">
+    <ClInclude Include="..\relicdetect\RelicObj.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\relicdetect\RelicScn.h">
+    <ClInclude Include="..\relicdetect\RelicScn.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,7 @@
 #pragma once
-
+#ifndef RELIC
+#define RELIC
+#endif 
 #include "RelicDetect.h"
 #include "RelicObj.h"
 class RelicScn :public RelicDetect

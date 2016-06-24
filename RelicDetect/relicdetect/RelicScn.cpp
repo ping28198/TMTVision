@@ -1,4 +1,7 @@
-#include "RelicScn.h"
+#ifndef RELIC
+#define RELIC
+#endif 
+#include "RelicScn.hpp"
 bool RelicScn::Match_an_Obj(RelicObj obj)
 {
 	string message;
