@@ -1,4 +1,4 @@
-#ifndef RELIC
+ï»¿#ifndef RELIC
 #define RELIC
 #endif 
 #include "RelicDetect.hpp"
@@ -22,13 +22,13 @@ void RelicDetect::Load_Img(InputArray img)
 void RelicDetect::Calc_Keypoints_and_Descriptors()
 {
 	int minHessian = 200;
-	//½¨Á¢Ò»¸ösurf¶ÔÏó£¬±£´æÔÚcv::Ptr£¨ÖÇÄÜÖ¸Õë£©ÄÚ
-	Ptr<SURF> detector = SURF::create(minHessian, 4, 3, false);//µÚËÄ¸ö²ÎÊıÎªtrue´ú±í²ÉÓÃsurf-128descriptor£¬Ğ§¹û¸üºÃ£¬µ«»áÂıĞ©
-	//´´½¨vector£¬ÓÃÀ´ÌØÕ÷µãkeypoints
+	//å»ºç«‹ä¸€ä¸ªsurfå¯¹è±¡ï¼Œä¿å­˜åœ¨cv::Ptrï¼ˆæ™ºèƒ½æŒ‡é’ˆï¼‰å†…
+	Ptr<SURF> detector = SURF::create(minHessian, 4, 3, false);//ç¬¬å››ä¸ªå‚æ•°ä¸ºtrueä»£è¡¨é‡‡ç”¨surf-128descriptorï¼Œæ•ˆæœæ›´å¥½ï¼Œä½†ä¼šæ…¢äº›
+	//åˆ›å»ºvectorï¼Œç”¨æ¥ç‰¹å¾ç‚¹keypoints
 	std::vector<KeyPoint> keypoints;
-	//´´½¨¾ØÕó£¬ÓÃÀ´´æ´¢ÃèÊö×Ódescriptor
+	//åˆ›å»ºçŸ©é˜µï¼Œç”¨æ¥å­˜å‚¨æè¿°å­descriptor
 	Mat descriptors;
-	//detect keypoints ²¢ ¼ÆËã descriptors¡£µÚ¶ş¸ö²ÎÊıÎªmask£¬ÕâÀïÎª¿Õ¡£
+	//detect keypoints å¹¶ è®¡ç®— descriptorsã€‚ç¬¬äºŒä¸ªå‚æ•°ä¸ºmaskï¼Œè¿™é‡Œä¸ºç©ºã€‚
 	detector->detectAndCompute(RelicDetect::img_gray, Mat(), keypoints, descriptors);
 
 	RelicDetect::descriptors = descriptors;

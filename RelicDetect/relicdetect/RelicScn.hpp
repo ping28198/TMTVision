@@ -1,23 +1,23 @@
-#pragma once
+ï»¿#pragma once
 #ifndef RELIC
 #define RELIC
 #endif 
-#include "RelicDetect.h"
-#include "RelicObj.h"
+#include "RelicDetect.hpp"
+#include "RelicObj.hpp"
 class RelicScn :public RelicDetect
 {
 public:
 	//************************************
 	// Method:    Match_an_Obj
 	// Returns:   bool
-	// Parameter: RelicObj obj	´ıÆ¥ÅäµÄ¶ÔÏó£¬ĞèÒª¾­¹ı
-	// ËµÃ÷:		  Æ¥ÅäÒ»¸öÄ¿±ê
+	// Parameter: RelicObj obj	å¾…åŒ¹é…çš„å¯¹è±¡ï¼Œéœ€è¦ç»è¿‡
+	// è¯´æ˜:		  åŒ¹é…ä¸€ä¸ªç›®æ ‡
 	//************************************
 	bool RelicScn::Match_an_Obj(RelicObj obj);
 	//************************************
 	// Method:    Draw_Obj
 	// Returns:   void
-	// ËµÃ÷:		  »æÖÆÆ¥Åä³É¹¦µÄÄ¿±ê¶ÔÏó
+	// è¯´æ˜:		  ç»˜åˆ¶åŒ¹é…æˆåŠŸçš„ç›®æ ‡å¯¹è±¡
 	//************************************
 	void RelicScn::Draw_Obj();
 private:

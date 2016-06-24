@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #ifndef RELIC
 #define RELIC
 #endif 
@@ -10,14 +10,14 @@ public:
 	// Method:    Load_Img
 	// Returns:   void
 	// Parameter: InputArray img
-	// ËµÃ÷:		  ÔØÈëÒ»ÕÅ²ÊÉ«Í¼Æ¬£¬Í¬Ê±´æ´¢Æä»Ò¶ÈÍ¼¡¢³¤¿í
+	// è¯´æ˜:		  è½½å…¥ä¸€å¼ å½©è‰²å›¾ç‰‡ï¼ŒåŒæ—¶å­˜å‚¨å…¶ç°åº¦å›¾ã€é•¿å®½
 	//************************************
 	void RelicObj::Load_Img(InputArray img);
 	//************************************
 	// Method:    Convert_to_Json
 	// Returns:   std::string
 	// Parameter: RelicObj obj
-	// ËµÃ÷:		  ½«Ò»¸öRelicObj¶ÔÏó×ª»»Îªjson¶ÔÏó£¬²¢ÒÔstringÀàĞÍÊä³ö¡£Êä³öµÄ½á¹û¿ÉÒÔÓÃÒÔ±£´æµ½ÎÄ¼ş¡¢Êı¾İ¿â¡£
+	// è¯´æ˜:		  å°†ä¸€ä¸ªRelicObjå¯¹è±¡è½¬æ¢ä¸ºjsonå¯¹è±¡ï¼Œå¹¶ä»¥stringç±»å‹è¾“å‡ºã€‚è¾“å‡ºçš„ç»“æœå¯ä»¥ç”¨ä»¥ä¿å­˜åˆ°æ–‡ä»¶ã€æ•°æ®åº“ã€‚
 	//************************************
 	string Convert_to_Json(RelicObj obj);
 	string Save_to_Json();
@@ -25,21 +25,21 @@ public:
 	// Method:    Descriptors_to_Json_Obj
 	// Returns:   Json::Value
 	// Parameter: Mat descriptors
-	// ËµÃ÷:		  ½«ÌØÕ÷ÃèÊö×Ó×ª»»Îªjson¶ÔÏó¡£ÀûÓÃÁËboost::serialization¿â·½·¨
+	// è¯´æ˜:		  å°†ç‰¹å¾æè¿°å­è½¬æ¢ä¸ºjsonå¯¹è±¡ã€‚åˆ©ç”¨äº†boost::serializationåº“æ–¹æ³•
 	//************************************
 	Json::Value Descriptors_to_Json_Obj(Mat descriptors);
 	//************************************
 	// Method:    Keypoints_to_Json_Obj
 	// Returns:   Json::Value
 	// Parameter: vector<KeyPoint> keypoints
-	// ËµÃ÷:		  ½«¹Ø¼üµãÌØÕ÷×ª»»Îªjson¶ÔÏó¡£ÀûÓÃÁËboost::serialization¿â·½·¨
+	// è¯´æ˜:		  å°†å…³é”®ç‚¹ç‰¹å¾è½¬æ¢ä¸ºjsonå¯¹è±¡ã€‚åˆ©ç”¨äº†boost::serializationåº“æ–¹æ³•
 	//************************************
 	Json::Value Keypoints_to_Json_Obj(vector<KeyPoint> keypoints);
 	//************************************
 	// Method:    Parse_from_Json
 	// Returns:   RelicObj
 	// Parameter: string json_str
-	// ËµÃ÷:		  ´Ójson×Ö´®½âÎö£¬¶ÁÈ¡Í¼ÏñµÄÌØÕ÷ĞÅÏ¢£¬À´³õÊ¼»¯RelicObj¶ÔÏó¡£
+	// è¯´æ˜:		  ä»jsonå­—ä¸²è§£æï¼Œè¯»å–å›¾åƒçš„ç‰¹å¾ä¿¡æ¯ï¼Œæ¥åˆå§‹åŒ–RelicObjå¯¹è±¡ã€‚
 	//************************************
 	void Parse_from_Json(string json_str);
 public:

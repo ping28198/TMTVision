@@ -1,4 +1,4 @@
-#ifndef RELIC
+﻿#ifndef RELIC
 #define RELIC
 #endif 
 #include "RelicObj.hpp"

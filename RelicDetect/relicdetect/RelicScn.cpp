@@ -1,4 +1,4 @@
-#ifndef RELIC
+ï»¿#ifndef RELIC
 #define RELIC
 #endif 
 #include "RelicScn.hpp"
@@ -41,22 +41,22 @@ bool RelicScn::Match_an_Obj(RelicObj obj)
 
 	std::vector<Point2f> possible_obj_corners(4);
 	perspectiveTransform(obj_corners, possible_obj_corners, H);
-	BOOST_LOG_TRIVIAL(info) << "Ô­Ê¼Ä¿±êÎïÌå´óÐ¡£¨ÏñËØ£©£º " << contourArea(obj_corners);
-	BOOST_LOG_TRIVIAL(info) << "¼ì²âµ½µÄÎïÌå´óÐ¡£¨ÏñËØ£©£º " << contourArea(possible_obj_corners);
+	BOOST_LOG_TRIVIAL(info) << "åŽŸå§‹ç›®æ ‡ç‰©ä½“å¤§å°ï¼ˆåƒç´ ï¼‰ï¼š " << contourArea(obj_corners);
+	BOOST_LOG_TRIVIAL(info) << "æ£€æµ‹åˆ°çš„ç‰©ä½“å¤§å°ï¼ˆåƒç´ ï¼‰ï¼š " << contourArea(possible_obj_corners);
 	this->corners = possible_obj_corners;
 	double possible_target_area = contourArea(possible_obj_corners);
 	double whole_scene_area = this->img_gray.rows*this->img_gray.cols;
-	BOOST_LOG_TRIVIAL(info) << "»·¾³Í¼Ïñ´óÐ¡£¨ÏñËØ£©£º " << whole_scene_area;
+	BOOST_LOG_TRIVIAL(info) << "çŽ¯å¢ƒå›¾åƒå¤§å°ï¼ˆåƒç´ ï¼‰ï¼š " << whole_scene_area;
 	double ratio = possible_target_area / whole_scene_area;
-	BOOST_LOG_TRIVIAL(info) << "¼ì²âµ½µÄÄ¿±êÕ¼È«Í¼±ÈÀý£º " << ratio;
+	BOOST_LOG_TRIVIAL(info) << "æ£€æµ‹åˆ°çš„ç›®æ ‡å å…¨å›¾æ¯”ä¾‹ï¼š " << ratio;
 	if (ratio>0.10)
 	{
-		BOOST_LOG_TRIVIAL(info) << "³É¹¦¼ì²âµ½Ä¿±êÎïÌå£¡";
+		BOOST_LOG_TRIVIAL(info) << "æˆåŠŸæ£€æµ‹åˆ°ç›®æ ‡ç‰©ä½“ï¼";
 		return true;
 	} 
 	else
 	{
-		BOOST_LOG_TRIVIAL(info) << "Î´ÄÜ¼ì²âµ½Ä¿±êÎïÌå£¡";
+		BOOST_LOG_TRIVIAL(info) << "æœªèƒ½æ£€æµ‹åˆ°ç›®æ ‡ç‰©ä½“ï¼";
 		return false;
 	}
 }
