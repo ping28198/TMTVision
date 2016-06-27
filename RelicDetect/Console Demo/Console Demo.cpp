@@ -14,9 +14,9 @@
 #include "opencv2/calib3d.hpp"
 #include "opencv2/xfeatures2d.hpp"
 
-#include "RelicDetect.h"
-#include "RelicObj.h"
-#include "RelicScn.h"
+#include "RelicDetect.hpp"
+#include "RelicObj.hpp"
+#include "RelicScn.hpp"
 #include "JsonCPPHeader\json.h"
 #include "RelicHelper.h"
 
@@ -35,8 +35,8 @@ using namespace cv::xfeatures2d;
 using namespace std;
 void relic_origin()
 {
-	Mat object_color = imread("..\\images\\owl_object.JPG");
-	Mat scene_color = imread("..\\images\\blur_scene_3.jpg");
+	Mat object_color = imread("F:\\Tdevelop\\Hackathon\\MagicMirror\\images\\a.jpg");
+	Mat scene_color = imread("F:\\Tdevelop\\Hackathon\\MagicMirror\\images\\a_scene2.jpg");
 	//imshow("origin", object_color);
 	//// create and open a character archive for output
 	//std::ofstream ofs("test.txt");
@@ -69,16 +69,16 @@ void relic_origin()
 	obj.Load_Img(object_color);
 	scene.Load_Img(scene_color);
 	cout << "blur measure:" << RelicDetect::Image_Blurred(scene.img_gray, 200) << endl;;
-	cout << "blur lapm: " << RelicDetect::Image_Blurred_LAPM(scene.img_gray) << endl;
-	cout << "blur lapv: " << RelicDetect::Image_Blurred_LAPV(scene.img_gray) << endl;
-	cout << "blur teng: " << RelicDetect::Image_Blurred_TENG(scene.img_gray, 3) << endl;
+	//cout << "blur lapm: " << RelicDetect::Image_Blurred_LAPM(scene.img_gray) << endl;
+	//cout << "blur lapv: " << RelicDetect::Image_Blurred_LAPV(scene.img_gray) << endl;
+	//cout << "blur teng: " << RelicDetect::Image_Blurred_TENG(scene.img_gray, 3) << endl;
 	obj.Calc_Keypoints_and_Descriptors();
 	scene.Calc_Keypoints_and_Descriptors();
 
 	scene.Match_an_Obj(obj);
 	scene.Draw_Obj();
 	cout << "relicDetect" << endl;
-
+	waitKey();
 	//ofstream ofs("keypoints_se.txt");
 	//boost::archive::text_oarchive oa(ofs);
 	//// write class instance to archive
@@ -99,11 +99,11 @@ void relic_origin()
 	//RelicDetect doit;
 	//doit.Match(obj, scene);
 	////-------------------------
-	cout << "mat descriptors" << endl;
-	for (int j = 0; j < obj.descriptors.cols; j++)
-	{
-		cout << obj.descriptors.at<float>(0, j) << endl;
-	}
+	//cout << "mat descriptors" << endl;
+	//for (int j = 0; j < obj.descriptors.cols; j++)
+	//{
+	//	cout << obj.descriptors.at<float>(0, j) << endl;
+	//}
 	//cout << obj.descriptors;
 	////----------------------------
 	//auto descriptors_vecvec = obj.Get_Descriptors(obj.descriptors);
@@ -209,7 +209,7 @@ void init()
 }
 int main()
 {
-	relic_from_file();
+	relic_origin();
 	system("pause");
     return 0;
 }

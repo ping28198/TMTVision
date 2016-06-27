@@ -22,22 +22,13 @@ bool RelicScn::Match_an_Obj(RelicObj obj)
 		scn_points.push_back(this->keypoints[good_matches[i].trainIdx].pt);
 	}
 	Mat H = cv::findHomography(obj_points, scn_points, RANSAC);
-	//cout << "H:" << endl;
-	//for (int i = 0;i < H.rows;i++)
-	//{
-	//	for (int j = 0;j < H.cols;j++)
-	//	{
-	//		cout << H.at<double>(i, j) << " ";
-	//	}
-	//	cout << endl;
-	//}
-	//-- Get the corners from the image_1 ( the object to be "detected" )
+
 	std::vector<Point2f> obj_corners(4);
 	
 	obj_corners[0] = cvPoint(0, 0);
-	obj_corners[1] = cvPoint(obj.img_width, 0);
-	obj_corners[2] = cvPoint(obj.img_width, obj.img_height);
-	obj_corners[3] = cvPoint(0, obj.img_height);
+	obj_corners[1] = cvPoint(obj.img_width-1, 0);
+	obj_corners[2] = cvPoint(obj.img_width-1, obj.img_height-1);
+	obj_corners[3] = cvPoint(0, obj.img_height-1);
 
 	std::vector<Point2f> possible_obj_corners(4);
 	perspectiveTransform(obj_corners, possible_obj_corners, H);
@@ -49,8 +40,16 @@ bool RelicScn::Match_an_Obj(RelicObj obj)
 	BOOST_LOG_TRIVIAL(info) << "环境图像大小（像素）： " << whole_scene_area;
 	double ratio = possible_target_area / whole_scene_area;
 	BOOST_LOG_TRIVIAL(info) << "检测到的目标占全图比例： " << ratio;
-	if (ratio>0.10)
+	if (ratio>0.03 && ratio<1)
 	{
+		for (int i;i < possible_obj_corners.size();i++)
+		{
+			if (possible_obj_corners[i].x < 0 || possible_obj_corners[i].y < 0)
+			{
+				BOOST_LOG_TRIVIAL(info) << "未能检测到目标物体！";
+				return false;
+			}
+		}
 		BOOST_LOG_TRIVIAL(info) << "成功检测到目标物体！";
 		return true;
 	} 

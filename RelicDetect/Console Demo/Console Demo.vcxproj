@@ -169,9 +169,9 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\relicdetect\RelicDetect.h" />
-    <ClInclude Include="..\relicdetect\RelicObj.h" />
-    <ClInclude Include="..\relicdetect\RelicScn.h" />
+    <ClInclude Include="..\relicdetect\RelicDetect.hpp" />
+    <ClInclude Include="..\relicdetect\RelicObj.hpp" />
+    <ClInclude Include="..\relicdetect\RelicScn.hpp" />
     <ClInclude Include="opencv_serialization.hpp" />
     <ClInclude Include="RelicHelper.h" />
     <ClInclude Include="stdafx.h" />
